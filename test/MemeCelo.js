@@ -24,16 +24,23 @@ const main = async () => {
     signers = await ethers.getSigners();
     deployer = signers[0];
 
-    const Meme = await ethers.getContractFactory("Meme");
-    const meme = await Meme.deploy(name, symbol, 18, totalSupply);
-    await meme.deployed();
+    const factoryParams = {
+        olas: parsedData.olasAddress,
+        nativeToken: parsedData.wethAddress,
+        router: parsedData.routerAddress,
+        factory: parsedData.factoryAddress,
+        oracle: parsedData.oracleAddress,
+        maxSlippage: parsedData.maxSlippageMeme,
+        minNativeTokenValue: parsedData.minNativeTokenValue
+    }
 
-    const celo = await ethers.getContractAt("Meme", parsedData.celoAddress);
+    const Oracle = await ethers.getContractFactory("BalancerPriceOracle");
+    const oracle = await Oracle.deploy(parsedData.olasAddress, parsedData.wethAddress, parsedData.balancerVaultAddress,
+        parsedData.balancerPoolId, parsedData.maxSlippageOracle, parsedData.minUpdateTimePeriod);
+    await oracle.deployed();
 
     const MemeCelo = await ethers.getContractFactory("MemeCelo");
-    const memeCelo = await MemeCelo.deploy(parsedData.olasAddress, parsedData.cusdAddress, parsedData.routerAddress,
-        parsedData.factoryAddress, parsedData.minNativeTokenValue, parsedData.celoAddress,
-        parsedData.l2TokenBridgeAddress, parsedData.oracleAddress);
+    const memeCelo = await MemeCelo.deploy(factoryParams, parsedData.l2TokenBridgeAddress);
     await memeCelo.deployed();
 
     // Summon a new meme token
@@ -49,10 +56,10 @@ const main = async () => {
     await helpers.time.increase(oneDay + 100);
 
     // Unleash the meme token
-    await memeCelo.unleashThisMeme(memeToken, 0);
+    await memeCelo.unleashThisMeme(memeToken);
 
     // Collect by the first signer
-    await memeCelo.collectThisMeme(memeToken);
+    await memeCelo.connect(signers[1]).collectThisMeme(memeToken);
 };
 
 main()

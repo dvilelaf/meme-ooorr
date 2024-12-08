@@ -1,0 +1,319 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeCelo-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeCelo-flatten.sol:693:13:
+    |
+693 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./Meme-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeFactory-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeFactory-flatten.sol:679:13:
+    |
+679 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeBase-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeBase-flatten.sol:672:13:
+    |
+672 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+INFO:Printers:
+###################################
+####### MemeActivityChecker #######
+###################################
+
+## Constructor Call Sequence
+	- MemeActivityChecker
+
+## Constructor Definitions
+
+### MemeActivityChecker
+
+     constructor(address _memeFactory, uint256 _livenessRatio) {
+        // Check the zero address
+        if (_memeFactory == address(0)) {
+            revert ZeroAddress();
+        }
+
+        // Check for zero value
+        if (_livenessRatio == 0) {
+            revert ZeroValue();
+        }
+
+        memeFactory = _memeFactory;
+        livenessRatio = _livenessRatio;
+    }
+
+INFO:Printers:
+####################
+####### Meme #######
+####################
+
+## Constructor Call Sequence
+	- ERC20
+	- Meme
+
+## Constructor Definitions
+
+### ERC20
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+
+        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+    }
+
+### Meme
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _totalSupply
+    ) ERC20(_name, _symbol, _decimals) {
+        _mint(msg.sender, _totalSupply);
+    }
+
+########################
+####### MemeCelo #######
+########################
+
+## Constructor Call Sequence
+	- MemeFactory
+	- MemeCelo
+
+## Constructor Definitions
+
+### MemeFactory
+
+     constructor(
+        address _olas,
+        address _nativeToken,
+        address _router,
+        address _factory,
+        uint256 _minNativeTokenValue
+    ) {
+        olas = _olas;
+        nativeToken = _nativeToken;
+        router = _router;
+        factory = _factory;
+        minNativeTokenValue = _minNativeTokenValue;
+    }
+
+### MemeCelo
+
+     constructor(
+        address _olas,
+        address _celo,
+        address _router,
+        address _factory,
+        uint256 _minNativeTokenValue,
+        address _l2TokenRelayer,
+        address _oracle
+    ) MemeFactory(_olas, _celo, _router, _factory, _minNativeTokenValue) {
+        l2TokenRelayer = _l2TokenRelayer;
+        oracle = _oracle;
+    }
+
+INFO:Printers:
+####################
+####### Meme #######
+####################
+
+## Constructor Call Sequence
+	- ERC20
+	- Meme
+
+## Constructor Definitions
+
+### ERC20
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+
+        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+    }
+
+### Meme
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _totalSupply
+    ) ERC20(_name, _symbol, _decimals) {
+        _mint(msg.sender, _totalSupply);
+    }
+
+INFO:Printers:
+####################
+####### Meme #######
+####################
+
+## Constructor Call Sequence
+	- ERC20
+	- Meme
+
+## Constructor Definitions
+
+### ERC20
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+
+        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+    }
+
+### Meme
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _totalSupply
+    ) ERC20(_name, _symbol, _decimals) {
+        _mint(msg.sender, _totalSupply);
+    }
+
+###########################
+####### MemeFactory #######
+###########################
+
+## Constructor Call Sequence
+	- MemeFactory
+
+## Constructor Definitions
+
+### MemeFactory
+
+     constructor(
+        address _olas,
+        address _nativeToken,
+        address _router,
+        address _factory,
+        uint256 _minNativeTokenValue
+    ) {
+        olas = _olas;
+        nativeToken = _nativeToken;
+        router = _router;
+        factory = _factory;
+        minNativeTokenValue = _minNativeTokenValue;
+    }
+
+INFO:Printers:
+####################
+####### Meme #######
+####################
+
+## Constructor Call Sequence
+	- ERC20
+	- Meme
+
+## Constructor Definitions
+
+### ERC20
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
+    ) {
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+
+        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
+    }
+
+### Meme
+
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint256 _totalSupply
+    ) ERC20(_name, _symbol, _decimals) {
+        _mint(msg.sender, _totalSupply);
+    }
+
+########################
+####### MemeBase #######
+########################
+
+## Constructor Call Sequence
+	- MemeFactory
+	- MemeBase
+
+## Constructor Definitions
+
+### MemeFactory
+
+     constructor(
+        address _olas,
+        address _nativeToken,
+        address _router,
+        address _factory,
+        uint256 _minNativeTokenValue
+    ) {
+        olas = _olas;
+        nativeToken = _nativeToken;
+        router = _router;
+        factory = _factory;
+        minNativeTokenValue = _minNativeTokenValue;
+    }
+
+### MemeBase
+
+     constructor(
+        address _olas,
+        address _weth,
+        address _router,
+        address _factory,
+        uint256 _minNativeTokenValue,
+        address _l2TokenRelayer,
+        address _balancerVault,
+        bytes32 _balancerPoolId
+    ) MemeFactory(_olas, _weth, _router, _factory, _minNativeTokenValue) {
+        l2TokenRelayer = _l2TokenRelayer;
+        balancerVault = _balancerVault;
+        balancerPoolId = _balancerPoolId;
+    }
+
+INFO:Slither:. analyzed (29 contracts)

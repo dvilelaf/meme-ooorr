@@ -1,0 +1,85 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./BuyBackBurnerProxy-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+Compilation warnings/errors on ./BuyBackBurnerProxy-flatten.sol:
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> BuyBackBurnerProxy-flatten.sol:26:1:
+   |
+26 | contract BuyBackBurnerProxy {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+  --> BuyBackBurnerProxy-flatten.sol:56:5:
+   |
+56 |     fallback() external payable {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+'solc --version' running
+'solc ./Meme.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./BuyBackBurner-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./BalancerPriceOracle-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeArbitrum-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./UniswapPriceOracle-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+INFO:Printers:Call Graph: ./MemeActivityChecker-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeActivityChecker-flatten.sol.IMemeFactory.call-graph.dot
+Call Graph: ./MemeActivityChecker-flatten.sol.MemeActivityChecker.call-graph.dot
+
+INFO:Printers:Call Graph: ./BuyBackBurnerProxy-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./BuyBackBurnerProxy-flatten.sol.BuyBackBurnerProxy.call-graph.dot
+
+INFO:Printers:Call Graph: ./Meme.sol.all_contracts.call-graph.dot
+Call Graph: ./Meme.sol.Meme.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeCelo-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IUniswapV3.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.FixedPointMathLib.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.MemeCelo.call-graph.dot
+
+INFO:Printers:Call Graph: ./BuyBackBurner-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./BuyBackBurner-flatten.sol.BuyBackBurner.call-graph.dot
+
+INFO:Printers:Call Graph: ./BalancerPriceOracle-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./BalancerPriceOracle-flatten.sol.IVault.call-graph.dot
+Call Graph: ./BalancerPriceOracle-flatten.sol.BalancerPriceOracle.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeArbitrum-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeArbitrum-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeArbitrum-flatten.sol.IUniswapV3.call-graph.dot
+Call Graph: ./MemeArbitrum-flatten.sol.FixedPointMathLib.call-graph.dot
+Call Graph: ./MemeArbitrum-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeArbitrum-flatten.sol.IWETH.call-graph.dot
+Call Graph: ./MemeArbitrum-flatten.sol.MemeArbitrum.call-graph.dot
+
+INFO:Printers:Call Graph: ./UniswapPriceOracle-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./UniswapPriceOracle-flatten.sol.IUniswapV2.call-graph.dot
+Call Graph: ./UniswapPriceOracle-flatten.sol.UniswapPriceOracle.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeFactory-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.IUniswapV3.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.FixedPointMathLib.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.MemeFactory.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeBase-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IUniswapV3.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.FixedPointMathLib.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IWETH.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.MemeBase.call-graph.dot
+
+INFO:Slither:. analyzed (39 contracts)
