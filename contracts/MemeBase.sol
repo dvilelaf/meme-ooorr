@@ -10,13 +10,12 @@ interface IWETH {
 /// @title MemeBase - a smart contract factory for Meme Token creation on Base.
 contract MemeBase is MemeFactory {
     // AGNT data:
-    // https://basescan.org/address/0x42156841253f428cb644ea1230d4fddfb70f8891#readContract#F17
-    // Previous token address: 0x7484a9fB40b16c4DFE9195Da399e808aa45E9BB9
-    // Full collected amount: 141569842100000000000
+    // https://basescan.org/token/0x7484a9fB40b16c4DFE9195Da399e808aa45E9BB9
+    // Full contribution amount in ETH:
     uint256 public constant CONTRIBUTION_AGNT = 141569842100000000000;
-    // Liquidity amount: collected amount - 10% for burn = 127412857890000000000
+    // Liquidity amount that went to LP (collected amount - 10% for burn):
     uint256 public constant LIQUIDITY_AGNT = 127412857890000000000;
-    // Block time of original summon
+    // Block time of original summon:
     uint256 public constant SUMMON_AGNT = 22902993;
 
     // Launch campaign nonce
@@ -47,7 +46,7 @@ contract MemeBase is MemeFactory {
         require(accounts.length == amounts.length);
 
         // Initiate meme token map values
-        // unleashTime is set to 1 such that no one is able to heart this token
+        // unleashTime is set to 1 such that no one is able to heart or collect this token
         memeSummons[launchCampaignNonce] = MemeSummon("Agent Token II", "AGNT II", 1_000_000_000 ether,
             CONTRIBUTION_AGNT, SUMMON_AGNT, 1, 0, 0, false);
 
@@ -68,21 +67,23 @@ contract MemeBase is MemeFactory {
         require(adjustedAmount == LIQUIDITY_AGNT, "Total amount adjusted for burn allocation must match liquidity amount");
     }
 
-    /// @dev AGNT token launch campaign unleash.
-    /// @notice Make Agents.Fun Great Again.
+    /// @dev AGNT II token launch campaign unleash.
+    /// @notice MAGA: Make Agents.Fun Great Again.
     /// Unleashes a new version of AGNT, called `AGNT II`, that has the same 
-    /// LP setup (same amount of AGNT II and ETH), as the original AGN was meant to have.
-    /// Hearters of the original AGNT now have 24 hours to collect their `AGNT II`.
+    /// LP setup (same amount of AGNT II and ETH, modulus a possibly rounding difference 
+    /// as new MemeBase uses UniV3, rather than UniV2), as the original AGN has.
+    /// Hearters of the original AGNT now have 24 hours to collect their `AGNT II` allocation.
     function _MAGA() private {
         // Get meme summon info
         MemeSummon storage memeSummon = memeSummons[launchCampaignNonce];
 
         // Unleash the token
-        _unleashThisMeme(launchCampaignNonce, memeSummon, LIQUIDITY_AGNT, CONTRIBUTION_AGNT, 0);
+        _unleashThisMeme(launchCampaignNonce, memeSummon, LIQUIDITY_AGNT, CONTRIBUTION_AGNT);
 
     }
 
     /// @dev Allows diverting first x collected funds to a launch campaign.
+    /// @notice MemeBase has launch campaign MAGA, hence x = 127.41285789 ETH.
     /// @return adjustedAmount Adjusted amount of native token to convert to OLAS and burn.
     function _launchCampaign() internal override returns (uint256 adjustedAmount) {
         require(scheduledForAscendance >= LIQUIDITY_AGNT, "Not enough to cover launch campaign");
@@ -96,6 +97,8 @@ contract MemeBase is MemeFactory {
         _launched = 1;
     }
 
+    /// @dev Native token amount to wrap.
+    /// @param nativeTokenAmount Native token amount to be wrapped.
     function _wrap(uint256 nativeTokenAmount) internal virtual override {
         // Wrap ETH
         IWETH(nativeToken).deposit{value: nativeTokenAmount}();

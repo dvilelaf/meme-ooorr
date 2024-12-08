@@ -6,8 +6,7 @@ import {Meme} from "./Meme.sol";
 import {IUniswapV3} from "./interfaces/IUniswapV3.sol";
 
 interface IBuyBackBurner {
-    function checkPoolPrices(address nativeToken, address memeToken, address uniV3PositionManager, uint24 fee,
-        bool isNativeFirst) external;
+    function checkPoolPrices(address token0, address token1, address uniV3PositionManager, uint24 fee) external;
 }
 
 // ERC20 interface
@@ -33,17 +32,21 @@ interface IERC20 {
 /// @dev This contract let's:
 ///      1) Any msg.sender summons a meme by contributing at least 0.01 ETH (or equivalent native asset for other chains).
 ///      2) Within 24h of a meme being summoned, any msg.sender can heart a meme (thereby becoming a hearter).
-///         This requires the msg.sender to send a non-zero ETH value, which gets recorded as a contribution.
+///         This requires the msg.sender to send a non-zero ETH value (or equivalent native asset for other chains),
+///         which gets recorded as a contribution.
 ///      3) After 24h of a meme being summoned, any msg.sender can unleash the meme. This creates a liquidity pool for
 ///         the meme and schedules the distribution of the rest of the tokens to the hearters, proportional to their
 ///         contributions.
 ///      4) After the meme is being unleashed any hearter can collect their share of the meme token.
 ///      5) After 24h of a meme being unleashed, any msg.sender can purge the uncollected meme token allocations of hearters.
-/// @notice 10% of the ETH contributed to a meme gets retained upon unleashing of the meme, that can later be
-///         converted to OLAS and scheduled for burning (on Ethereum mainnet). The remainder of the ETH contributed (90%)
-///         is contributed to an LP, together with 50% of the token supply of the meme.
-///         The remaining 50% of the meme token supply goes to hearters. The LP token is held forever by MemeBase,
+/// @notice 10% of the ETH (or equivalent native asset for other chains) contributed to a meme gets retained upon unleashing
+///         of the meme, that can later be converted to OLAS and scheduled for burning (on Ethereum mainnet). The remainder of
+///         the ETH contributed (90%) is contributed to an LP on UniV3, together with 50% of the token supply of the meme.
+///         The remaining 50% of the meme token supply goes to hearters. The LP token is held forever by MemeFactory,
 ///         guaranteeing lasting liquidity in the meme token.
+///         Trading fees from the LPs held by MemeFactory can be collected. When collected, the meme token part of the fees is
+///         instantly burned. The ETH (or equivalent native asset for other chains) token part can later be converted to OLAS
+///         and scheduled for burning (on Ethereum mainnet).
 ///
 ///         Example:
 ///         - Agent Smith would summonThisMeme with arguments Smiths Army, SMTH, 1_000_000_000 and $500 worth of ETH
@@ -59,12 +62,12 @@ interface IERC20 {
 ///           $SMTH to be burned.
 abstract contract MemeFactory {
     event OLASJourneyToAscendance(uint256 amount);
-    event Summoned(address indexed summoner, uint256 indexed memeNonce, uint256 nativeTokenContributed);
+    event Summoned(address indexed summoner, uint256 indexed memeNonce, uint256 amount);
     event Hearted(address indexed hearter, uint256 indexed memeNonce, uint256 amount);
-    event Unleashed(address indexed unleasher, address indexed memeToken, uint256 indexed lpTokenId,
-        uint256 liquidity, uint256  nativeAmountForOLASBurn);
+    event Unleashed(address indexed unleasher, uint256 indexed memeNonce, address indexed memeToken, uint256 lpTokenId,
+        uint256 liquidity);
     event Collected(address indexed hearter, address indexed memeToken, uint256 allocation);
-    event Purged(address indexed memeToken, uint256 remainingAmount);
+    event Purged(address indexed memeToken, uint256 amount);
     event FeesCollected(address indexed feeCollector, address indexed memeToken, uint256 nativeTokenAmount, uint256 memeTokenAmount);
 
     // Meme Summon struct
@@ -103,9 +106,9 @@ abstract contract MemeFactory {
     uint256 public constant LP_PERCENTAGE = 50;
     // Uniswap V3 fee tier of 1%
     uint24 public constant FEE_TIER = 10_000;
-    /// @dev The minimum tick that corresponds to a selected fee tier
+    /// The minimum tick that corresponds to a selected fee tier
     int24 public constant MIN_TICK = -887200;
-    /// @dev The maximum tick that corresponds to a selected fee tier
+    /// The maximum tick that corresponds to a selected fee tier
     int24 public constant MAX_TICK = -MIN_TICK;
     // Meme token decimals
     uint8 public constant DECIMALS = 18;
@@ -228,8 +231,10 @@ abstract contract MemeFactory {
     /// @param positionId LP position ID.
     /// @param isNativeFirst Order of a native token in the pool.
     function _collectFees(address memeToken, uint256 positionId, bool isNativeFirst) internal {
+        (address token0, address token1) = isNativeFirst ? (nativeToken, memeToken) : (memeToken, nativeToken);
+
         // Check current pool prices
-        IBuyBackBurner(buyBackBurner).checkPoolPrices(nativeToken, memeToken, uniV3PositionManager, FEE_TIER, isNativeFirst);
+        IBuyBackBurner(buyBackBurner).checkPoolPrices(token0, token1, uniV3PositionManager, FEE_TIER);
 
         IUniswapV3.CollectParams memory params = IUniswapV3.CollectParams({
             tokenId: positionId,
@@ -290,6 +295,11 @@ abstract contract MemeFactory {
     }
 
     /// @dev Create a new meme token.
+    /// @param memeNonce Meme nonce.
+    /// @param name Meme token name.
+    /// @param symbol Meme token symbol.
+    /// @param totalSupply Meme token total supply.
+    /// @return memeToken Meme token address.
     function _createThisMeme(
         uint256 memeNonce,
         string memory name,
@@ -301,7 +311,7 @@ abstract contract MemeFactory {
         bytes memory payload = abi.encodePacked(type(Meme).creationCode, abi.encode(name, symbol, DECIMALS, totalSupply));
         // solhint-disable-next-line no-inline-assembly
         assembly {
-            memeToken := create2(0x0, add(0x20, payload), mload(payload), memeNonce) // revert to randomNonce
+            memeToken := create2(0x0, add(0x20, payload), mload(payload), memeNonce) // TOFIX: revert to randomNonce
         }
 
         // Check for non-zero token address
@@ -314,12 +324,14 @@ abstract contract MemeFactory {
 
     /// @dev Unleashes the meme token.
     /// @param memeNonce Meme token nonce.
+    /// @param memeSummon Meme summon struct.
+    /// @param nativeAmountForLP The native token amount allocated for the LP.
+    /// @param totalNativeTokenCommitted The total native token amount committed to the meme.
     function _unleashThisMeme(
         uint256 memeNonce,
         MemeSummon storage memeSummon,
         uint256 nativeAmountForLP,
-        uint256 totalNativeTokenCommitted,
-        uint256 nativeAmountForOLASBurn
+        uint256 totalNativeTokenCommitted
     ) internal {
         // Calculate LP token allocation according to LP percentage and distribution to supporters
         uint256 memeAmountForLP = (memeSummon.totalSupply * LP_PERCENTAGE) / 100;
@@ -350,16 +362,13 @@ abstract contract MemeFactory {
         memeTokens.push(memeToken);
         numTokens = memeTokens.length;
 
-        // Record msg.sender activity
-        mapAccountActivities[msg.sender]++;
-
         // Allocate to the token hearter unleashing the meme
         uint256 hearterContribution = memeHearters[memeNonce][msg.sender];
         if (hearterContribution > 0) {
             _collectMemeToken(memeToken, memeNonce, heartersAmount, hearterContribution, totalNativeTokenCommitted);
         }
 
-        emit Unleashed(msg.sender, memeToken, positionId, liquidity, nativeAmountForOLASBurn);
+        emit Unleashed(msg.sender, memeNonce, memeToken, positionId, liquidity);
     }
 
     /// @dev Native token amount to wrap.
@@ -380,7 +389,6 @@ abstract contract MemeFactory {
 
         // Check for name and symbol lengths
         require(bytes(name).length > 0 && bytes(name).length > 0, "Name and symbol must not be empty");
-
         // Check for minimum native token value
         require(msg.value >= minNativeTokenValue, "Minimum native token value is required to summon");
         // Check for minimum total supply
@@ -447,10 +455,10 @@ abstract contract MemeFactory {
         MemeSummon storage memeSummon = memeSummons[memeNonce];
 
         // Check if the meme has been summoned
+        require(memeSummon.summonTime > 0, "Meme not yet summoned");
+        // Check if the token has been unleashed
         require(memeSummon.unleashTime == 0, "Meme already unleashed");
-        // Check if the meme has been summoned
-        require(memeSummon.summonTime > 0, "Meme not summoned");
-        // Check the unleash timestamp
+        // Check the unleash condition
         require(block.timestamp >= memeSummon.summonTime + UNLEASH_DELAY, "Cannot unleash yet");
 
         // Get the total native token amount committed to this meme
@@ -467,10 +475,12 @@ abstract contract MemeFactory {
         uint256 nativeAmountForLP = totalNativeTokenCommitted - nativeAmountForOLASBurn;
 
         // Schedule native token amount for ascendance
-        // uint256 adjustedNativeAmountForAscendance = _updateLaunchCampaignBalance(nativeAmountForOLASBurn);
         scheduledForAscendance += nativeAmountForOLASBurn;
 
-        _unleashThisMeme(memeNonce, memeSummon, nativeAmountForLP, totalNativeTokenCommitted, nativeAmountForOLASBurn);
+        // Record msg.sender activity
+        mapAccountActivities[msg.sender]++;
+
+        _unleashThisMeme(memeNonce, memeSummon, nativeAmountForLP, totalNativeTokenCommitted);
 
         _locked = 1;
     }
@@ -542,12 +552,14 @@ abstract contract MemeFactory {
         _locked = 1;
     }
 
-    /// @dev Transfers native token to later be converted to OLAS for burn.
+    /// @dev Transfers native token to BuyBackBurner to later be converted to OLAS for burn.
     function scheduleForAscendance() external {
         require(_locked == 1, "Reentrancy guard");
         _locked = 2;
 
         uint256 amount = _launched > 0 ? scheduledForAscendance : _launchCampaign();
+        // This condition means launchCampaign can only be triggered once there's a positive
+        // amount for ascendance remaining.
         require(amount > 0, "Nothing to send");
 
         scheduledForAscendance = 0;
@@ -555,12 +567,10 @@ abstract contract MemeFactory {
         // Record msg.sender activity
         mapAccountActivities[msg.sender]++;
 
-        if (amount > 0) {
-            // Transfers native token to be later converted to OLAS for burn.
-            IERC20(nativeToken).transfer(buyBackBurner, amount);
+        // Transfers native token to be later converted to OLAS for burn.
+        IERC20(nativeToken).transfer(buyBackBurner, amount);
 
-            emit OLASJourneyToAscendance(amount);
-        }
+        emit OLASJourneyToAscendance(amount);
 
         _locked = 1;
     }

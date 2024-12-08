@@ -102,16 +102,13 @@ contract BuyBackBurner {
     }
 
     function checkPoolPrices(
-        address nativeToken,
-        address memeToken,
+        address token0,
+        address token1,
         address uniV3PositionManager,
-        uint24 fee,
-        bool isNativeFirst
+        uint24 fee
     ) external {
         // Get factory address
         address factory = IUniswapV3(uniV3PositionManager).factory();
-
-        (address token0, address token1) = isNativeFirst ? (nativeToken, memeToken) : (memeToken, nativeToken);
 
         // Verify pool reserves before proceeding
         address pool = IUniswapV3(factory).getPool(token0, token1, fee);

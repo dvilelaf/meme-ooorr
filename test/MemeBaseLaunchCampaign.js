@@ -156,7 +156,7 @@ const main = async () => {
     // Unleash the meme token - positive and negative cases
     await expect(
         memeBase.unleashThisMeme(nonce2)
-    ).to.be.revertedWith("Meme not summoned");
+    ).to.be.revertedWith("Meme not yet summoned");
     await expect(
         memeBase.unleashThisMeme(nonce1, { gasLimit })
     ).to.emit(memeBase, "Unleashed")

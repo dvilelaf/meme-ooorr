@@ -15,10 +15,13 @@ contract MemeCelo is MemeFactory {
     ) MemeFactory(_olas, _nativeToken, _uniV3PositionManager, _buyBackBurner, _minNativeTokenValue) {}
 
     /// @dev Allows diverting first x collected funds to a launch campaign.
+    /// @notice MemeCelo has no launch campaign, hence x = 0.
     /// @return Adjusted amount of native token to convert to OLAS and burn.
     function _launchCampaign() internal override view returns (uint256) {
         return scheduledForAscendance;
     }
 
+    /// @dev Native token amount to wrap.
+    /// @notice Celo's native token CELO is also an ERC20.
     function _wrap(uint256) internal virtual override {}
 }
