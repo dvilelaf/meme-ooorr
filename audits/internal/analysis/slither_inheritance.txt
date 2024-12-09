@@ -1,0 +1,193 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeCelo-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeCelo-flatten.sol:693:13:
+    |
+693 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./Meme-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeFactory-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeFactory-flatten.sol:679:13:
+    |
+679 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeBase-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeBase-flatten.sol:672:13:
+    |
+672 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ IMemeFactory
+
++ MemeActivityChecker
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ IMemeFactory
+
++ MemeActivityChecker
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IERC20
+
++ IWETH
+
++ IUniswap
+
++ MemeFactory
+
++ IBridge
+
++ IOracle
+
++ MemeCelo
+ -> MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IERC20
+
++ IWETH
+
++ IUniswap
+
++ MemeFactory
+ -> MemeCelo
+
++ IBridge
+
++ IOracle
+
++ MemeCelo
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IERC20
+
++ IWETH
+
++ IUniswap
+
++ MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IERC20
+
++ IWETH
+
++ IUniswap
+
++ MemeFactory
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IWETH
+
++ IUniswap
+
++ MemeFactory
+
++ IBalancer
+
++ IBridge
+
++ IERC20
+
++ IOracle
+
++ MemeBase
+ -> MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IWETH
+
++ IUniswap
+
++ MemeFactory
+ -> MemeBase
+
++ IBalancer
+
++ IBridge
+
++ IERC20
+
++ IOracle
+
++ MemeBase
+
+INFO:Slither:. analyzed (29 contracts)

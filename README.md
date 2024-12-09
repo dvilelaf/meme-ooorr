@@ -44,3 +44,8 @@ See [here](docs/agents.md).
 ## Contract Development
 
 See [here](docs/contracts.md).
+
+## Acknowledgements
+- [Rari-Capital](https://github.com/Rari-Capital/solmate).
+- [Uniswap V3](https://github.com/Uniswap/v3-core).
+- [Zelic reports](https://reports.zellic.io/publications/beefy-uniswapv3/sections/observation-cardinality-observation-cardinality).

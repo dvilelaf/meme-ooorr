@@ -14,9 +14,9 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/dvielaf/autonolas-staking-programmes/issues"
+    "url": "https://github.com/dvielaf/meme-ooorr/issues"
   },
-  "homepage": "https://github.com/dvielaf/autonolas-staking-programmes#readme",
+  "homepage": "https://github.com/dvielaf/meme-ooorr#readme",
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.9",

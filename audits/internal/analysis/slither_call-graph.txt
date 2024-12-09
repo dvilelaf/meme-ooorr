@@ -1,0 +1,68 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeCelo-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeCelo-flatten.sol:693:13:
+    |
+693 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./Meme-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeFactory-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeFactory-flatten.sol:679:13:
+    |
+679 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeBase-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeBase-flatten.sol:672:13:
+    |
+672 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+INFO:Printers:Call Graph: ./MemeActivityChecker-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeActivityChecker-flatten.sol.IMemeFactory.call-graph.dot
+Call Graph: ./MemeActivityChecker-flatten.sol.MemeActivityChecker.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeCelo-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IWETH.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IUniswap.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IBridge.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.IOracle.call-graph.dot
+Call Graph: ./MemeCelo-flatten.sol.MemeCelo.call-graph.dot
+
+INFO:Printers:Call Graph: ./Meme-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./Meme-flatten.sol.Meme.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeFactory-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.IWETH.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.IUniswap.call-graph.dot
+Call Graph: ./MemeFactory-flatten.sol.MemeFactory.call-graph.dot
+
+INFO:Printers:Call Graph: ./MemeBase-flatten.sol.all_contracts.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.Meme.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IWETH.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IUniswap.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IBalancer.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IBridge.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IERC20.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.IOracle.call-graph.dot
+Call Graph: ./MemeBase-flatten.sol.MemeBase.call-graph.dot
+
+INFO:Slither:. analyzed (29 contracts)
