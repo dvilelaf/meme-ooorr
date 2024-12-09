@@ -110,7 +110,14 @@ contract BuyBackBurnerCelo is BuyBackBurner {
     /// @dev BuyBackBurner initializer.
     /// @param payload Initializer payload.
     function _initialize(bytes memory payload) internal override virtual {
-        (olas, nativeToken, oracle, l2TokenRelayer, router, maxSlippage) =
-            abi.decode(payload, (address, address, address, address, address, uint256));
+        address[] memory accounts;
+        (accounts, maxSlippage, minBridgedAmount) =
+            abi.decode(payload, (address[], uint256, uint256));
+
+        olas = accounts[0];
+        nativeToken = accounts[1];
+        oracle = accounts[2];
+        l2TokenRelayer = accounts[3];
+        router = accounts[4];
     }
 }

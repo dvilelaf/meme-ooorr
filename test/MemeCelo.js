@@ -20,43 +20,59 @@ const main = async () => {
     const payload = "0x";
     const oneDay = 86400;
     const twoDays = 2 * oneDay;
+    const nonce = 1;
 
     signers = await ethers.getSigners();
     deployer = signers[0];
 
-    const factoryParams = {
-        olas: parsedData.olasAddress,
-        nativeToken: parsedData.wethAddress,
-        router: parsedData.routerAddress,
-        factory: parsedData.factoryAddress,
-        oracle: parsedData.oracleAddress,
-        maxSlippage: parsedData.maxSlippageMeme,
-        minNativeTokenValue: parsedData.minNativeTokenValue
-    }
+    // UniswapPriceOracle
+    const UniswapPriceOracle = await ethers.getContractFactory("UniswapPriceOracle");
+    const uniswapPriceOracle = await UniswapPriceOracle.deploy(parsedData.olasAddress, parsedData.wethAddress,
+        parsedData.maxOracleSlippage, parsedData.minUpdateTimePeriod, parsedData.routerV2Address);
+    await uniswapPriceOracle.deployed();
 
-    const Oracle = await ethers.getContractFactory("BalancerPriceOracle");
-    const oracle = await Oracle.deploy(parsedData.olasAddress, parsedData.wethAddress, parsedData.balancerVaultAddress,
-        parsedData.balancerPoolId, parsedData.maxSlippageOracle, parsedData.minUpdateTimePeriod);
-    await oracle.deployed();
+    // BuyBackBurnerCelo implementation and proxy
+    const BuyBackBurnerCelo = await ethers.getContractFactory("BuyBackBurnerCelo");
+    const buyBackBurnerImplementation = await BuyBackBurnerCelo.deploy();
+    await buyBackBurnerImplementation.deployed();
+
+    // Initialize buyBackBurner
+    const proxyPayload = ethers.utils.defaultAbiCoder.encode(["address[]", "uint256", "uint256"],
+         [[parsedData.olasAddress, parsedData.wethAddress, uniswapPriceOracle.address, parsedData.l2TokenBridgeAddress,
+         parsedData.routerV2Address], parsedData.maxBuyBackSlippage, parsedData.minBridgedAmount]);
+    const proxyData = buyBackBurnerImplementation.interface.encodeFunctionData("initialize", [proxyPayload]);
+    const BuyBackBurnerProxy = await ethers.getContractFactory("BuyBackBurnerProxy");
+    const buyBackBurnerProxy = await BuyBackBurnerProxy.deploy(buyBackBurnerImplementation.address, proxyData);
+    await buyBackBurnerProxy.deployed();
+
+    const buyBackBurner = await ethers.getContractAt("BuyBackBurnerCelo", buyBackBurnerProxy.address);
+
+    // MemeBase
+    const MemeBase = await ethers.getContractFactory("MemeBase");
+    const memeBase = await MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
+        parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue, [], []);
+    await memeBase.deployed();
 
     const MemeCelo = await ethers.getContractFactory("MemeCelo");
-    const memeCelo = await MemeCelo.deploy(factoryParams, parsedData.l2TokenBridgeAddress);
+    const memeCelo = await MemeCelo.deploy(parsedData.olasAddress, parsedData.wethAddress,
+        parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue);
     await memeCelo.deployed();
 
     // Summon a new meme token
     await memeCelo.summonThisMeme(name, symbol, totalSupply, {value: defaultDeposit});
-    const memeToken = await memeCelo.memeTokens(0);
-    console.log("New meme contract:", memeToken);
 
     // Heart a new token by other accounts
-    await memeCelo.connect(signers[1]).heartThisMeme(memeToken, {value: defaultDeposit});
-    await memeCelo.connect(signers[2]).heartThisMeme(memeToken, {value: defaultDeposit});
+    await memeCelo.connect(signers[1]).heartThisMeme(nonce, {value: defaultDeposit});
+    await memeCelo.connect(signers[2]).heartThisMeme(nonce, {value: defaultDeposit});
 
     // Increase time to for 24 hours+
     await helpers.time.increase(oneDay + 100);
 
     // Unleash the meme token
-    await memeCelo.unleashThisMeme(memeToken);
+    await memeCelo.unleashThisMeme(nonce);
+
+    const memeToken = await memeCelo.memeTokens(0);
+    console.log("New meme contract:", memeToken);
 
     // Collect by the first signer
     await memeCelo.connect(signers[1]).collectThisMeme(memeToken);

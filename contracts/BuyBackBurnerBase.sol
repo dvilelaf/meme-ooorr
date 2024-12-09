@@ -107,7 +107,14 @@ contract BuyBackBurnerBase is BuyBackBurner {
     /// @dev BuyBackBurner initializer.
     /// @param payload Initializer payload.
     function _initialize(bytes memory payload) internal override virtual {
-        (olas, nativeToken, oracle, l2TokenRelayer, balancerVault, balancerPoolId, maxSlippage) =
-            abi.decode(payload, (address, address, address, address, address, bytes32, uint256));
+        address[] memory accounts;
+        (accounts, balancerPoolId, maxSlippage, minBridgedAmount) =
+            abi.decode(payload, (address[], bytes32, uint256, uint256));
+
+        olas = accounts[0];
+        nativeToken = accounts[1];
+        oracle = accounts[2];
+        l2TokenRelayer = accounts[3];
+        balancerVault = accounts[4];
     }
 }

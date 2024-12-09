@@ -25,19 +25,31 @@ const main = async () => {
     signers = await ethers.getSigners();
     deployer = signers[0];
 
-    // BuyBackBurner implementation and proxy
-    const BuyBackBurner = await ethers.getContractFactory("BuyBackBurner");
-    const buyBackBurnerImplementation = await BuyBackBurner.deploy();
+    // BalancerPriceOracle
+    const BalancerPriceOracle = await ethers.getContractFactory("BalancerPriceOracle");
+    const balancerPriceOracle = await BalancerPriceOracle.deploy(parsedData.olasAddress, parsedData.wethAddress,
+        parsedData.maxOracleSlippage, parsedData.minUpdateTimePeriod, parsedData.balancerVaultAddress,
+        parsedData.balancerPoolId);
+    await balancerPriceOracle.deployed();
+
+    // BuyBackBurnerBase implementation and proxy
+    const BuyBackBurnerBase = await ethers.getContractFactory("BuyBackBurnerBase");
+    const buyBackBurnerImplementation = await BuyBackBurnerBase.deploy();
     await buyBackBurnerImplementation.deployed();
 
     // Initialize buyBackBurner
-    const proxyData = buyBackBurnerImplementation.interface.encodeFunctionData("initialize", []);
+    const proxyPayload = ethers.utils.defaultAbiCoder.encode(["address[]", "bytes32", "uint256", "uint256"],
+         [[parsedData.olasAddress, parsedData.wethAddress, balancerPriceOracle.address, parsedData.l2TokenBridgeAddress,
+         parsedData.balancerVaultAddress], parsedData.balancerPoolId, parsedData.maxBuyBackSlippage,
+         parsedData.minBridgedAmount]);
+    const proxyData = buyBackBurnerImplementation.interface.encodeFunctionData("initialize", [proxyPayload]);
     const BuyBackBurnerProxy = await ethers.getContractFactory("BuyBackBurnerProxy");
     const buyBackBurnerProxy = await BuyBackBurnerProxy.deploy(buyBackBurnerImplementation.address, proxyData);
     await buyBackBurnerProxy.deployed();
 
-    const buyBackBurner = await ethers.getContractAt("BuyBackBurner", buyBackBurnerProxy.address);
+    const buyBackBurner = await ethers.getContractAt("BuyBackBurnerBase", buyBackBurnerProxy.address);
 
+    // MemeBase
     const MemeBase = await ethers.getContractFactory("MemeBase");
     const memeBase = await MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
         parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue, [], []);

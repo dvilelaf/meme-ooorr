@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
-
+import "hardhat/console.sol";
 interface IVault {
     function getPoolTokens(bytes32 poolId) external view
         returns (address[] memory tokens, uint256[] memory balances, uint256 lastChangeBlock);
@@ -83,7 +83,7 @@ contract BalancerPriceOracle {
     /// @notice This implementation only accounts for the first price update in a block.
     function updatePrice() public returns (bool) {
         uint256 currentPrice = getPrice();
-        require(currentPrice > 0, "Price must be non-zero.");
+        require(currentPrice > 0, "Price must be non-zero");
 
         PriceSnapshot storage snapshot = snapshotHistory;
 
@@ -123,6 +123,7 @@ contract BalancerPriceOracle {
         snapshot.lastUpdated = block.timestamp;
 
         emit PriceUpdated(msg.sender, currentPrice, snapshot.cumulativePrice);
+
         return true;
     }
 
@@ -132,15 +133,15 @@ contract BalancerPriceOracle {
         require(slippage <= maxSlippage, "Slippage overflow");
 
         PriceSnapshot memory snapshot = snapshotHistory;
-
+        console.log("check1");
         // Ensure there is historical price data
         if (snapshot.lastUpdated == 0) return false;
-
+        console.log("check2");
         // Calculate elapsed time
         uint256 elapsedTime = block.timestamp - snapshot.lastUpdated;
         // Require at least one block since last update
         if (elapsedTime == 0) return false;
-
+        console.log("check3");
         // Compute time-weighted average price
         uint256 timeWeightedAverage = (snapshot.cumulativePrice + (snapshot.averagePrice * elapsedTime)) /
             ((snapshot.cumulativePrice / snapshot.averagePrice) + elapsedTime);
@@ -150,6 +151,10 @@ contract BalancerPriceOracle {
         // Validate against slippage thresholds
         uint256 lowerBound = (timeWeightedAverage * (100 - slippage)) / 100;
         uint256 upperBound = (timeWeightedAverage * (100 + slippage)) / 100;
+
+        console.log("tradePrice", tradePrice);
+        console.log("lowerBound", lowerBound);
+        console.log("upperBound", upperBound);
 
         return tradePrice >= lowerBound && tradePrice <= upperBound;
     }
