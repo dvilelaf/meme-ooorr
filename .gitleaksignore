@@ -372,3 +372,12 @@ a36c8662abbacb603cbb477a4233dabfe812ee22:contracts/MemeBase.sol:generic-api-key:
 43f10cbb095f69ebf809e1facdeae8e9229fd256:scripts/deployment/globals_celo_mainnet.json:generic-api-key:1
 7741a824dd3340cde06b8ef655b00778cec4776d:scripts/deployment/globals_celo_mainnet.json:generic-api-key:1
 0bcda208e49ee4514539e7f0abb959b5dfbc4884:scripts/deployment/globals_arbitrum_one.json:generic-api-key:1
+264b5956daeb372f99ac9de84faf1e257c81513b:audits/internal3/analysis/contracts/MemeBase-flatten.sol:generic-api-key:1303
+722650392739117747fb1729f46966282186d02c:scripts/deployment/globals_arbitrum_one_meme_alpha.json:generic-api-key:15
+722650392739117747fb1729f46966282186d02c:scripts/deployment/globals_arbitrum_one_meme_alpha.json:generic-api-key:16
+722650392739117747fb1729f46966282186d02c:scripts/deployment/globals_arbitrum_one_meme_alpha.json:generic-api-key:18
+722650392739117747fb1729f46966282186d02c:scripts/deployment/globals_celo_mainnet.json:generic-api-key:1
+7efd156c77f4b4e6d1b94e643e651f1f91612154:scripts/deployment/globals_celo_mainnet.json:generic-api-key:1
+93830648ce39e12a4a3c4229363a02eb64f698c4:scripts/deployment/globals_arbitrum_one.json:generic-api-key:1
+a2eae7cc6176b84e4aaa59a85321249d4a906305:scripts/deployment/globals_arbitrum_one.json:generic-api-key:1
+a2eae7cc6176b84e4aaa59a85321249d4a906305:scripts/deployment/globals_celo_mainnet.json:generic-api-key:1

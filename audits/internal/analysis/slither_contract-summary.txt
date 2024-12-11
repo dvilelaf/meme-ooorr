@@ -1,0 +1,314 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeCelo-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeCelo-flatten.sol:693:13:
+    |
+693 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./Meme-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeFactory-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeFactory-flatten.sol:679:13:
+    |
+679 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeBase-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeBase-flatten.sol:672:13:
+    |
+672 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+INFO:Printers:
++ Contract IMemeFactory (Most derived contract)
+  - From IMemeFactory
+    - mapAccountActivities(address) (external)
+
++ Contract MemeActivityChecker (Most derived contract)
+  - From MemeActivityChecker
+    - constructor(address,uint256) (public)
+    - getMultisigNonces(address) (external)
+    - isRatioPass(uint256[],uint256[],uint256) (external)
+
+INFO:Printers:
++ Contract ERC20
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+
++ Contract Meme (Most derived contract)
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+  - From Meme
+    - burn(uint256) (external)
+    - constructor(string,string,uint8,uint256) (public)
+
++ Contract IERC20 (Most derived contract)
+  - From IERC20
+    - approve(address,uint256) (external)
+
++ Contract IWETH (Most derived contract)
+  - From IWETH
+    - deposit() (external)
+
++ Contract IUniswap (Most derived contract)
+  - From IUniswap
+    - addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256) (external)
+    - createPair(address,address) (external)
+    - swapExactTokensForTokens(uint256,address[],address,uint256) (external)
+    - swapExactTokensForTokens(uint256,uint256,address[],address,uint256) (external)
+
++ Contract MemeFactory
+  - From MemeFactory
+    - _bridgeAndBurn(uint256,uint256,bytes) (internal)
+    - _buyOLAS(uint256,uint256) (internal)
+    - _collect(address,uint256,uint256,uint256) (internal)
+    - _createUniswapPair(address,uint256,uint256) (internal)
+    - _getLowSlippageSafeSwapAmount() (internal)
+    - _wrap(uint256) (internal)
+    - collectThisMeme(address) (external)
+    - constructor(address,address,address,address,uint256) (internal)
+    - heartThisMeme(address) (external)
+    - purgeThisMeme(address) (external)
+    - receive() (external)
+    - scheduleOLASForAscendance() (external)
+    - sendToHigherHeights(uint256,bytes) (external)
+    - summonThisMeme(string,string,uint256) (external)
+    - unleashThisMeme(address) (external)
+
++ Contract IBridge (Most derived contract)
+  - From IBridge
+    - transferTokens(address,uint256,uint16,bytes32,uint256,uint32) (external)
+
++ Contract IOracle (Most derived contract)
+  - From IOracle
+    - latestRoundData() (external)
+
++ Contract MemeCelo (Most derived contract)
+  - From MemeFactory
+    - _collect(address,uint256,uint256,uint256) (internal)
+    - _createUniswapPair(address,uint256,uint256) (internal)
+    - collectThisMeme(address) (external)
+    - constructor(address,address,address,address,uint256) (internal)
+    - heartThisMeme(address) (external)
+    - purgeThisMeme(address) (external)
+    - receive() (external)
+    - scheduleOLASForAscendance() (external)
+    - sendToHigherHeights(uint256,bytes) (external)
+    - summonThisMeme(string,string,uint256) (external)
+    - unleashThisMeme(address) (external)
+  - From MemeCelo
+    - _bridgeAndBurn(uint256,uint256,bytes) (internal)
+    - _buyOLAS(uint256,uint256) (internal)
+    - _getLowSlippageSafeSwapAmount() (internal)
+    - _wrap(uint256) (internal)
+    - constructor(address,address,address,address,uint256,address,address) (public)
+
+INFO:Printers:
++ Contract ERC20
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+
++ Contract Meme (Most derived contract)
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+  - From Meme
+    - burn(uint256) (external)
+    - constructor(string,string,uint8,uint256) (public)
+
+INFO:Printers:
++ Contract ERC20
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+
++ Contract Meme (Most derived contract)
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+  - From Meme
+    - burn(uint256) (external)
+    - constructor(string,string,uint8,uint256) (public)
+
++ Contract IERC20 (Most derived contract)
+  - From IERC20
+    - approve(address,uint256) (external)
+
++ Contract IWETH (Most derived contract)
+  - From IWETH
+    - deposit() (external)
+
++ Contract IUniswap (Most derived contract)
+  - From IUniswap
+    - addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256) (external)
+    - createPair(address,address) (external)
+
++ Contract MemeFactory (Most derived contract)
+  - From MemeFactory
+    - _bridgeAndBurn(uint256,uint256,bytes) (internal)
+    - _buyOLAS(uint256,uint256) (internal)
+    - _collect(address,uint256,uint256,uint256) (internal)
+    - _createUniswapPair(address,uint256,uint256) (internal)
+    - _getLowSlippageSafeSwapAmount() (internal)
+    - _wrap(uint256) (internal)
+    - collectThisMeme(address) (external)
+    - constructor(address,address,address,address,uint256) (internal)
+    - heartThisMeme(address) (external)
+    - purgeThisMeme(address) (external)
+    - receive() (external)
+    - scheduleOLASForAscendance() (external)
+    - sendToHigherHeights(uint256,bytes) (external)
+    - summonThisMeme(string,string,uint256) (external)
+    - unleashThisMeme(address) (external)
+
+INFO:Printers:
++ Contract ERC20
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+
++ Contract Meme (Most derived contract)
+  - From ERC20
+    - DOMAIN_SEPARATOR() (public)
+    - _burn(address,uint256) (internal)
+    - _mint(address,uint256) (internal)
+    - approve(address,uint256) (public)
+    - computeDomainSeparator() (internal)
+    - constructor(string,string,uint8) (internal)
+    - permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (public)
+    - transfer(address,uint256) (public)
+    - transferFrom(address,address,uint256) (public)
+  - From Meme
+    - burn(uint256) (external)
+    - constructor(string,string,uint8,uint256) (public)
+
++ Contract IWETH (Most derived contract)
+  - From IWETH
+    - deposit() (external)
+
++ Contract IUniswap (Most derived contract)
+  - From IUniswap
+    - addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256) (external)
+    - createPair(address,address) (external)
+    - swapExactETHForTokens(uint256,address[],address,uint256) (external)
+
++ Contract MemeFactory
+  - From MemeFactory
+    - _bridgeAndBurn(uint256,uint256,bytes) (internal)
+    - _buyOLAS(uint256,uint256) (internal)
+    - _collect(address,uint256,uint256,uint256) (internal)
+    - _createUniswapPair(address,uint256,uint256) (internal)
+    - _getLowSlippageSafeSwapAmount() (internal)
+    - _wrap(uint256) (internal)
+    - collectThisMeme(address) (external)
+    - constructor(address,address,address,address,uint256) (internal)
+    - heartThisMeme(address) (external)
+    - purgeThisMeme(address) (external)
+    - receive() (external)
+    - scheduleOLASForAscendance() (external)
+    - sendToHigherHeights(uint256,bytes) (external)
+    - summonThisMeme(string,string,uint256) (external)
+    - unleashThisMeme(address) (external)
+
++ Contract IBalancer (Most derived contract)
+  - From IBalancer
+    - swap(IBalancer.SingleSwap,IBalancer.FundManagement,uint256,uint256) (external)
+
++ Contract IBridge (Most derived contract)
+  - From IBridge
+    - withdrawTo(address,address,uint256,uint32,bytes) (external)
+
++ Contract IERC20 (Most derived contract)
+  - From IERC20
+    - approve(address,uint256) (external)
+
++ Contract IOracle (Most derived contract)
+  - From IOracle
+    - latestRoundData() (external)
+
++ Contract MemeBase (Most derived contract)
+  - From MemeFactory
+    - _collect(address,uint256,uint256,uint256) (internal)
+    - _createUniswapPair(address,uint256,uint256) (internal)
+    - _wrap(uint256) (internal)
+    - collectThisMeme(address) (external)
+    - constructor(address,address,address,address,uint256) (internal)
+    - heartThisMeme(address) (external)
+    - purgeThisMeme(address) (external)
+    - receive() (external)
+    - scheduleOLASForAscendance() (external)
+    - sendToHigherHeights(uint256,bytes) (external)
+    - summonThisMeme(string,string,uint256) (external)
+    - unleashThisMeme(address) (external)
+  - From MemeBase
+    - _bridgeAndBurn(uint256,uint256,bytes) (internal)
+    - _buyOLAS(uint256,uint256) (internal)
+    - _getLowSlippageSafeSwapAmount() (internal)
+    - constructor(address,address,address,address,uint256,address,address,bytes32) (public)
+
+INFO:Slither:. analyzed (29 contracts)

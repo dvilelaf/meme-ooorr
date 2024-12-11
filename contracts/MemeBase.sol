@@ -1,172 +1,106 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {MemeFactory} from "./MemeFactory.sol";
+import {MemeFactory, Meme} from "./MemeFactory.sol";
 
-// Balancer interface
-interface IBalancer {
-    enum SwapKind { GIVEN_IN, GIVEN_OUT }
-
-    struct SingleSwap {
-        bytes32 poolId;
-        SwapKind kind;
-        address assetIn;
-        address assetOut;
-        uint256 amount;
-        bytes userData;
-    }
-
-    struct FundManagement {
-        address sender;
-        bool fromInternalBalance;
-        address payable recipient;
-        bool toInternalBalance;
-    }
-
-    /// @dev Swaps tokens on Balancer.
-    function swap(SingleSwap memory singleSwap, FundManagement memory funds, uint256 limit, uint256 deadline)
-        external payable returns (uint256);
-}
-
-// Bridge interface
-interface IBridge {
-    /// @dev Initiates a withdrawal from L2 to L1 to a target account on L1.
-    /// @param l2Token Address of the L2 token to withdraw.
-    /// @param to Recipient account on L1.
-    /// @param amount Amount of the L2 token to withdraw.
-    /// @param minGasLimit Minimum gas limit to use for the transaction.
-    /// @param extraData Extra data attached to the withdrawal.
-    function withdrawTo(address l2Token, address to, uint256 amount, uint32 minGasLimit, bytes calldata extraData) external;
-}
-
-// ERC20 interface
-interface IERC20 {
-    /// @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-    /// @param spender Account address that will be able to transfer tokens on behalf of the caller.
-    /// @param amount Token amount.
-    /// @return True if the function execution is successful.
-    function approve(address spender, uint256 amount) external returns (bool);
-}
-
-// Oracle interface
-interface IOracle {
-    /// @dev Gets latest round token price data.
-    function latestRoundData()
-        external returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);
-}
-
-// UniswapV2 interface
-interface IUniswap {
-    /// @dev Swaps exact amount of ETH for a specified token.
-    function swapExactETHForTokens(uint256 amountOutMin, address[] calldata path, address to, uint256 deadline)
-        external payable returns (uint256[] memory amounts);
+interface IWETH {
+    function deposit() external payable;
 }
 
 /// @title MemeBase - a smart contract factory for Meme Token creation on Base.
 contract MemeBase is MemeFactory {
-    // Slippage parameter (3%)
-    uint256 public constant SLIPPAGE = 97;
-    // Token transfer gas limit for L1
-    // This is safe as the value is practically bigger than observed ones on numerous chains
-    uint32 public constant TOKEN_GAS_LIMIT = 300_000;
+    // AGNT data:
+    // https://basescan.org/token/0x7484a9fB40b16c4DFE9195Da399e808aa45E9BB9
+    // Full contribution amount in ETH:
+    uint256 public constant CONTRIBUTION_AGNT = 141569842100000000000;
+    // Liquidity amount that went to LP (collected amount - 10% for burn):
+    uint256 public constant LIQUIDITY_AGNT = 127412857890000000000;
+    // Block time of original summon:
+    uint256 public constant SUMMON_AGNT = 22902993;
 
-    // WETH token address
-    address public immutable weth;
-    // L2 token relayer bridge address
-    address public immutable l2TokenRelayer;
-    // Oracle address
-    address public immutable oracle;
-    // Balancer Vault address
-    address public immutable balancerVault;
-    // Balancer Pool Id
-    bytes32 public immutable balancerPoolId;
+    // Launch campaign nonce
+    uint256 public immutable launchCampaignNonce;
 
     /// @dev MemeBase constructor
     constructor(
         address _olas,
-        address _usdc,
-        address _router,
-        address _factory,
+        address _nativeToken,
+        address _uniV3PositionManager,
+        address _buyBackBurner,
         uint256 _minNativeTokenValue,
-        address _weth,
-        address _l2TokenRelayer,
-        address _oracle,
-        address _balancerVault,
-        bytes32 _balancerPoolId
-    ) MemeFactory(_olas, _usdc, _router, _factory, _minNativeTokenValue) {
-        weth = _weth;
-        l2TokenRelayer = _l2TokenRelayer;
-        oracle = _oracle;
-        balancerVault = _balancerVault;
-        balancerPoolId = _balancerPoolId;
-    }
-
-    /// @dev Buys USDC on UniswapV2 using ETH amount.
-    /// @param nativeTokenAmount Input ETH amount.
-    /// @return Stable token amount bought.
-    function _convertToReferenceToken(uint256 nativeTokenAmount, uint256) internal override returns (uint256) {
-        address[] memory path = new address[](2);
-        path[0] = weth;
-        path[1] = referenceToken;
-
-        // Calculate price by Oracle
-        (, int256 answerPrice, , , ) = IOracle(oracle).latestRoundData();
-        require(answerPrice > 0, "Oracle price is incorrect");
-
-        // Oracle returns 8 decimals, USDC has 6 decimals, need to additionally divide by 100 to account for slippage
-        // ETH: 18 decimals, USDC leftovers: 2 decimals, percentage: 2 decimals; denominator = 18 + 2 + 2 = 22
-        uint256 limit = uint256(answerPrice) * nativeTokenAmount * SLIPPAGE / 1e22;
-        // Swap ETH for USDC
-        uint256[] memory amounts = IUniswap(router).swapExactETHForTokens{ value: nativeTokenAmount }(
-            limit,
-            path,
-            address(this),
-            block.timestamp
-        );
-
-        // Return the USDC amount bought
-        return amounts[1];
-    }
-
-    /// @dev Buys OLAS on Balancer.
-    /// @param referenceTokenAmount USDC amount.
-    /// @param limit OLAS minimum amount depending on the desired slippage.
-    /// @return Obtained OLAS amount.
-    function _buyOLAS(uint256 referenceTokenAmount, uint256 limit) internal override returns (uint256) {
-        // Approve usdc for the Balancer Vault
-        IERC20(referenceToken).approve(balancerVault, referenceTokenAmount);
-
-        // Prepare Balancer data
-        IBalancer.SingleSwap memory singleSwap = IBalancer.SingleSwap(balancerPoolId, IBalancer.SwapKind.GIVEN_IN, referenceToken,
-            olas, referenceTokenAmount, "0x");
-        IBalancer.FundManagement memory fundManagement = IBalancer.FundManagement(address(this), false,
-            payable(address(this)), false);
-
-        // Perform swap
-        return IBalancer(balancerVault).swap(singleSwap, fundManagement, limit, block.timestamp);
-    }
-
-    /// @dev Bridges OLAS amount back to L1 and burns.
-    /// @param olasAmount OLAS amount.
-    /// @param tokenGasLimit Token gas limit for bridging OLAS to L1.
-    /// @return msg.value leftovers if partially utilized by the bridge.
-    function _bridgeAndBurn(uint256 olasAmount, uint256 tokenGasLimit, bytes memory) internal override returns (uint256) {
-        // Approve bridge to use OLAS
-        IERC20(olas).approve(l2TokenRelayer, olasAmount);
-
-        // Check for sufficient minimum gas limit
-        if (tokenGasLimit < TOKEN_GAS_LIMIT) {
-            tokenGasLimit = TOKEN_GAS_LIMIT;
+        address[] memory accounts,
+        uint256[] memory amounts
+    ) MemeFactory(_olas, _nativeToken, _uniV3PositionManager, _buyBackBurner, _minNativeTokenValue) {
+        if (accounts.length > 0) {
+            launchCampaignNonce = _nonce;
+            _launchCampaignSetup(accounts, amounts);
+            _nonce = launchCampaignNonce + 1;
+            _launched = 0;
         }
+    }
 
-        // Data for the mainnet validate the OLAS burn
-        bytes memory data = abi.encodeWithSignature("burn(uint256)", olasAmount);
+    /// @dev Launch campaign initialization function.
+    /// @param accounts Original accounts.
+    /// @param amounts Corresponding original amounts (without subtraction for burn).
+    function _launchCampaignSetup(address[] memory accounts, uint256[] memory amounts) private {
+        require(accounts.length == amounts.length, "Array lengths are not equal");
 
-        // Bridge OLAS to mainnet to get burned
-        IBridge(l2TokenRelayer).withdrawTo(olas, OLAS_BURNER, olasAmount, uint32(tokenGasLimit), data);
+        // Initiate meme token map values
+        // unleashTime is set to 1 such that no one is able to heart, collect or purge this token
+        memeSummons[launchCampaignNonce] = MemeSummon("Agent Token", "AG3NT", 1_000_000_000 ether,
+            CONTRIBUTION_AGNT, SUMMON_AGNT, 1, 0, 0, false);
 
-        emit OLASJourneyToAscendance(olas, olasAmount);
+        // To match original summon events (purposefully placed here to match order of original events)
+        emit Summoned(accounts[0], launchCampaignNonce, amounts[0]);
 
-        return msg.value;
+        // Record all the accounts and amounts
+        uint256 totalAmount;
+        for (uint256 i = 0; i < accounts.length; ++i) {
+            totalAmount += amounts[i];
+            memeHearters[launchCampaignNonce][accounts[i]] = amounts[i];
+            // to match original hearter events
+            emit Hearted(accounts[i], launchCampaignNonce, amounts[i]);
+        }
+        require(totalAmount == CONTRIBUTION_AGNT, "Total amount must match original contribution amount");
+        // Adjust amount for already collected burned tokens
+        uint256 adjustedAmount = (totalAmount * 9) / 10;
+        require(adjustedAmount == LIQUIDITY_AGNT, "Total amount adjusted for burn allocation must match liquidity amount");
+    }
+
+    /// @dev AG3NT token launch campaign unleash.
+    /// @notice MAGA: Make Agents.Fun Great Again.
+    /// Unleashes a new version of AGNT, called `AG3NT`, that has the same 
+    /// LP setup (same amount of AG3NT and ETH, modulus a possibly rounding difference 
+    /// as new MemeBase uses UniV3, rather than UniV2), as the original AGNT has.
+    /// Hearters of the original AGNT now have 24 hours to collect their `AG3NT` allocation.
+    function _MAGA() private {
+        // Get meme summon info
+        MemeSummon storage memeSummon = memeSummons[launchCampaignNonce];
+
+        // Unleash the token
+        _unleashThisMeme(launchCampaignNonce, memeSummon, LIQUIDITY_AGNT, CONTRIBUTION_AGNT);
+
+    }
+
+    /// @dev Allows diverting first x collected funds to a launch campaign.
+    /// @notice MemeBase has launch campaign MAGA, hence x = 127.41285789 ETH.
+    /// @return adjustedAmount Adjusted amount of native token to convert to OLAS and burn.
+    function _launchCampaign() internal override returns (uint256 adjustedAmount) {
+        require(scheduledForAscendance >= LIQUIDITY_AGNT, "Not enough to cover launch campaign");
+
+        // Unleash the campaign token
+        _MAGA();
+
+        // scheduledForAscendance might also increase during the pool creation
+        adjustedAmount = scheduledForAscendance - LIQUIDITY_AGNT;
+
+        _launched = 1;
+    }
+
+    /// @dev Native token amount to wrap.
+    /// @param nativeTokenAmount Native token amount to be wrapped.
+    function _wrap(uint256 nativeTokenAmount) internal virtual override {
+        // Wrap ETH
+        IWETH(nativeToken).deposit{value: nativeTokenAmount}();
     }
 }

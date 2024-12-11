@@ -1,0 +1,639 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeCelo-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeCelo-flatten.sol:693:13:
+    |
+693 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./Meme-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeFactory-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeFactory-flatten.sol:679:13:
+    |
+679 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal/analysis/contracts' running
+Compilation warnings/errors on ./MemeBase-flatten.sol:
+Warning: Return value of low-level calls not used.
+   --> MemeBase-flatten.sol:672:13:
+    |
+672 |             tx.origin.call{value: leftovers}("");
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Ignore
+INFO:Detectors:
+MemeFactory._wrap(uint256) (MemeCelo-flatten.sol#460-463) sends eth to arbitrary user
+	Dangerous calls:
+	- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations
+
+False
+INFO:Detectors:
+Reentrancy in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697):
+	External calls:
+	- tx.origin.call{value: leftovers}() (MemeCelo-flatten.sol#693)
+	State variables written after the call(s):
+	- _locked = 1 (MemeCelo-flatten.sol#696)
+	MemeFactory._locked (MemeCelo-flatten.sol#351) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605)
+	- MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637)
+	- MemeFactory.scheduleOLASForAscendance() (MemeCelo-flatten.sol#640-669)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697)
+	- MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeCelo-flatten.sol#415)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeCelo-flatten.sol#418)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeCelo-flatten.sol#419)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeCelo-flatten.sol#422-431)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+	State variables written after the call(s):
+	- memeSummon.unleashTime = block.timestamp (MemeCelo-flatten.sol#560)
+	MemeFactory.memeSummons (MemeCelo-flatten.sol#354) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605)
+	- MemeFactory.heartThisMeme(address) (MemeCelo-flatten.sol#500-524)
+	- MemeFactory.memeSummons (MemeCelo-flatten.sol#354)
+	- MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637)
+	- MemeFactory.summonThisMeme(string,string,uint256) (MemeCelo-flatten.sol#469-496)
+	- MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576)
+	- memeSummon.heartersAmount = heartersAmount (MemeCelo-flatten.sol#562)
+	MemeFactory.memeSummons (MemeCelo-flatten.sol#354) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605)
+	- MemeFactory.heartThisMeme(address) (MemeCelo-flatten.sol#500-524)
+	- MemeFactory.memeSummons (MemeCelo-flatten.sol#354)
+	- MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637)
+	- MemeFactory.summonThisMeme(string,string,uint256) (MemeCelo-flatten.sol#469-496)
+	- MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576)
+
+False
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeCelo-flatten.sol#415)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeCelo-flatten.sol#418)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeCelo-flatten.sol#419)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeCelo-flatten.sol#422-431)
+	- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeCelo-flatten.sol#570)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeCelo-flatten.sol#455)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+	State variables written after the call(s):
+	- _locked = 1 (MemeCelo-flatten.sol#575)
+	MemeFactory._locked (MemeCelo-flatten.sol#351) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605)
+	- MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637)
+	- MemeFactory.scheduleOLASForAscendance() (MemeCelo-flatten.sol#640-669)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697)
+	- MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities
+
+Ignore
+INFO:Detectors:
+MemeFactory._collect(address,uint256,uint256,uint256) (MemeCelo-flatten.sol#439-458) ignores return value by memeTokenInstance.transfer(msg.sender,allocation) (MemeCelo-flatten.sol#455)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-transfer
+
+Ignore
+INFO:Detectors:
+Manipulated call found: tx.origin.call{value: leftovers}() (MemeCelo-flatten.sol#693) in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697)
+Only the destination could be manipulated
+Reference: https://github.com/pessimistic-io/slitherin/blob/master/docs/arbitrary_call.md
+
+OK, proved 
+INFO:Detectors:
+MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825) performs a multiplication on the result of a division:
+	- transferAmount = olasAmount / WORMHOLE_BRIDGING_CUTOFF (MemeCelo-flatten.sol#800)
+	- transferAmount *= WORMHOLE_BRIDGING_CUTOFF (MemeCelo-flatten.sol#801)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply
+INFO:Detectors:
+Reentrancy in MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825):
+	External calls:
+	- IERC20(olas).approve(l2TokenRelayer,transferAmount) (MemeCelo-flatten.sol#810)
+	- IBridge(l2TokenRelayer).transferTokens(olas,transferAmount,WORMHOLE_ETH_CHAIN_ID,olasBurner,0,uint32(nonce)) (MemeCelo-flatten.sol#817)
+	State variables written after the call(s):
+	- nonce = localNonce + 1 (MemeCelo-flatten.sol#820)
+	MemeCelo.nonce (MemeCelo-flatten.sol#742) can be used in cross function reentrancies:
+	- MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825)
+	- MemeCelo.nonce (MemeCelo-flatten.sol#742)
+
+False
+Reentrancy in MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605):
+	External calls:
+	- _collect(memeToken,hearterContribution,memeSummon.heartersAmount,memeSummon.nativeTokenContributed) (MemeCelo-flatten.sol#602)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeCelo-flatten.sol#455)
+	State variables written after the call(s):
+	- _locked = 1 (MemeCelo-flatten.sol#604)
+	MemeFactory._locked (MemeCelo-flatten.sol#351) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605)
+	- MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637)
+	- MemeFactory.scheduleOLASForAscendance() (MemeCelo-flatten.sol#640-669)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697)
+	- MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576)
+
+False
+Reentrancy in MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637):
+	External calls:
+	- memeTokenInstance.burn(remainingBalance) (MemeCelo-flatten.sol#632)
+	State variables written after the call(s):
+	- _locked = 1 (MemeCelo-flatten.sol#636)
+	MemeFactory._locked (MemeCelo-flatten.sol#351) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605)
+	- MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637)
+	- MemeFactory.scheduleOLASForAscendance() (MemeCelo-flatten.sol#640-669)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697)
+	- MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1
+
+OK, noticed it
+INFO:Detectors:
+MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697) ignores return value by tx.origin.call{value: leftovers}() (MemeCelo-flatten.sol#693)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-low-level-calls
+
+Ignore
+INFO:Detectors:
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeCelo-flatten.sol#404-432) ignores return value by IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeCelo-flatten.sol#418)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeCelo-flatten.sol#404-432) ignores return value by IERC20(memeToken).approve(router,memeTokenAmount) (MemeCelo-flatten.sol#419)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeCelo-flatten.sol#404-432) ignores return value by (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeCelo-flatten.sol#422-431)
+MemeCelo._buyOLAS(uint256,uint256) (MemeCelo-flatten.sol#770-790) ignores return value by IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeCelo-flatten.sol#776)
+MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825) ignores return value by IERC20(olas).approve(l2TokenRelayer,transferAmount) (MemeCelo-flatten.sol#810)
+MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825) ignores return value by IBridge(l2TokenRelayer).transferTokens(olas,transferAmount,WORMHOLE_ETH_CHAIN_ID,olasBurner,0,uint32(nonce)) (MemeCelo-flatten.sol#817)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return
+
+OK, proved
+INFO:Detectors:
+Dubious typecast in MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825):
+	uint256 => uint32 casting occurs in IBridge(l2TokenRelayer).transferTokens(olas,transferAmount,WORMHOLE_ETH_CHAIN_ID,olasBurner,0,uint32(nonce)) (MemeCelo-flatten.sol#817)
+Reference: https://github.com/pessimistic-io/slitherin/blob/master/docs/dubious_typecast.md
+
+OK, ignore
+INFO:Detectors:
+MemeCelo.constructor(address,address,address,address,uint256,address,address)._l2TokenRelayer (MemeCelo-flatten.sol#753) lacks a zero-check on :
+		- l2TokenRelayer = _l2TokenRelayer (MemeCelo-flatten.sol#756)
+MemeCelo.constructor(address,address,address,address,uint256,address,address)._oracle (MemeCelo-flatten.sol#754) lacks a zero-check on :
+		- oracle = _oracle (MemeCelo-flatten.sol#757)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation
+
+False
+INFO:Detectors:
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeCelo-flatten.sol#415)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeCelo-flatten.sol#418)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeCelo-flatten.sol#419)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeCelo-flatten.sol#422-431)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+	State variables written after the call(s):
+	- mapAccountActivities[msg.sender] ++ (MemeCelo-flatten.sol#565)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+
+False
+INFO:Detectors:
+Reentrancy in MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825):
+	External calls:
+	- IERC20(olas).approve(l2TokenRelayer,transferAmount) (MemeCelo-flatten.sol#810)
+	- IBridge(l2TokenRelayer).transferTokens(olas,transferAmount,WORMHOLE_ETH_CHAIN_ID,olasBurner,0,uint32(nonce)) (MemeCelo-flatten.sol#817)
+	Event emitted after the call(s):
+	- OLASJourneyToAscendance(olas,transferAmount) (MemeCelo-flatten.sol#822)
+Reentrancy in MemeFactory._collect(address,uint256,uint256,uint256) (MemeCelo-flatten.sol#439-458):
+	External calls:
+	- memeTokenInstance.transfer(msg.sender,allocation) (MemeCelo-flatten.sol#455)
+	Event emitted after the call(s):
+	- Collected(msg.sender,memeToken,allocation) (MemeCelo-flatten.sol#457)
+Reentrancy in MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637):
+	External calls:
+	- memeTokenInstance.burn(remainingBalance) (MemeCelo-flatten.sol#632)
+	Event emitted after the call(s):
+	- Purged(memeToken,remainingBalance) (MemeCelo-flatten.sol#634)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeCelo-flatten.sol#415)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeCelo-flatten.sol#418)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeCelo-flatten.sol#419)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeCelo-flatten.sol#422-431)
+	- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeCelo-flatten.sol#570)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeCelo-flatten.sol#455)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeCelo-flatten.sol#557)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeCelo-flatten.sol#462)
+	Event emitted after the call(s):
+	- Collected(msg.sender,memeToken,allocation) (MemeCelo-flatten.sol#457)
+		- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeCelo-flatten.sol#570)
+	- Unleashed(msg.sender,memeToken,pool,liquidity,burnPercentageOfReferenceToken) (MemeCelo-flatten.sol#573)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+
+Ignore
+INFO:Detectors:
+ERC20.permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (MemeCelo-flatten.sol#119-163) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(deadline >= block.timestamp,PERMIT_DEADLINE_EXPIRED) (MemeCelo-flatten.sol#128)
+MemeFactory.unleashThisMeme(address) (MemeCelo-flatten.sol#528-576) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.summonTime > 0,Meme not summoned) (MemeCelo-flatten.sol#539)
+	- require(bool,string)(block.timestamp >= memeSummon.summonTime + UNLEASH_DELAY,Cannot unleash yet) (MemeCelo-flatten.sol#541)
+MemeFactory.collectThisMeme(address) (MemeCelo-flatten.sol#580-605) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.unleashTime > 0,Meme not unleashed) (MemeCelo-flatten.sol#588)
+	- require(bool,string)(block.timestamp <= memeSummon.unleashTime + COLLECT_DELAY,Collect only allowed until 24 hours after unleash) (MemeCelo-flatten.sol#590)
+MemeFactory.purgeThisMeme(address) (MemeCelo-flatten.sol#609-637) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.unleashTime > 0,Meme not unleashed) (MemeCelo-flatten.sol#617)
+	- require(bool,string)(block.timestamp > memeSummon.unleashTime + COLLECT_DELAY,Purge only allowed from 24 hours after unleash) (MemeCelo-flatten.sol#619)
+MemeCelo._bridgeAndBurn(uint256,uint256,bytes) (MemeCelo-flatten.sol#795-825) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(transferAmount > 0,Amount is too small for bridging) (MemeCelo-flatten.sol#804)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+
+Ignore
+MemeFactory._wrap(uint256) (MemeCelo-flatten.sol#460-463) is never used and should be removed
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code
+
+OK, noticed 
+INFO:Detectors:
+Low level call in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeCelo-flatten.sol#675-697):
+	- tx.origin.call{value: leftovers}() (MemeCelo-flatten.sol#693)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+
+INFO:Detectors:
+Reentrancy in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683):
+	External calls:
+	- tx.origin.call{value: leftovers}() (MemeFactory-flatten.sol#679)
+	State variables written after the call(s):
+	- _locked = 1 (MemeFactory-flatten.sol#682)
+	MemeFactory._locked (MemeFactory-flatten.sol#337) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591)
+	- MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623)
+	- MemeFactory.scheduleOLASForAscendance() (MemeFactory-flatten.sol#626-655)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683)
+	- MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeFactory-flatten.sol#401)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeFactory-flatten.sol#404)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeFactory-flatten.sol#405)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeFactory-flatten.sol#408-417)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+	State variables written after the call(s):
+	- memeSummon.unleashTime = block.timestamp (MemeFactory-flatten.sol#546)
+	MemeFactory.memeSummons (MemeFactory-flatten.sol#340) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591)
+	- MemeFactory.heartThisMeme(address) (MemeFactory-flatten.sol#486-510)
+	- MemeFactory.memeSummons (MemeFactory-flatten.sol#340)
+	- MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623)
+	- MemeFactory.summonThisMeme(string,string,uint256) (MemeFactory-flatten.sol#455-482)
+	- MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562)
+	- memeSummon.heartersAmount = heartersAmount (MemeFactory-flatten.sol#548)
+	MemeFactory.memeSummons (MemeFactory-flatten.sol#340) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591)
+	- MemeFactory.heartThisMeme(address) (MemeFactory-flatten.sol#486-510)
+	- MemeFactory.memeSummons (MemeFactory-flatten.sol#340)
+	- MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623)
+	- MemeFactory.summonThisMeme(string,string,uint256) (MemeFactory-flatten.sol#455-482)
+	- MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeFactory-flatten.sol#401)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeFactory-flatten.sol#404)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeFactory-flatten.sol#405)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeFactory-flatten.sol#408-417)
+	- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeFactory-flatten.sol#556)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeFactory-flatten.sol#441)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+	State variables written after the call(s):
+	- _locked = 1 (MemeFactory-flatten.sol#561)
+	MemeFactory._locked (MemeFactory-flatten.sol#337) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591)
+	- MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623)
+	- MemeFactory.scheduleOLASForAscendance() (MemeFactory-flatten.sol#626-655)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683)
+	- MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities
+
+INFO:Detectors:
+MemeFactory._collect(address,uint256,uint256,uint256) (MemeFactory-flatten.sol#425-444) ignores return value by memeTokenInstance.transfer(msg.sender,allocation) (MemeFactory-flatten.sol#441)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-transfer
+
+INFO:Detectors:
+Manipulated call found: tx.origin.call{value: leftovers}() (MemeFactory-flatten.sol#679) in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683)
+Only the destination could be manipulated
+Reference: https://github.com/pessimistic-io/slitherin/blob/master/docs/arbitrary_call.md
+
+INFO:Detectors:
+Reentrancy in MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591):
+	External calls:
+	- _collect(memeToken,hearterContribution,memeSummon.heartersAmount,memeSummon.nativeTokenContributed) (MemeFactory-flatten.sol#588)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeFactory-flatten.sol#441)
+	State variables written after the call(s):
+	- _locked = 1 (MemeFactory-flatten.sol#590)
+	MemeFactory._locked (MemeFactory-flatten.sol#337) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591)
+	- MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623)
+	- MemeFactory.scheduleOLASForAscendance() (MemeFactory-flatten.sol#626-655)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683)
+	- MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562)
+Reentrancy in MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623):
+	External calls:
+	- memeTokenInstance.burn(remainingBalance) (MemeFactory-flatten.sol#618)
+	State variables written after the call(s):
+	- _locked = 1 (MemeFactory-flatten.sol#622)
+	MemeFactory._locked (MemeFactory-flatten.sol#337) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591)
+	- MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623)
+	- MemeFactory.scheduleOLASForAscendance() (MemeFactory-flatten.sol#626-655)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683)
+	- MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1
+
+INFO:Detectors:
+MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683) ignores return value by tx.origin.call{value: leftovers}() (MemeFactory-flatten.sol#679)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-low-level-calls
+
+
+INFO:Detectors:
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeFactory-flatten.sol#401)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeFactory-flatten.sol#404)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeFactory-flatten.sol#405)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeFactory-flatten.sol#408-417)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+	State variables written after the call(s):
+	- mapAccountActivities[msg.sender] ++ (MemeFactory-flatten.sol#551)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+
+INFO:Detectors:
+Reentrancy in MemeFactory._collect(address,uint256,uint256,uint256) (MemeFactory-flatten.sol#425-444):
+	External calls:
+	- memeTokenInstance.transfer(msg.sender,allocation) (MemeFactory-flatten.sol#441)
+	Event emitted after the call(s):
+	- Collected(msg.sender,memeToken,allocation) (MemeFactory-flatten.sol#443)
+Reentrancy in MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623):
+	External calls:
+	- memeTokenInstance.burn(remainingBalance) (MemeFactory-flatten.sol#618)
+	Event emitted after the call(s):
+	- Purged(memeToken,remainingBalance) (MemeFactory-flatten.sol#620)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeFactory-flatten.sol#401)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeFactory-flatten.sol#404)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeFactory-flatten.sol#405)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeFactory-flatten.sol#408-417)
+	- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeFactory-flatten.sol#556)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeFactory-flatten.sol#441)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeFactory-flatten.sol#543)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeFactory-flatten.sol#448)
+	Event emitted after the call(s):
+	- Collected(msg.sender,memeToken,allocation) (MemeFactory-flatten.sol#443)
+		- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeFactory-flatten.sol#556)
+	- Unleashed(msg.sender,memeToken,pool,liquidity,burnPercentageOfReferenceToken) (MemeFactory-flatten.sol#559)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+
+INFO:Detectors:
+ERC20.permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (MemeFactory-flatten.sol#118-162) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(deadline >= block.timestamp,PERMIT_DEADLINE_EXPIRED) (MemeFactory-flatten.sol#127)
+MemeFactory.unleashThisMeme(address) (MemeFactory-flatten.sol#514-562) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.summonTime > 0,Meme not summoned) (MemeFactory-flatten.sol#525)
+	- require(bool,string)(block.timestamp >= memeSummon.summonTime + UNLEASH_DELAY,Cannot unleash yet) (MemeFactory-flatten.sol#527)
+MemeFactory.collectThisMeme(address) (MemeFactory-flatten.sol#566-591) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.unleashTime > 0,Meme not unleashed) (MemeFactory-flatten.sol#574)
+	- require(bool,string)(block.timestamp <= memeSummon.unleashTime + COLLECT_DELAY,Collect only allowed until 24 hours after unleash) (MemeFactory-flatten.sol#576)
+MemeFactory.purgeThisMeme(address) (MemeFactory-flatten.sol#595-623) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.unleashTime > 0,Meme not unleashed) (MemeFactory-flatten.sol#603)
+	- require(bool,string)(block.timestamp > memeSummon.unleashTime + COLLECT_DELAY,Purge only allowed from 24 hours after unleash) (MemeFactory-flatten.sol#605)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+
+INFO:Detectors:
+Low level call in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeFactory-flatten.sol#661-683):
+	- tx.origin.call{value: leftovers}() (MemeFactory-flatten.sol#679)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+
+
+INFO:Detectors:
+MemeFactory._wrap(uint256) (MemeBase-flatten.sol#439-442) sends eth to arbitrary user
+	Dangerous calls:
+	- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations
+
+INFO:Detectors:
+Reentrancy in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676):
+	External calls:
+	- tx.origin.call{value: leftovers}() (MemeBase-flatten.sol#672)
+	State variables written after the call(s):
+	- _locked = 1 (MemeBase-flatten.sol#675)
+	MemeFactory._locked (MemeBase-flatten.sol#330) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584)
+	- MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616)
+	- MemeFactory.scheduleOLASForAscendance() (MemeBase-flatten.sol#619-648)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676)
+	- MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeBase-flatten.sol#394)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeBase-flatten.sol#397)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeBase-flatten.sol#398)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeBase-flatten.sol#401-410)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+	State variables written after the call(s):
+	- memeSummon.unleashTime = block.timestamp (MemeBase-flatten.sol#539)
+	MemeFactory.memeSummons (MemeBase-flatten.sol#333) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584)
+	- MemeFactory.heartThisMeme(address) (MemeBase-flatten.sol#479-503)
+	- MemeFactory.memeSummons (MemeBase-flatten.sol#333)
+	- MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616)
+	- MemeFactory.summonThisMeme(string,string,uint256) (MemeBase-flatten.sol#448-475)
+	- MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555)
+	- memeSummon.heartersAmount = heartersAmount (MemeBase-flatten.sol#541)
+	MemeFactory.memeSummons (MemeBase-flatten.sol#333) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584)
+	- MemeFactory.heartThisMeme(address) (MemeBase-flatten.sol#479-503)
+	- MemeFactory.memeSummons (MemeBase-flatten.sol#333)
+	- MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616)
+	- MemeFactory.summonThisMeme(string,string,uint256) (MemeBase-flatten.sol#448-475)
+	- MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555)
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeBase-flatten.sol#394)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeBase-flatten.sol#397)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeBase-flatten.sol#398)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeBase-flatten.sol#401-410)
+	- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeBase-flatten.sol#549)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeBase-flatten.sol#434)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+	State variables written after the call(s):
+	- _locked = 1 (MemeBase-flatten.sol#554)
+	MemeFactory._locked (MemeBase-flatten.sol#330) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584)
+	- MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616)
+	- MemeFactory.scheduleOLASForAscendance() (MemeBase-flatten.sol#619-648)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676)
+	- MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities
+
+INFO:Detectors:
+MemeFactory._collect(address,uint256,uint256,uint256) (MemeBase-flatten.sol#418-437) ignores return value by memeTokenInstance.transfer(msg.sender,allocation) (MemeBase-flatten.sol#434)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-transfer
+
+INFO:Detectors:
+Manipulated call found: tx.origin.call{value: leftovers}() (MemeBase-flatten.sol#672) in MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676)
+Only the destination could be manipulated
+Reference: https://github.com/pessimistic-io/slitherin/blob/master/docs/arbitrary_call.md
+
+INFO:Detectors:
+Reentrancy in MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584):
+	External calls:
+	- _collect(memeToken,hearterContribution,memeSummon.heartersAmount,memeSummon.nativeTokenContributed) (MemeBase-flatten.sol#581)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeBase-flatten.sol#434)
+	State variables written after the call(s):
+	- _locked = 1 (MemeBase-flatten.sol#583)
+	MemeFactory._locked (MemeBase-flatten.sol#330) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584)
+	- MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616)
+	- MemeFactory.scheduleOLASForAscendance() (MemeBase-flatten.sol#619-648)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676)
+	- MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555)
+Reentrancy in MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616):
+	External calls:
+	- memeTokenInstance.burn(remainingBalance) (MemeBase-flatten.sol#611)
+	State variables written after the call(s):
+	- _locked = 1 (MemeBase-flatten.sol#615)
+	MemeFactory._locked (MemeBase-flatten.sol#330) can be used in cross function reentrancies:
+	- MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584)
+	- MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616)
+	- MemeFactory.scheduleOLASForAscendance() (MemeBase-flatten.sol#619-648)
+	- MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676)
+	- MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1
+
+INFO:Detectors:
+MemeFactory.sendToHigherHeights(uint256,bytes) (MemeBase-flatten.sol#654-676) ignores return value by tx.origin.call{value: leftovers}() (MemeBase-flatten.sol#672)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-low-level-calls
+
+INFO:Detectors:
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#383-411) ignores return value by IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeBase-flatten.sol#397)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#383-411) ignores return value by IERC20(memeToken).approve(router,memeTokenAmount) (MemeBase-flatten.sol#398)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#383-411) ignores return value by (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeBase-flatten.sol#401-410)
+MemeBase._buyOLAS(uint256,uint256) (MemeBase-flatten.sol#779-794) ignores return value by IERC20(nativeToken).approve(balancerVault,nativeTokenAmount) (MemeBase-flatten.sol#784)
+MemeBase._bridgeAndBurn(uint256,uint256,bytes) (MemeBase-flatten.sol#800-818) ignores return value by IERC20(olas).approve(l2TokenRelayer,olasAmount) (MemeBase-flatten.sol#802)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return
+
+INFO:Detectors:
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeBase-flatten.sol#394)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeBase-flatten.sol#397)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeBase-flatten.sol#398)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeBase-flatten.sol#401-410)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+	State variables written after the call(s):
+	- mapAccountActivities[msg.sender] ++ (MemeBase-flatten.sol#544)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+
+INFO:Detectors:
+Reentrancy in MemeBase._bridgeAndBurn(uint256,uint256,bytes) (MemeBase-flatten.sol#800-818):
+	External calls:
+	- IERC20(olas).approve(l2TokenRelayer,olasAmount) (MemeBase-flatten.sol#802)
+	- IBridge(l2TokenRelayer).withdrawTo(olas,OLAS_BURNER,olasAmount,uint32(tokenGasLimit),data) (MemeBase-flatten.sol#813)
+	Event emitted after the call(s):
+	- OLASJourneyToAscendance(olas,olasAmount) (MemeBase-flatten.sol#815)
+Reentrancy in MemeFactory._collect(address,uint256,uint256,uint256) (MemeBase-flatten.sol#418-437):
+	External calls:
+	- memeTokenInstance.transfer(msg.sender,allocation) (MemeBase-flatten.sol#434)
+	Event emitted after the call(s):
+	- Collected(msg.sender,memeToken,allocation) (MemeBase-flatten.sol#436)
+Reentrancy in MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616):
+	External calls:
+	- memeTokenInstance.burn(remainingBalance) (MemeBase-flatten.sol#611)
+	Event emitted after the call(s):
+	- Purged(memeToken,remainingBalance) (MemeBase-flatten.sol#613)
+
+Reentrancy in MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555):
+	External calls:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+		- pair = IUniswap(factory).createPair(nativeToken,memeToken) (MemeBase-flatten.sol#394)
+		- IERC20(nativeToken).approve(router,nativeTokenAmount) (MemeBase-flatten.sol#397)
+		- IERC20(memeToken).approve(router,memeTokenAmount) (MemeBase-flatten.sol#398)
+		- (None,None,liquidity) = IUniswap(router).addLiquidity(nativeToken,memeToken,nativeTokenAmount,memeTokenAmount,0,0,address(this),block.timestamp) (MemeBase-flatten.sol#401-410)
+	- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeBase-flatten.sol#549)
+		- memeTokenInstance.transfer(msg.sender,allocation) (MemeBase-flatten.sol#434)
+	External calls sending eth:
+	- (pool,liquidity) = _createUniswapPair(memeToken,totalNativeTokenCommitted,lpTokenAmount) (MemeBase-flatten.sol#536)
+		- IWETH(nativeToken).deposit{value: nativeTokenAmount}() (MemeBase-flatten.sol#441)
+	Event emitted after the call(s):
+	- Collected(msg.sender,memeToken,allocation) (MemeBase-flatten.sol#436)
+		- _collect(memeToken,hearterContribution,heartersAmount,totalNativeTokenCommitted) (MemeBase-flatten.sol#549)
+	- Unleashed(msg.sender,memeToken,pool,liquidity,burnPercentageOfReferenceToken) (MemeBase-flatten.sol#552)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+
+INFO:Detectors:
+ERC20.permit(address,address,uint256,uint256,uint8,bytes32,bytes32) (MemeBase-flatten.sol#120-164) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(deadline >= block.timestamp,PERMIT_DEADLINE_EXPIRED) (MemeBase-flatten.sol#129)
+MemeFactory.unleashThisMeme(address) (MemeBase-flatten.sol#507-555) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.summonTime > 0,Meme not summoned) (MemeBase-flatten.sol#518)
+	- require(bool,string)(block.timestamp >= memeSummon.summonTime + UNLEASH_DELAY,Cannot unleash yet) (MemeBase-flatten.sol#520)
+MemeFactory.collectThisMeme(address) (MemeBase-flatten.sol#559-584) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.unleashTime > 0,Meme not unleashed) (MemeBase-flatten.sol#567)
+	- require(bool,string)(block.timestamp <= memeSummon.unleashTime + COLLECT_DELAY,Collect only allowed until 24 hours after unleash) (MemeBase-flatten.sol#569)
+MemeFactory.purgeThisMeme(address) (MemeBase-flatten.sol#588-616) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(memeSummon.unleashTime > 0,Meme not unleashed) (MemeBase-flatten.sol#596)
+	- require(bool,string)(block.timestamp > memeSummon.unleashTime + COLLECT_DELAY,Purge only allowed from 24 hours after unleash) (MemeBase-flatten.sol#598)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+
+

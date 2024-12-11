@@ -1,0 +1,266 @@
+'solc --version' running
+'solc ./MemeActivityChecker-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./BuyBackBurnerProxy-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+Compilation warnings/errors on ./BuyBackBurnerProxy-flatten.sol:
+Warning: This contract has a payable fallback function, but no receive ether function. Consider adding a receive ether function.
+  --> BuyBackBurnerProxy-flatten.sol:26:1:
+   |
+26 | contract BuyBackBurnerProxy {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+Note: The payable fallback function is defined here.
+  --> BuyBackBurnerProxy-flatten.sol:56:5:
+   |
+56 |     fallback() external payable {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+
+'solc --version' running
+'solc ./Meme.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeCelo-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./BuyBackBurner-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./BalancerPriceOracle-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeArbitrum-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./UniswapPriceOracle-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeFactory-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+'solc --version' running
+'solc ./MemeBase-flatten.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/andrey/valory/meme-ooorr/audits/internal2/analysis/contracts' running
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ IMemeFactory
+
++ MemeActivityChecker
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ IMemeFactory
+
++ MemeActivityChecker
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ BuyBackBurnerProxy
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ BuyBackBurnerProxy
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+
++ MemeCelo
+ -> MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+ -> MemeCelo
+
++ MemeCelo
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ BuyBackBurner
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ BuyBackBurner
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ IVault
+
++ BalancerPriceOracle
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ IVault
+
++ BalancerPriceOracle
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+
++ IWETH
+
++ MemeArbitrum
+ -> MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+ -> MemeArbitrum
+
++ IWETH
+
++ MemeArbitrum
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ IUniswapV2
+
++ UniswapPriceOracle
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ IUniswapV2
+
++ UniswapPriceOracle
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+
+INFO:Printers:Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ ERC20
+
++ Meme
+ -> ERC20
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+
++ IWETH
+
++ MemeBase
+ -> MemeFactory
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ ERC20
+ -> Meme
+
++ Meme
+
++ IUniswapV3
+
++ FixedPointMathLib
+
++ IERC20
+
++ MemeFactory
+ -> MemeBase
+
++ IWETH
+
++ MemeBase
+
+INFO:Slither:. analyzed (39 contracts)

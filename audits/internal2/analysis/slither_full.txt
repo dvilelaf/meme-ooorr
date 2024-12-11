@@ -1,0 +1,35 @@
+
+In audit
+INFO:Detectors:
+Contract locking ether found:
+	Contract MemeCelo (MemeCelo-flatten.sol#1196-1211) has payable functions:
+	 - MemeFactory.summonThisMeme(string,string,uint256) (MemeCelo-flatten.sol#953-990)
+	 - MemeFactory.heartThisMeme(address) (MemeCelo-flatten.sol#994-1023)
+	 - MemeFactory.receive() (MemeCelo-flatten.sol#1190)
+	But does not have a function to withdraw the ether
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether
+
+Ignore
+In a function MemeFactory._createUniswapPair(address,uint256,uint256) (MemeFactory-flatten.sol#834-877) variable MemeFactory.nativeToken (MemeFactory-flatten.sol#782) is read multiple times
+In a function MemeFactory._createUniswapPair(address,uint256,uint256) (MemeFactory-flatten.sol#834-877) variable MemeFactory.uniV3PositionManager (MemeFactory-flatten.sol#784) is read multiple times
+Reference: https://github.com/pessimistic-io/slitherin/blob/master/docs/multiple_storage_read.md
+
+Ignore
+INFO:Detectors:
+MemeFactory._collectFees(address,uint256,bool) (MemeBase-flatten.sol#876-910) has external calls inside a loop: (amount0,amount1) = IUniswapV3(uniV3PositionManager).collect(params) (MemeBase-flatten.sol#885-886)
+MemeFactory._collectFees(address,uint256,bool) (MemeBase-flatten.sol#876-910) has external calls inside a loop: IERC20(memeToken).burn(memeAmountToBurn) (MemeBase-flatten.sol#900)
+MemeBase._MAGA() (MemeBase-flatten.sol#1258-1288) has external calls inside a loop: totalSupply = memeTokenInstance.totalSupply() (MemeBase-flatten.sol#1260)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#827-870) has external calls inside a loop: IUniswapV3(uniV3PositionManager).createAndInitializePoolIfNecessary(token0,token1,FEE_TIER,sqrtPriceX96) (MemeBase-flatten.sol#847-848)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#827-870) has external calls inside a loop: IERC20(token0).approve(uniV3PositionManager,amount0) (MemeBase-flatten.sol#851)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#827-870) has external calls inside a loop: IERC20(token1).approve(uniV3PositionManager,amount1) (MemeBase-flatten.sol#852)
+MemeFactory._createUniswapPair(address,uint256,uint256) (MemeBase-flatten.sol#827-870) has external calls inside a loop: (positionId,liquidity,None,None) = IUniswapV3(uniV3PositionManager).mint(params) (MemeBase-flatten.sol#869)
+MemeFactory._collect(address,uint256,uint256,uint256) (MemeBase-flatten.sol#917-936) has external calls inside a loop: memeTokenInstance.transfer(msg.sender,allocation) (MemeBase-flatten.sol#933)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation/#calls-inside-a-loop
+
+Ignore
+INFO:Detectors:
+In a function MemeBase._launchCampaignSetup(address[],uint256[]) (MemeBase-flatten.sol#1227-1255) variable MemeBase.launchCampaignTokenAddress (MemeBase-flatten.sol#1205) is read multiple times
+In a function MemeBase._MAGA() (MemeBase-flatten.sol#1258-1288) variable MemeBase.launchCampaignTokenAddress (MemeBase-flatten.sol#1205) is read multiple times
+In a function MemeBase._launchCampaign(uint256) (MemeBase-flatten.sol#1290-1310) variable MemeBase.LIQUIDITY_AGNT (MemeBase-flatten.sol#1202) is read multiple times
+In a function MemeBase._launchCampaign(uint256) (MemeBase-flatten.sol#1290-1310) variable MemeBase.launchCampaignBalance (MemeBase-flatten.sol#1207) is read multiple times
+Reference: https://github.com/pessimistic-io/slitherin/blob/master/docs/multiple_storage_read.md
