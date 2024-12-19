@@ -17,26 +17,33 @@ contract MemeBase is MemeFactory {
     uint256 public constant LIQUIDITY_AGNT = 127412857890000000000;
     // Block time of original summon:
     uint256 public constant SUMMON_AGNT = 22902993;
+    // Base UniswapV3 pool cardinality that corresponds to 240 seconds window (240 / 2 seconds per block)
+    uint16 public constant POOL_CARDINALITY = 120;
 
     // Launch campaign nonce
     uint256 public immutable launchCampaignNonce;
 
     /// @dev MemeBase constructor
     constructor(
-        address _olas,
         address _nativeToken,
         address _uniV3PositionManager,
         address _buyBackBurner,
         uint256 _minNativeTokenValue,
         address[] memory accounts,
         uint256[] memory amounts
-    ) MemeFactory(_olas, _nativeToken, _uniV3PositionManager, _buyBackBurner, _minNativeTokenValue) {
+    ) MemeFactory(_nativeToken, _uniV3PositionManager, _buyBackBurner, _minNativeTokenValue) {
         if (accounts.length > 0) {
             launchCampaignNonce = _nonce;
             _launchCampaignSetup(accounts, amounts);
             _nonce = launchCampaignNonce + 1;
             _launched = 0;
         }
+    }
+
+    /// @dev Gets required UniswapV3 pool cardinality.
+    /// @return Pool cardinality.
+    function _observationCardinalityNext() internal virtual override pure returns (uint16) {
+        return POOL_CARDINALITY;
     }
 
     /// @dev Launch campaign initialization function.
@@ -57,7 +64,7 @@ contract MemeBase is MemeFactory {
         uint256 totalAmount;
         for (uint256 i = 0; i < accounts.length; ++i) {
             totalAmount += amounts[i];
-            memeHearters[launchCampaignNonce][accounts[i]] = amounts[i];
+            memeHearters[launchCampaignNonce][accounts[i]] += amounts[i];
             // to match original hearter events
             emit Hearted(accounts[i], launchCampaignNonce, amounts[i]);
         }

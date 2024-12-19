@@ -15,7 +15,6 @@ for (let i = 0; i < redemptionsData.length; i++) {
 }
 
 module.exports = [
-    parsedData.olasAddress,
     parsedData.wethAddress,
     parsedData.uniV3positionManagerAddress,
     parsedData.buyBackBurnerProxyAddress,

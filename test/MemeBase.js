@@ -50,8 +50,8 @@ const main = async () => {
 
     // MemeBase
     const MemeBase = await ethers.getContractFactory("MemeBase");
-    const memeBase = await MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
-        parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue, [], []);
+    const memeBase = await MemeBase.deploy(parsedData.wethAddress, parsedData.uniV3positionManagerAddress,
+         buyBackBurner.address, parsedData.minNativeTokenValue, [], []);
     await memeBase.deployed();
 
     // Summon a new meme token

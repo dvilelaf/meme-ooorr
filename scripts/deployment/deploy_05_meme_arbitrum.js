@@ -45,7 +45,7 @@ async function main() {
     const gasPrice = ethers.utils.parseUnits(gasPriceInGwei, "gwei");
     const MemeArbitrum = await ethers.getContractFactory("MemeArbitrum");
     console.log("You are signing the following transaction: MemeArbitrum.connect(EOA).deploy()");
-    const memeArbitrum = await MemeArbitrum.connect(EOA).deploy(parsedData.olasAddress, parsedData.wethAddress,
+    const memeArbitrum = await MemeArbitrum.connect(EOA).deploy(parsedData.wethAddress,
         parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue, { gasPrice });
     const result = await memeArbitrum.deployed();
 

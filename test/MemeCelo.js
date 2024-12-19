@@ -48,8 +48,8 @@ const main = async () => {
     const buyBackBurner = await ethers.getContractAt("BuyBackBurnerUniswap", buyBackBurnerProxy.address);
 
     const MemeCelo = await ethers.getContractFactory("MemeCelo");
-    const memeCelo = await MemeCelo.deploy(parsedData.olasAddress, parsedData.celoAddress,
-        parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue);
+    const memeCelo = await MemeCelo.deploy(parsedData.celoAddress, parsedData.uniV3positionManagerAddress,
+        buyBackBurner.address, parsedData.minNativeTokenValue);
     await memeCelo.deployed();
 
     // Summon a new meme token

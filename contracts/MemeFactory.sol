@@ -115,8 +115,6 @@ abstract contract MemeFactory {
 
     // Minimum value of native token deposit
     uint256 public immutable minNativeTokenValue;
-    // OLAS token address
-    address public immutable olas;
     // Native token address (ERC-20 equivalent)
     address public immutable nativeToken;
     // Uniswap V3 position manager address
@@ -124,8 +122,6 @@ abstract contract MemeFactory {
     // BuyBackBurner address
     address public immutable buyBackBurner;
 
-    // Number of meme tokens
-    uint256 public numTokens;
     // Native token (ERC-20) scheduled to be converted to OLAS for Ascendance
     uint256 public scheduledForAscendance;
     // Nonce
@@ -148,13 +144,11 @@ abstract contract MemeFactory {
 
     /// @dev MemeFactory constructor
     constructor(
-        address _olas,
         address _nativeToken,
         address _uniV3PositionManager,
         address _buyBackBurner,
         uint256 _minNativeTokenValue
     ) {
-        olas = _olas;
         nativeToken = _nativeToken;
         uniV3PositionManager = _uniV3PositionManager;
         buyBackBurner = _buyBackBurner;
@@ -183,10 +177,10 @@ abstract contract MemeFactory {
             : (memeToken, nativeToken, memeTokenAmount, nativeTokenAmount);
 
         // Calculate the price ratio (amount1 / amount0) scaled by 1e18 to avoid floating point issues
-        uint256 priceX96 = (amount1 * 1e18) / amount0;
+        uint256 price = FixedPointMathLib.divWadDown(amount1, amount0);
 
         // Calculate the square root of the price ratio in X96 format
-        uint160 sqrtPriceX96 = uint160((FixedPointMathLib.sqrt(priceX96) * (1 << 96)) / 1e9);
+        uint160 sqrtPriceX96 = uint160((FixedPointMathLib.sqrt(price) * (1 << 96)) / 1e9);
 
         // Get factory address
         address factory = IUniswapV3(uniV3PositionManager).factory();
@@ -220,13 +214,13 @@ abstract contract MemeFactory {
 
         // Schedule for ascendance leftovers from native token
         // Note that meme token leftovers will be purged via purgeThisMeme
-        uint256 nativeLeftovers = isNativeFirst ? (nativeTokenAmount - amount0) : (nativeTokenAmount - amount1);
+        uint256 nativeLeftovers = nativeTokenAmount - (isNativeFirst ? amount0 : amount1);
         if (nativeLeftovers > 0) {
             scheduledForAscendance += nativeLeftovers;
         }
 
         // Increase observation cardinality
-        IUniswapV3(pool).increaseObservationCardinalityNext(60);
+        IUniswapV3(pool).increaseObservationCardinalityNext(_observationCardinalityNext());
     }
 
     /// @dev Collects fees from LP position, burns the meme token part and schedules for ascendance the native token part.
@@ -250,16 +244,8 @@ abstract contract MemeFactory {
         (uint256 amount0, uint256 amount1) = IUniswapV3(uniV3PositionManager).collect(params);
         require(amount0 > 0 || amount1 > 0, "Zero fees available");
 
-        uint256 nativeAmountForOLASBurn;
-        uint256 memeAmountToBurn;
-
-        if (isNativeFirst) {
-            nativeAmountForOLASBurn = amount0;
-            memeAmountToBurn = amount1;
-        } else {
-            memeAmountToBurn = amount0;
-            nativeAmountForOLASBurn = amount1;
-        }
+        (uint256 nativeAmountForOLASBurn, uint256 memeAmountToBurn) = isNativeFirst ? (amount0, amount1) :
+            (amount1, amount0);
 
         // Burn meme tokens
         IERC20(memeToken).burn(memeAmountToBurn);
@@ -312,15 +298,15 @@ abstract contract MemeFactory {
     ) internal returns (address memeToken) {
         bytes32 randomNonce = keccak256(abi.encodePacked(block.timestamp, msg.sender, memeNonce));
         randomNonce = keccak256(abi.encodePacked(randomNonce));
-        bytes memory payload = abi.encodePacked(type(Meme).creationCode, abi.encode(name, symbol, DECIMALS, totalSupply));
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            memeToken := create2(0x0, add(0x20, payload), mload(payload), randomNonce)
-        }
+        memeToken = address(new Meme{salt: randomNonce}(name, symbol, DECIMALS, totalSupply));
 
         // Check for non-zero token address
         require(memeToken != address(0), "Token creation failed");
     }
+
+    /// @dev Gets required UniswapV3 pool cardinality.
+    /// @return Pool cardinality.
+    function _observationCardinalityNext() internal virtual pure returns (uint16);
 
     /// @dev Allows diverting first x collected funds to a launch campaign.
     /// @return adjustedAmount Adjusted amount of native token to convert to OLAS and burn.
@@ -364,7 +350,6 @@ abstract contract MemeFactory {
 
         // Push token into the global list of tokens
         memeTokens.push(memeToken);
-        numTokens = memeTokens.length;
 
         // Allocate to the token hearter unleashing the meme
         uint256 hearterContribution = memeHearters[memeNonce][msg.sender];
@@ -436,9 +421,7 @@ abstract contract MemeFactory {
         require(memeSummon.unleashTime == 0, "Meme already unleashed");
 
         // Update meme token map values
-        uint256 totalNativeTokenCommitted = memeSummon.nativeTokenContributed;
-        totalNativeTokenCommitted += msg.value;
-        memeSummon.nativeTokenContributed = totalNativeTokenCommitted;
+        memeSummon.nativeTokenContributed += msg.value;
         memeHearters[memeNonce][msg.sender] += msg.value;
 
         // Record msg.sender activity
@@ -581,7 +564,7 @@ abstract contract MemeFactory {
 
     /// @dev Collects all accumulated LP fees.
     /// @param tokens List of tokens to be iterated over.
-    function collectFees(address[] memory tokens) public {
+    function collectFees(address[] memory tokens) external {
         require(_locked == 1, "Reentrancy guard");
         _locked = 2;
 
@@ -599,5 +582,11 @@ abstract contract MemeFactory {
         }
 
         _locked = 1;
+    }
+
+    /// @dev Gets global number of unleashed meme tokens.
+    /// @return Number of unleashed meme tokens.
+    function numTokens() external view returns (uint256) {
+        return memeTokens.length;
     }
 }
