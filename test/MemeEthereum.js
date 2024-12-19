@@ -59,8 +59,8 @@ const main = async () => {
     const buyBackBurner = await ethers.getContractAt("BuyBackBurnerUniswap", buyBackBurnerProxy.address);
 
     const MemeEthereum = await ethers.getContractFactory("MemeEthereum");
-    const memeEthereum = await MemeEthereum.deploy(parsedData.olasAddress, parsedData.wethAddress,
-        parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue);
+    const memeEthereum = await MemeEthereum.deploy(parsedData.wethAddress, parsedData.uniV3positionManagerAddress,
+        buyBackBurner.address, parsedData.minNativeTokenValue);
     await memeEthereum.deployed();
 
     const wethABI = fs.readFileSync("abis/uniswap/weth.json", "utf8");

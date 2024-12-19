@@ -75,9 +75,8 @@ const main = async () => {
     expect(deployer.address).to.equal(await buyBackBurner.owner());
 
     const MemeBase = await ethers.getContractFactory("MemeBase");
-    const memeBase = await MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
-        parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue,
-        accounts, amounts);
+    const memeBase = await MemeBase.deploy(parsedData.wethAddress, parsedData.uniV3positionManagerAddress,
+        buyBackBurner.address, parsedData.minNativeTokenValue, accounts, amounts);
     await memeBase.deployed();
 
     // Try to deploy oracle with incorrect values
@@ -110,21 +109,18 @@ const main = async () => {
     // Try to deploy meme base with incorrect campaign params
     // Incorrect array sizes
     await expect(
-        MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
-            parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue,
-            accounts, [])
+        MemeBase.deploy(parsedData.wethAddress, parsedData.uniV3positionManagerAddress, buyBackBurner.address,
+            parsedData.minNativeTokenValue, accounts, [])
     ).to.be.revertedWith("Array lengths are not equal");
     await expect(
-        MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
-            parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue,
-            accounts, [amounts[0]])
+        MemeBase.deploy(parsedData.wethAddress, parsedData.uniV3positionManagerAddress, buyBackBurner.address,
+            parsedData.minNativeTokenValue, accounts, [amounts[0]])
     ).to.be.revertedWith("Array lengths are not equal");
 
     // Incorrect accumulated CONTRIBUTION_AGNT amount
     await expect(
-        MemeBase.deploy(parsedData.olasAddress, parsedData.wethAddress,
-            parsedData.uniV3positionManagerAddress, buyBackBurner.address, parsedData.minNativeTokenValue,
-            [accounts[0]], [amounts[0]])
+        MemeBase.deploy(parsedData.wethAddress, parsedData.uniV3positionManagerAddress, buyBackBurner.address,
+            parsedData.minNativeTokenValue,[accounts[0]], [amounts[0]])
     ).to.be.revertedWith("Total amount must match original contribution amount");
 
     const wethABI = fs.readFileSync("abis/uniswap/weth.json", "utf8");
