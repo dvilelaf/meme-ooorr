@@ -38,6 +38,7 @@ class PostTweetPayload(BaseTxPayload):
     """Represent a transaction payload for the PostTweetRound."""
 
     latest_tweet: Optional[str]
+    feedback_period_max_hours_delta: int = 0
 
 
 @dataclass(frozen=True)

@@ -21,6 +21,7 @@
 
 import json
 import re
+import secrets
 from datetime import datetime
 from typing import Dict, Generator, List, Optional, Tuple, Type, Union
 
@@ -82,11 +83,18 @@ class PostTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            latest_tweet = yield from self.decide_post_tweet()
+            (
+                latest_tweet,
+                feedback_period_max_hours_delta,
+            ) = yield from self.decide_post_tweet()
+            self.context.logger.info(
+                f"feedback_period_max_hours_delta sent to payload: {feedback_period_max_hours_delta}"
+            )
 
             payload = PostTweetPayload(
                 sender=self.context.agent_address,
                 latest_tweet=json.dumps(latest_tweet, sort_keys=True),
+                feedback_period_max_hours_delta=feedback_period_max_hours_delta,
             )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -97,22 +105,70 @@ class PostTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
 
     def decide_post_tweet(  # pylint: disable=too-many-locals
         self,
-    ) -> Generator[None, None, Optional[Dict]]:
+    ) -> Generator[None, None, Tuple[Optional[Dict], int]]:
         """Post a tweet"""
 
         pending_tweet = self.synchronized_data.pending_tweet
 
+        feedback_period_max_hours_delta = (
+            self.synchronized_data.feedback_period_max_hours_delta
+        )
+        self.context.logger.info(
+            f"feedback_period_max_hours_delta: {feedback_period_max_hours_delta}"
+        )
+
+        # Adjust feedback_period_max_hours with delta
+        adjusted_feedback_period_max_hours = self.params.feedback_period_max_hours + (
+            feedback_period_max_hours_delta / 60
+        )
+
+        if feedback_period_max_hours_delta == 0:
+            while True:
+                # Fetch or calculate feedback_period_max_hours_delta
+                feedback_period_max_hours_delta = (
+                    secrets.randbelow(61) - 30
+                )  # Random delta in minutes
+                self.context.logger.info(
+                    f"Random feedback_period_max_hours_delta: {feedback_period_max_hours_delta}"
+                )
+                # Adjust feedback_period_max_hours with delta
+                adjusted_feedback_period_max_hours = (
+                    self.params.feedback_period_max_hours
+                    + (feedback_period_max_hours_delta / 60)
+                )
+
+                if adjusted_feedback_period_max_hours >= 0:
+                    self.context.logger.info(
+                        f"adjusted_feedback_period_max_hours: {adjusted_feedback_period_max_hours}"
+                    )
+
+                    latest_tweet = self.synchronized_data.latest_tweet
+
+                    payload = PostTweetPayload(
+                        sender=self.context.agent_address,
+                        latest_tweet=json.dumps(latest_tweet, sort_keys=True),
+                        feedback_period_max_hours_delta=feedback_period_max_hours_delta,
+                    )
+
+                    with self.context.benchmark_tool.measure(
+                        self.behaviour_id
+                    ).consensus():
+                        yield from self.send_a2a_transaction(payload)
+                        yield from self.wait_until_round_end()
+
+                    break
+
         # If there is a pending tweet, we send it
         if pending_tweet:
             self.context.logger.info("Sending a pending tweet...")
-            latest_tweet = yield from self.post_tweet(tweet=[pending_tweet])
-            return latest_tweet
+            latest_tweet = self.synchronized_data.latest_tweet or {}
+            return latest_tweet, feedback_period_max_hours_delta
 
         # If we have not posted before, we prepare and send a new tweet
         if self.synchronized_data.latest_tweet == {}:
             self.context.logger.info("Creating a new tweet for the first time...")
-            latest_tweet = yield from self.post_tweet(tweet=None)
-            return latest_tweet
+            latest_tweet = yield from self.post_tweet(tweet=[pending_tweet]) or {}
+            return latest_tweet, feedback_period_max_hours_delta
 
         # Calculate time since the latest tweet
         latest_tweet_time = datetime.fromtimestamp(
@@ -122,31 +178,35 @@ class PostTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
         hours_since_last_tweet = (now - latest_tweet_time).total_seconds() / 3600
 
         # Too much time has passed since last tweet without feedback, tweet again
-        if hours_since_last_tweet >= self.params.feedback_period_max_hours:
+        if hours_since_last_tweet >= adjusted_feedback_period_max_hours:
             self.context.logger.info(
                 "Too much time has passed since last tweet. Creating a new tweet..."
             )
-            latest_tweet = yield from self.post_tweet(tweet=None)
-            return latest_tweet
+            latest_tweet = yield from self.post_tweet(tweet=None) or {}
+            self.context.logger.info(
+                f"new tweet made setting feedback_period_max_hours_delta to {feedback_period_max_hours_delta}"
+            )
+            feedback_period_max_hours_delta = 0
+            return latest_tweet, feedback_period_max_hours_delta
 
         # If we have posted befored, but not enough time has passed to collect feedback, we wait
         if hours_since_last_tweet < self.params.feedback_period_min_hours:
             self.context.logger.info(
                 f"{hours_since_last_tweet:.1f} hours have passed since last tweet. Awaiting for the feedback period..."
             )
-            return {"wait": True}
+            return {"wait": True}, feedback_period_max_hours_delta
 
         # Enough time has passed, collect feedback
         if self.synchronized_data.feedback is None:
             self.context.logger.info(
                 "Feedback period has finished. Collecting feedback..."
             )
-            return {}
+            return {}, feedback_period_max_hours_delta
 
         # Not enough feedback, prepare and send a new tweet
         self.context.logger.info("Feedback was not enough. Creating a new tweet...")
-        latest_tweet = yield from self.post_tweet(tweet=None)
-        return latest_tweet
+        latest_tweet = yield from self.post_tweet(tweet=None) or {}
+        return latest_tweet, feedback_period_max_hours_delta
 
     def prepare_tweet(self) -> Generator[None, None, Optional[str]]:
         """Prepare a tweet"""

@@ -41,8 +41,8 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeigh2vkt74jrad5gtsczrgqcuhcqe7jkgjy7jdw56yamlzwwnaymjy
 - valory/registration_abci:0.1.0:bafybeib3n6vqkfbrcubcbliebjnuwyywdinxkbzt76n6gbn2kg7ace47dq
 - valory/reset_pause_abci:0.1.0:bafybeihkj6lmaypspyxe5qqrjgnolyck62pyvqoylr24ab6ue4steqcw7e
-- dvilela/memeooorr_abci:0.1.0:bafybeibaq7h2tdysuicjsonyxwoigungfzewiizrznuemctyfx34ja3you
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeia6jc3rd3sbernw25kbkhtad6vogavimxdyb22xr4fnim4odoumyu
+- dvilela/memeooorr_abci:0.1.0:bafybeicdaciw2qdbrkbtofptzl6amhjyjny67p4tcnpigauaeq34rbgcym
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeibcw62o6qfqzxcobbxzootujvabowy2kihtucharkrlkymhku3mem
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -215,7 +215,7 @@ models:
       olas_token_address_celo: ${str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
       persona: ${str:a cat lover that is crazy about all-things cats.}
       feedback_period_min_hours: ${int:1}
-      feedback_period_max_hours: ${int:3}
+      feedback_period_max_hours: ${int:2}
       home_chain_id: ${str:BASE}
       twitter_username: ${str:null}
       service_registry_address_base: ${str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}

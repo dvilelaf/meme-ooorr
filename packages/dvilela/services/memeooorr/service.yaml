@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeifz54dwy4ytfgbyeckco3e2twi4yws7gfi3zqtlhatz2h3ypz7cby
+agent: dvilela/memeooorr:0.1.0:bafybeifehg3tabpjh7lj2i5irrtzeoone7vsgredve55nol4esmhdrvuom
 number_of_agents: 1
 deployment:
   agent:
@@ -92,7 +92,7 @@ extra:
         olas_token_address_celo: ${OLAS_TOKEN_ADDRESS_CELO:str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
         persona: ${PERSONA:str:a cat lover that is crazy about all-things cats.}
         feedback_period_min_hours: ${FEEDBACK_PERIOD_MIN_HOURS:int:1}
-        feedback_period_max_hours: ${FEEDBACK_PERIOD_MAX_HOURS:int:3}
+        feedback_period_max_hours: ${FEEDBACK_PERIOD_MAX_HOURS:int:2}
         home_chain_id: ${HOME_CHAIN_ID:str:BASE}
         twitter_username: ${TWIKIT_USERNAME:str:null}
         service_registry_address_base: ${SERVICE_REGISTRY_ADDRESS_BASE:str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
