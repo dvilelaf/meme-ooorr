@@ -20,8 +20,10 @@
 """This package contains the rounds of MemeooorrAbciApp."""
 
 import json
+from dataclasses import asdict
 from enum import Enum
 from typing import Dict, FrozenSet, List, Optional, Set, Tuple, cast
+from uuid import uuid4
 
 from packages.dvilela.skills.memeooorr_abci.payloads import (
     ActionDecisionPayload,
@@ -50,6 +52,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     EventToTimeout,
     get_name,
 )
+from packages.valory.skills.mech_interact_abci.states.base import MechMetadata, MechInteractionResponse
 
 
 class Event(Enum):
@@ -67,6 +70,7 @@ class Event(Enum):
     NO_MEMES = "no_memes"
     TO_DEPLOY = "to_deploy"
     TO_ACTION_TWEET = "to_action_tweet"
+    MECH_REQUEST = "mech_request"
 
 
 class SynchronizedData(BaseSynchronizedData):
@@ -142,6 +146,23 @@ class SynchronizedData(BaseSynchronizedData):
     def token_action(self) -> Dict:
         """Get the token action."""
         return cast(dict, json.loads(cast(str, self.db.get("token_action", "{}"))))
+
+    @property
+    def mech_requests(self) -> List[MechMetadata]:
+        """Get the mech requests."""
+        serialized = self.db.get("mech_requests", "[]")
+        if serialized is None:
+            serialized = "[]"
+        requests = json.loads(serialized)
+        return [MechMetadata(**metadata_item) for metadata_item in requests]
+
+    @property
+    def mech_responses(self) -> List[MechInteractionResponse]:
+        """Get the mech responses."""
+        responses = self.db.get("mech_responses", "[]")
+        if isinstance(responses, str):
+            responses = json.loads(responses)
+        return [MechInteractionResponse(**response_item) for response_item in responses]
 
 
 class LoadDatabaseRound(CollectSameUntilThresholdRound):
@@ -289,6 +310,19 @@ class AnalizeFeedbackRound(CollectSameUntilThresholdRound):
 
             if not analysis:
                 return self.synchronized_data, Event.ERROR
+
+            # check if a tool usage is required
+            if analysis.get("use_mech_tool", None):
+                # the following WILL NOT WORK in case of a multi-agent setup
+                nonce = str(uuid4())
+                mech_req = asdict(MechMetadata(prompt=analysis["payload"],tool=analysis["tool"],nonce=nonce))
+
+                return self.synchronized_data.update(
+                    synchronized_data_class=SynchronizedData,
+                    **{
+                        get_name(SynchronizedData.mech_requests): json.dumps([mech_req])
+                    }
+                ), Event.MECH_REQUEST
 
             # Update persona
             if not analysis.get("deploy", None):
@@ -614,6 +648,10 @@ class EngageRound(EventRoundBase):
     # Event.DONE, Event.ERROR, Event.NO_MAJORITY, Event.ROUND_TIMEOUT
 
 
+class FinishedWithMechTx(DegenerateRound):
+    """FinishedWithMechTx"""
+
+
 class FinishedToResetRound(DegenerateRound):
     """FinishedToResetRound"""
 
@@ -630,6 +668,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         LoadDatabaseRound,
         PostTweetRound,
         TransactionMultiplexerRound,
+        AnalizeFeedbackRound,
     }
     transition_function: AbciAppTransitionFunction = {
         LoadDatabaseRound: {
@@ -657,6 +696,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
             Event.ERROR: AnalizeFeedbackRound,
             Event.NO_MAJORITY: AnalizeFeedbackRound,
             Event.ROUND_TIMEOUT: AnalizeFeedbackRound,
+            Event.MECH_REQUEST: FinishedWithMechTx,
         },
         DeploymentRound: {
             Event.DONE: PostAnnouncementRound,
@@ -719,8 +759,9 @@ class MemeooorrAbciApp(AbciApp[Event]):
         },
         FinishedToResetRound: {},
         FinishedToSettlementRound: {},
+        FinishedWithMechTx: {},
     }
-    final_states: Set[AppState] = {FinishedToResetRound, FinishedToSettlementRound}
+    final_states: Set[AppState] = {FinishedToResetRound, FinishedToSettlementRound, FinishedWithMechTx}
     event_to_timeout: EventToTimeout = {}
     cross_period_persisted_keys: FrozenSet[str] = frozenset(
         ["persona", "latest_tweet", "feedback"]
@@ -733,4 +774,5 @@ class MemeooorrAbciApp(AbciApp[Event]):
     db_post_conditions: Dict[AppState, Set[str]] = {
         FinishedToResetRound: set(),
         FinishedToSettlementRound: {"most_voted_tx_hash"},
+        FinishedWithMechTx: set(),
     }

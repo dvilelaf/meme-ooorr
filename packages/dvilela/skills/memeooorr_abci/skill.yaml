@@ -157,6 +157,8 @@ models:
       persona: a cat lover that is crazy about all-things cats.
       feedback_period_min_hours: 1
       feedback_period_max_hours: 3
+      tools_to_description:
+        dummy_tool: A tool that does nothing, and provides no info.
       home_chain_id: BASE
       twitter_username: dummy_twitter_name
       service_registry_address_base: '0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE'

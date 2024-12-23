@@ -32,6 +32,7 @@ from packages.dvilela.skills.memeooorr_abci.behaviour_classes.twitter import (
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     ACTION_DECISION_PROMPT,
     ANALYZE_FEEDBACK_PROMPT,
+    ANALYZE_FEEDBACK_WITH_TOOL_RESPONSE_PROMPT,
 )
 from packages.dvilela.skills.memeooorr_abci.rounds import (
     ActionDecisionPayload,
@@ -113,9 +114,24 @@ class AnalizeFeedbackBehaviour(
             "ticker": "ETH" if self.params.home_chain_id == "BASE" else "CELO",
         }
 
-        llm_response = yield from self._call_genai(
-            prompt=ANALYZE_FEEDBACK_PROMPT.format(**prompt_data)
-        )
+        if len(self.synchronized_data.mech_responses) > 0:
+            # we have a previous tool response, we make use of it
+            prompt_data = {
+                **prompt_data,
+                "tool_response": self.synchronized_data.mech_responses[-1].result,
+            }
+            prompt = ANALYZE_FEEDBACK_WITH_TOOL_RESPONSE_PROMPT.format(**prompt_data)
+        else:
+            tools_to_description = "\n".join(
+                f"{k}: {v}" for k, v in self.params.tools_to_description.items()
+            )
+            prompt_data = {
+                **prompt_data,
+                "tools": tools_to_description,
+            }
+            prompt = ANALYZE_FEEDBACK_PROMPT.format(**prompt_data)
+
+        llm_response = yield from self._call_genai(prompt=prompt)
         self.context.logger.info(f"LLM response: {llm_response}")
 
         # We didnt get a response
@@ -123,12 +139,18 @@ class AnalizeFeedbackBehaviour(
             self.context.logger.error("Error getting a response from the LLM.")
             return None
 
-        # The response is not a valid jsoon
+        # The response is not a valid json
         try:
             response = json.loads(llm_response)
         except json.JSONDecodeError as e:
             self.context.logger.error(f"Error loading the LLM response: {e}")
             return None
+
+        # check if the llm decided to use a tool
+        if "tool" in response and response["tool"] in self.params.tools_to_description and "payload" in response:
+            self.context.logger.info(f"LLM decided to use the tool {response['tool']}")
+            response["use_mech_tool"] = True
+            return response
 
         # Tweet too long
         if (

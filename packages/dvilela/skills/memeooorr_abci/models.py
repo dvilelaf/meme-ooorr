@@ -71,5 +71,6 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         )
         self.home_chain_id = self._ensure("home_chain_id", kwargs, str)
         self.twitter_username = self._ensure("twitter_username", kwargs, str)
+        self.tools_to_description = self._ensure("tools_to_description", kwargs, dict)
 
         super().__init__(*args, **kwargs)

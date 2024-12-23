@@ -23,6 +23,7 @@ import packages.dvilela.skills.memeooorr_abci.rounds as MemeooorrAbci
 import packages.valory.skills.registration_abci.rounds as RegistrationAbci
 import packages.valory.skills.reset_pause_abci.rounds as ResetAndPauseAbci
 import packages.valory.skills.transaction_settlement_abci.rounds as TransactionSettlementAbci
+import packages.valory.skills.mech_interact_abci.rounds as MechInteractAbci
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
     chain,
@@ -45,6 +46,10 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
     TransactionSettlementAbci.FailedRound: TransactionSettlementAbci.RandomnessTransactionSubmissionRound,
     ResetAndPauseAbci.FinishedResetAndPauseRound: MemeooorrAbci.PostTweetRound,
     ResetAndPauseAbci.FinishedResetAndPauseErrorRound: ResetAndPauseAbci.ResetAndPauseRound,
+    MemeooorrAbci.FinishedWithMechTx: MechInteractAbci.MechRequestRound,
+    MechInteractAbci.FinishedMechRequestRound: TransactionSettlementAbci.RandomnessTransactionSubmissionRound,
+    MechInteractAbci.FinishedMechRequestSkipRound: MemeooorrAbci.TransactionMultiplexerRound,
+    MechInteractAbci.FinishedMechResponseRound: MemeooorrAbci.TransactionMultiplexerRound,
 }
 
 termination_config = BackgroundAppConfig(
@@ -59,6 +64,7 @@ MemeooorrChainedSkillAbciApp = chain(
         MemeooorrAbci.MemeooorrAbciApp,
         TransactionSettlementAbci.TransactionSubmissionAbciApp,
         ResetAndPauseAbci.ResetPauseAbciApp,
+        MechInteractAbci.MechInteractAbciApp,
     ),
     abci_app_transition_mapping,
 ).add_background_app(termination_config)
