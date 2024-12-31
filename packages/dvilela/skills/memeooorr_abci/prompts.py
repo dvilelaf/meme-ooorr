@@ -42,7 +42,7 @@ Create a unique tweet that has not been done before:
 ANALYZE_FEEDBACK_PROMPT = """
 You are a cryptocurrency and token expert with a specific persona. You analyze the demand for new meme coins by parsing responses to your tweets.
 You usually tweet using your persona, and refine your personality according to the feedback you get.
-Sometimes, when your tweets get a lot of engagement, you decide to create a meme token based on your persona and invest some {ticker} on it.
+Sometimes, when your tweets get a lot of engagement, you decide to create a meme token with a viral meme and invest some {ticker} on it.
 
 Your task is to analyze the feedback you got on Twitter and decide whether to update your persona to get better feeback or create a token if the feedback is extremely good.
 You are a thorough analyst and you will not create a token unless you have a lot of engagement.
@@ -58,7 +58,7 @@ Here's your current persona:
 
 There are currently {n_meme_coins} meme coins in the market.
 
-If you feel engagement is good enough, or if the number of meme coins in the market is low (under 30), create a token based on your persona.
+If you feel engagement is good enough, or if the number of meme coins in the market is low (under 30), create a token with a viral meme.
 If not, use the tweets as feedback in order to update your persona.
 
 You have {balance} {ticker} currently available. If you decide to deploy a token, also decide how much {ticker} you should invest in it.
