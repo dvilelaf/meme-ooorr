@@ -5,167 +5,167 @@ description: A service that deploys memecoins.
 aea_version: '>=1.0.0, <2.0.0'
 license: Apache-2.0
 fingerprint:
-  README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
+    README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeiaafdwrnfwtgtjb3wbprwhvru72sp3krjctb75nshmuwnxtawsyfq
+agent: dvilela/memeooorr:0.1.0:bafybeihiejxhlkftxdry6gwvoig3wpc7m6ze2cpl2ikc5av5f5nfkcwp4a
 number_of_agents: 1
 deployment:
-  agent:
-    ports:
-      0:
-        8716: 8716
+    agent:
+        ports:
+            0:
+                8716: 8716
 ---
 public_id: dvilela/memeooorr_chained_abci:0.1.0
 type: skill
 extra:
-  params_args:
-    args:
-      setup: &id001
-        safe_contract_address: ${SAFE_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
-        all_participants: ${ALL_PARTICIPANTS:list:[]}
-        consensus_threshold: null
-      genesis_config: &id002
-        genesis_time: '2022-09-26T00:00:00.000000000Z'
-        chain_id: chain-c4daS1
-        consensus_params:
-          block:
-            max_bytes: '22020096'
-            max_gas: '-1'
-            time_iota_ms: '1000'
-          evidence:
-            max_age_num_blocks: '100000'
-            max_age_duration: '172800000000000'
-            max_bytes: '1048576'
-          validator:
-            pub_key_types:
-            - ed25519
-          version: {}
-        voting_power: '10'
+    params_args:
+        args:
+            setup: &id001
+                safe_contract_address: ${SAFE_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
+                all_participants: ${ALL_PARTICIPANTS:list:[]}
+                consensus_threshold: null
+            genesis_config: &id002
+                genesis_time: '2022-09-26T00:00:00.000000000Z'
+                chain_id: chain-c4daS1
+                consensus_params:
+                    block:
+                        max_bytes: '22020096'
+                        max_gas: '-1'
+                        time_iota_ms: '1000'
+                    evidence:
+                        max_age_num_blocks: '100000'
+                        max_age_duration: '172800000000000'
+                        max_bytes: '1048576'
+                    validator:
+                        pub_key_types:
+                            - ed25519
+                    version: {}
+                voting_power: '10'
 0:
-  models:
-    benchmark_tool:
-      args:
-        log_dir: ${LOG_DIR:str:/logs}
-    params:
-      args:
-        setup: *id001
-        genesis_config: *id002
-        cleanup_history_depth: 1
-        cleanup_history_depth_current: null
-        drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-        keeper_timeout: 30.0
-        max_attempts: 10
-        max_healthcheck: 120
-        multisend_address: ${MULTISEND_ADDRESS:str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
-        termination_sleep: ${TERMINATION_SLEEP:int:900}
-        reset_pause_duration: ${RESET_PAUSE_DURATION:int:3600}
-        on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
-        reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:1}
-        retry_attempts: 400
-        retry_timeout: 3
-        request_retry_delay: 1.0
-        request_timeout: 10.0
-        round_timeout_seconds: 30.0
-        service_id: memeooorr
-        service_registry_address: ${SERVICE_REGISTRY_ADDRESS:str:0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA}
-        share_tm_config_on_startup: ${USE_ACN:bool:false}
-        sleep_time: 1
-        tendermint_check_sleep_delay: 3
-        tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
-        tendermint_max_retries: 5
-        tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
-        tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:memeooorr_tm_0:26656}
-        tx_timeout: 10.0
-        use_termination: ${USE_TERMINATION:bool:false}
-        validate_timeout: 1205
-        multisend_batch_size: ${MULTISEND_BATCH_SIZE:int:5}
-        ipfs_address: ${IPFS_ADDRESS:str:https://gateway.autonolas.tech/ipfs/}
-        default_chain_id: ${DEFAULT_CHAIN_ID:str:base}
-        termination_from_block: ${TERMINATION_FROM_BLOCK:int:21629820}
-        minimum_gas_balance: ${MINIMUM_GAS_BALANCE:float:0.001}
-        min_feedback_replies: ${MIN_FEEDBACK_REPLIES:int:10}
-        meme_factory_address_base: ${MEME_FACTORY_ADDRESS_BASE:str:0x82a9c823332518c32a0c0edc050ef00934cf04d4}
-        meme_factory_address_celo: ${MEME_FACTORY_ADDRESS_CELO:str:0xeea5f1e202dc43607273d54101ff8b58fb008a99}
-        meme_factory_deployment_block_base: ${MEME_FACTORY_DEPLOYMENT_BLOCK_BASE:int:23540622}
-        meme_factory_deployment_block_celo: ${MEME_FACTORY_DEPLOYMENT_BLOCK_CELO:int:29323752}
-        olas_token_address_base: ${OLAS_TOKEN_ADDRESS_BASE:str:0x54330d28ca3357F294334BDC454a032e7f353416}
-        olas_token_address_celo: ${OLAS_TOKEN_ADDRESS_CELO:str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
-        persona: ${PERSONA:str:a cat lover that is crazy about all-things cats.}
-        feedback_period_min_hours: ${FEEDBACK_PERIOD_MIN_HOURS:int:1}
-        feedback_period_max_hours: ${FEEDBACK_PERIOD_MAX_HOURS:int:2}
-        home_chain_id: ${HOME_CHAIN_ID:str:BASE}
-        twitter_username: ${TWIKIT_USERNAME:str:null}
-        service_registry_address_base: ${SERVICE_REGISTRY_ADDRESS_BASE:str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
-        service_registry_address_celo: ${SERVICE_REGISTRY_ADDRESS_CELO:str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
-        meme_subgraph_url: ${MEME_SUBGRAPH_URL:str:https://agentsfun-indexer-production.up.railway.app}
+    models:
+        benchmark_tool:
+            args:
+                log_dir: ${LOG_DIR:str:/logs}
+        params:
+            args:
+                setup: *id001
+                genesis_config: *id002
+                cleanup_history_depth: 1
+                cleanup_history_depth_current: null
+                drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+                keeper_timeout: 30.0
+                max_attempts: 10
+                max_healthcheck: 120
+                multisend_address: ${MULTISEND_ADDRESS:str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
+                termination_sleep: ${TERMINATION_SLEEP:int:900}
+                reset_pause_duration: ${RESET_PAUSE_DURATION:int:3600}
+                on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+                reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:1}
+                retry_attempts: 400
+                retry_timeout: 3
+                request_retry_delay: 1.0
+                request_timeout: 10.0
+                round_timeout_seconds: 30.0
+                service_id: memeooorr
+                service_registry_address: ${SERVICE_REGISTRY_ADDRESS:str:0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA}
+                share_tm_config_on_startup: ${USE_ACN:bool:false}
+                sleep_time: 1
+                tendermint_check_sleep_delay: 3
+                tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
+                tendermint_max_retries: 5
+                tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
+                tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:memeooorr_tm_0:26656}
+                tx_timeout: 10.0
+                use_termination: ${USE_TERMINATION:bool:false}
+                validate_timeout: 1205
+                multisend_batch_size: ${MULTISEND_BATCH_SIZE:int:5}
+                ipfs_address: ${IPFS_ADDRESS:str:https://gateway.autonolas.tech/ipfs/}
+                default_chain_id: ${DEFAULT_CHAIN_ID:str:base}
+                termination_from_block: ${TERMINATION_FROM_BLOCK:int:21629820}
+                minimum_gas_balance: ${MINIMUM_GAS_BALANCE:float:0.001}
+                min_feedback_replies: ${MIN_FEEDBACK_REPLIES:int:10}
+                meme_factory_address_base: ${MEME_FACTORY_ADDRESS_BASE:str:0x82a9c823332518c32a0c0edc050ef00934cf04d4}
+                meme_factory_address_celo: ${MEME_FACTORY_ADDRESS_CELO:str:0xeea5f1e202dc43607273d54101ff8b58fb008a99}
+                meme_factory_deployment_block_base: ${MEME_FACTORY_DEPLOYMENT_BLOCK_BASE:int:23540622}
+                meme_factory_deployment_block_celo: ${MEME_FACTORY_DEPLOYMENT_BLOCK_CELO:int:29323752}
+                olas_token_address_base: ${OLAS_TOKEN_ADDRESS_BASE:str:0x54330d28ca3357F294334BDC454a032e7f353416}
+                olas_token_address_celo: ${OLAS_TOKEN_ADDRESS_CELO:str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
+                persona: ${PERSONA:str:a cat lover that is crazy about all-things cats.}
+                feedback_period_min_hours: ${FEEDBACK_PERIOD_MIN_HOURS:int:1}
+                feedback_period_max_hours: ${FEEDBACK_PERIOD_MAX_HOURS:int:2}
+                home_chain_id: ${HOME_CHAIN_ID:str:BASE}
+                twitter_username: ${TWIKIT_USERNAME:str:null}
+                service_registry_address_base: ${SERVICE_REGISTRY_ADDRESS_BASE:str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
+                service_registry_address_celo: ${SERVICE_REGISTRY_ADDRESS_CELO:str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
+                meme_subgraph_url: ${MEME_SUBGRAPH_URL:str:https://agentsfun-indexer-production.up.railway.app}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
 config:
-  ledger_apis:
-    base:
-      address: ${BASE_LEDGER_RPC:str:http://host.docker.internal:8545}
-      chain_id: ${BASE_LEDGER_CHAIN_ID:int:8453}
-      poa_chain: ${BASE_LEDGER_IS_POA_CHAIN:bool:false}
-      default_gas_price_strategy: ${BASE_LEDGER_PRICING:str:eip1559}
-      gas_price_strategies: &id001
-        gas_station:
-          gas_price_api_key: null
-          gas_price_strategy: fast
-        eip1559:
-          max_gas_fast: 1500
-          fee_history_blocks: 10
-          fee_history_percentile: 5
-          default_priority_fee: ${DEFAULT_PRIORITY_FEE:int:30000000}
-          fallback_estimate:
-            maxFeePerGas: ${MAX_FEE_PER_GAS:20000000000}
-            maxPriorityFeePerGas: ${MAX_PRIORITY_FEE_PER_GAS:3000000000}
-            baseFee: null
-          priority_fee_increase_boundary: 200
-    celo:
-      address: ${CELO_LEDGER_RPC:str:http://host.docker.internal:8545}
-      chain_id: ${CELO_LEDGER_CHAIN_ID:int:42220}
-      poa_chain: ${CELO_LEDGER_IS_POA_CHAIN:bool:false}
-      default_gas_price_strategy: ${CELO_LEDGER_PRICING:str:eip1559}
-      gas_price_strategies: *id001
+    ledger_apis:
+        base:
+            address: ${BASE_LEDGER_RPC:str:http://host.docker.internal:8545}
+            chain_id: ${BASE_LEDGER_CHAIN_ID:int:8453}
+            poa_chain: ${BASE_LEDGER_IS_POA_CHAIN:bool:false}
+            default_gas_price_strategy: ${BASE_LEDGER_PRICING:str:eip1559}
+            gas_price_strategies: &id001
+                gas_station:
+                    gas_price_api_key: null
+                    gas_price_strategy: fast
+                eip1559:
+                    max_gas_fast: 1500
+                    fee_history_blocks: 10
+                    fee_history_percentile: 5
+                    default_priority_fee: ${DEFAULT_PRIORITY_FEE:int:30000000}
+                    fallback_estimate:
+                        maxFeePerGas: ${MAX_FEE_PER_GAS:20000000000}
+                        maxPriorityFeePerGas: ${MAX_PRIORITY_FEE_PER_GAS:3000000000}
+                        baseFee: null
+                    priority_fee_increase_boundary: 200
+        celo:
+            address: ${CELO_LEDGER_RPC:str:http://host.docker.internal:8545}
+            chain_id: ${CELO_LEDGER_CHAIN_ID:int:42220}
+            poa_chain: ${CELO_LEDGER_IS_POA_CHAIN:bool:false}
+            default_gas_price_strategy: ${CELO_LEDGER_PRICING:str:eip1559}
+            gas_price_strategies: *id001
 ---
 public_id: valory/p2p_libp2p_client:0.1.0
 type: connection
 config:
-  nodes:
-  - uri: ${ACN_URI:str:acn.staging.autonolas.tech:9005}
-    public_key: ${ACN_NODE_PUBLIC_KEY:str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+    nodes:
+        - uri: ${ACN_URI:str:acn.staging.autonolas.tech:9005}
+          public_key: ${ACN_NODE_PUBLIC_KEY:str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
 cert_requests:
-- identifier: acn
-  ledger_id: ethereum
-  message_format: '{public_key}'
-  not_after: '2023-01-01'
-  not_before: '2022-01-01'
-  public_key: ${ACN_NODE_PUBLIC_KEY:str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
-  save_path: .certs/acn_cosmos_11000.txt
+    - identifier: acn
+      ledger_id: ethereum
+      message_format: '{public_key}'
+      not_after: '2023-01-01'
+      not_before: '2022-01-01'
+      public_key: ${ACN_NODE_PUBLIC_KEY:str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+      save_path: .certs/acn_cosmos_11000.txt
 ---
 public_id: dvilela/genai:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  genai_api_key: ${GENAI_API_KEY:str:null}
+    genai_api_key: ${GENAI_API_KEY:str:null}
 ---
 public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${TWIKIT_USERNAME:str:null}
-  twikit_email: ${TWIKIT_EMAIL:str:null}
-  twikit_password: ${TWIKIT_PASSWORD:str:null}
-  twikit_cookies: ${TWIKIT_COOKIES:str:null}
-  twikit_cookies_path: ${TWIKIT_COOKIES_PATH:str:/tmp/twikit_cookies.json}
+    twikit_username: ${TWIKIT_USERNAME:str:null}
+    twikit_email: ${TWIKIT_EMAIL:str:null}
+    twikit_password: ${TWIKIT_PASSWORD:str:null}
+    twikit_cookies: ${TWIKIT_COOKIES:str:null}
+    twikit_cookies_path: ${TWIKIT_COOKIES_PATH:str:/tmp/twikit_cookies.json}
 ---
 public_id: dvilela/kv_store:0.1.0
 type: connection
 config:
-  db_path: ${DB_PATH:str:/logs/memeooorr.db}
+    db_path: ${DB_PATH:str:/logs/memeooorr.db}
 ---
 public_id: valory/http_server:0.22.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  host: ${HTTP_SERVER_HOST:str:0.0.0.0}
-  port: ${HTTP_SERVER_PORT:int:8716}
-  target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+    host: ${HTTP_SERVER_HOST:str:0.0.0.0}
+    port: ${HTTP_SERVER_PORT:int:8716}
+    target_skill_id: dvilela/memeooorr_chained_abci:0.1.0

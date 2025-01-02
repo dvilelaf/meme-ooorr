@@ -6,186 +6,186 @@ description: The chained abci for the memeooorr skill.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeiacqbub377oj2uvkw3lu2u43zv5rpdd2z4jx7dailiffqttksds24
-  behaviours.py: bafybeidabq5scnvljux2732bdbg7xnpnnz54y6t2kdooltd2jgugkz2voi
-  composition.py: bafybeifnu7di2d5bhs4xodylmz7uzwblj4nww3lw672c2olaszdefth5bq
-  dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
-  fsm_specification.yaml: bafybeiddj64rbv7oualbum5ezoeasgy3ywwgoa6jcqq35tr6i2k6v2c26i
-  handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
-  models.py: bafybeihmxfjz6irdm5xje6mvnhfc6rwlehzyvhds5shyzz2okrzgac2xde
+    __init__.py: bafybeiacqbub377oj2uvkw3lu2u43zv5rpdd2z4jx7dailiffqttksds24
+    behaviours.py: bafybeidabq5scnvljux2732bdbg7xnpnnz54y6t2kdooltd2jgugkz2voi
+    composition.py: bafybeifnu7di2d5bhs4xodylmz7uzwblj4nww3lw672c2olaszdefth5bq
+    dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
+    fsm_specification.yaml: bafybeiddj64rbv7oualbum5ezoeasgy3ywwgoa6jcqq35tr6i2k6v2c26i
+    handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
+    models.py: bafybeihmxfjz6irdm5xje6mvnhfc6rwlehzyvhds5shyzz2okrzgac2xde
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeibiw4oqwqvo4jccwz5fb73iardzychgvcl66tceiildohoju2ikti
-- valory/registration_abci:0.1.0:bafybeib3n6vqkfbrcubcbliebjnuwyywdinxkbzt76n6gbn2kg7ace47dq
-- valory/reset_pause_abci:0.1.0:bafybeihkj6lmaypspyxe5qqrjgnolyck62pyvqoylr24ab6ue4steqcw7e
-- valory/transaction_settlement_abci:0.1.0:bafybeigh2vkt74jrad5gtsczrgqcuhcqe7jkgjy7jdw56yamlzwwnaymjy
-- valory/termination_abci:0.1.0:bafybeifi2uodnrjsrivj53g3sjutocmyusbx6mlsb6oanqdyt2mfbyvusy
-- dvilela/memeooorr_abci:0.1.0:bafybeiehig6qqgoibs3abunqfm643gg5sue4qema4dr6gti6lmupatqtku
+    - valory/abstract_round_abci:0.1.0:bafybeibiw4oqwqvo4jccwz5fb73iardzychgvcl66tceiildohoju2ikti
+    - valory/registration_abci:0.1.0:bafybeib3n6vqkfbrcubcbliebjnuwyywdinxkbzt76n6gbn2kg7ace47dq
+    - valory/reset_pause_abci:0.1.0:bafybeihkj6lmaypspyxe5qqrjgnolyck62pyvqoylr24ab6ue4steqcw7e
+    - valory/transaction_settlement_abci:0.1.0:bafybeigh2vkt74jrad5gtsczrgqcuhcqe7jkgjy7jdw56yamlzwwnaymjy
+    - valory/termination_abci:0.1.0:bafybeifi2uodnrjsrivj53g3sjutocmyusbx6mlsb6oanqdyt2mfbyvusy
+    - dvilela/memeooorr_abci:0.1.0:bafybeihclcjklhjyma4t7emzj5gpbzlzfkj3j2rlqcljturpbqou4nv72e
 behaviours:
-  main:
-    args: {}
-    class_name: MemeooorrChainedConsensusBehaviour
+    main:
+        args: {}
+        class_name: MemeooorrChainedConsensusBehaviour
 handlers:
-  abci:
-    args: {}
-    class_name: ABCIRoundHandler
-  contract_api:
-    args: {}
-    class_name: ContractApiHandler
-  http:
-    args: {}
-    class_name: HttpHandler
-  ipfs:
-    args: {}
-    class_name: IpfsHandler
-  ledger_api:
-    args: {}
-    class_name: LedgerApiHandler
-  signing:
-    args: {}
-    class_name: SigningHandler
-  tendermint:
-    args: {}
-    class_name: TendermintHandler
-  srr:
-    args: {}
-    class_name: SrrHandler
-  kv_store:
-    args: {}
-    class_name: KvStoreHandler
+    abci:
+        args: {}
+        class_name: ABCIRoundHandler
+    contract_api:
+        args: {}
+        class_name: ContractApiHandler
+    http:
+        args: {}
+        class_name: HttpHandler
+    ipfs:
+        args: {}
+        class_name: IpfsHandler
+    ledger_api:
+        args: {}
+        class_name: LedgerApiHandler
+    signing:
+        args: {}
+        class_name: SigningHandler
+    tendermint:
+        args: {}
+        class_name: TendermintHandler
+    srr:
+        args: {}
+        class_name: SrrHandler
+    kv_store:
+        args: {}
+        class_name: KvStoreHandler
 models:
-  abci_dialogues:
-    args: {}
-    class_name: AbciDialogues
-  benchmark_tool:
-    args:
-      log_dir: /logs
-    class_name: BenchmarkTool
-  contract_api_dialogues:
-    args: {}
-    class_name: ContractApiDialogues
-  ipfs_dialogues:
-    args: {}
-    class_name: IpfsDialogues
-  ledger_api_dialogues:
-    args: {}
-    class_name: LedgerApiDialogues
-  http_dialogues:
-    args: {}
-    class_name: HttpDialogues
-  params:
-    args:
-      cleanup_history_depth: 1
-      cleanup_history_depth_current: null
-      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      genesis_config:
-        genesis_time: '2022-09-26T00:00:00.000000000Z'
-        chain_id: chain-c4daS1
-        consensus_params:
-          block:
-            max_bytes: '22020096'
-            max_gas: '-1'
-            time_iota_ms: '1000'
-          evidence:
-            max_age_num_blocks: '100000'
-            max_age_duration: '172800000000000'
-            max_bytes: '1048576'
-          validator:
-            pub_key_types:
-            - ed25519
-          version: {}
-        voting_power: '10'
-      keeper_timeout: 30.0
-      max_attempts: 10
-      max_healthcheck: 120
-      multisend_address: '0x0000000000000000000000000000000000000000'
-      termination_sleep: 900
-      termination_from_block: 0
-      init_fallback_gas: 0
-      keeper_allowed_retries: 3
-      reset_pause_duration: 10
-      on_chain_service_id: null
-      request_retry_delay: 1.0
-      request_timeout: 10.0
-      reset_tendermint_after: 2
-      retry_attempts: 400
-      retry_timeout: 3
-      round_timeout_seconds: 30.0
-      service_id: memeooorr
-      service_registry_address: null
-      setup:
-        all_participants: []
-        safe_contract_address: '0x0000000000000000000000000000000000000000'
-        consensus_threshold: null
-      share_tm_config_on_startup: false
-      sleep_time: 1
-      tendermint_check_sleep_delay: 3
-      tendermint_com_url: http://localhost:8080
-      tendermint_max_retries: 5
-      tendermint_p2p_url: localhost:26656
-      tendermint_url: http://localhost:26657
-      use_termination: false
-      validate_timeout: 1205
-      finalize_timeout: 60.0
-      history_check_timeout: 1205
-      use_slashing: false
-      slash_cooldown_hours: 3
-      slash_threshold_amount: 10000000000000000
-      light_slash_unit_amount: 5000000000000000
-      serious_slash_unit_amount: 8000000000000000
-      multisend_batch_size: 50
-      tx_timeout: 10.0
-      ipfs_address: https://gateway.autonolas.tech/ipfs/
-      default_chain_id: ethereum
-      service_endpoint: memeooorr.dummy.com/
-      minimum_gas_balance: 0.001
-      min_feedback_replies: 10
-      meme_factory_address_base: '0x82a9c823332518c32a0c0edc050ef00934cf04d4'
-      meme_factory_address_celo: '0xeea5f1e202dc43607273d54101ff8b58fb008a99'
-      meme_factory_deployment_block_base: 23540622
-      meme_factory_deployment_block_celo: 29323752
-      olas_token_address_base: '0x54330d28ca3357F294334BDC454a032e7f353416'
-      olas_token_address_celo: '0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51'
-      persona: a cat lover that is crazy about all-things cats.
-      feedback_period_min_hours: 1
-      feedback_period_max_hours: 2
-      home_chain_id: BASE
-      twitter_username: dummy_twitter_name
-      service_registry_address_base: '0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE'
-      service_registry_address_celo: '0xE3607b00E75f6405248323A9417ff6b39B244b50'
-      meme_subgraph_url: https://agentsfun-indexer-production.up.railway.app
-    class_name: Params
-  randomness_api:
-    args:
-      api_id: cloudflare
-      headers: {}
-      method: GET
-      parameters: {}
-      response_key: null
-      response_type: dict
-      retries: 5
-      url: https://drand.cloudflare.com/public/latest
-    class_name: RandomnessApi
-  requests:
-    args: {}
-    class_name: Requests
-  signing_dialogues:
-    args: {}
-    class_name: SigningDialogues
-  state:
-    args: {}
-    class_name: SharedState
-  tendermint_dialogues:
-    args: {}
-    class_name: TendermintDialogues
-  srr_dialogues:
-    args: {}
-    class_name: SrrDialogues
-  kv_store_dialogues:
-    args: {}
-    class_name: KvStoreDialogues
+    abci_dialogues:
+        args: {}
+        class_name: AbciDialogues
+    benchmark_tool:
+        args:
+            log_dir: /logs
+        class_name: BenchmarkTool
+    contract_api_dialogues:
+        args: {}
+        class_name: ContractApiDialogues
+    ipfs_dialogues:
+        args: {}
+        class_name: IpfsDialogues
+    ledger_api_dialogues:
+        args: {}
+        class_name: LedgerApiDialogues
+    http_dialogues:
+        args: {}
+        class_name: HttpDialogues
+    params:
+        args:
+            cleanup_history_depth: 1
+            cleanup_history_depth_current: null
+            drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+            genesis_config:
+                genesis_time: '2022-09-26T00:00:00.000000000Z'
+                chain_id: chain-c4daS1
+                consensus_params:
+                    block:
+                        max_bytes: '22020096'
+                        max_gas: '-1'
+                        time_iota_ms: '1000'
+                    evidence:
+                        max_age_num_blocks: '100000'
+                        max_age_duration: '172800000000000'
+                        max_bytes: '1048576'
+                    validator:
+                        pub_key_types:
+                            - ed25519
+                    version: {}
+                voting_power: '10'
+            keeper_timeout: 30.0
+            max_attempts: 10
+            max_healthcheck: 120
+            multisend_address: '0x0000000000000000000000000000000000000000'
+            termination_sleep: 900
+            termination_from_block: 0
+            init_fallback_gas: 0
+            keeper_allowed_retries: 3
+            reset_pause_duration: 10
+            on_chain_service_id: null
+            request_retry_delay: 1.0
+            request_timeout: 10.0
+            reset_tendermint_after: 2
+            retry_attempts: 400
+            retry_timeout: 3
+            round_timeout_seconds: 30.0
+            service_id: memeooorr
+            service_registry_address: null
+            setup:
+                all_participants: []
+                safe_contract_address: '0x0000000000000000000000000000000000000000'
+                consensus_threshold: null
+            share_tm_config_on_startup: false
+            sleep_time: 1
+            tendermint_check_sleep_delay: 3
+            tendermint_com_url: http://localhost:8080
+            tendermint_max_retries: 5
+            tendermint_p2p_url: localhost:26656
+            tendermint_url: http://localhost:26657
+            use_termination: false
+            validate_timeout: 1205
+            finalize_timeout: 60.0
+            history_check_timeout: 1205
+            use_slashing: false
+            slash_cooldown_hours: 3
+            slash_threshold_amount: 10000000000000000
+            light_slash_unit_amount: 5000000000000000
+            serious_slash_unit_amount: 8000000000000000
+            multisend_batch_size: 50
+            tx_timeout: 10.0
+            ipfs_address: https://gateway.autonolas.tech/ipfs/
+            default_chain_id: ethereum
+            service_endpoint: memeooorr.dummy.com/
+            minimum_gas_balance: 0.001
+            min_feedback_replies: 10
+            meme_factory_address_base: '0x82a9c823332518c32a0c0edc050ef00934cf04d4'
+            meme_factory_address_celo: '0xeea5f1e202dc43607273d54101ff8b58fb008a99'
+            meme_factory_deployment_block_base: 23540622
+            meme_factory_deployment_block_celo: 29323752
+            olas_token_address_base: '0x54330d28ca3357F294334BDC454a032e7f353416'
+            olas_token_address_celo: '0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51'
+            persona: a cat lover that is crazy about all-things cats.
+            feedback_period_min_hours: 1
+            feedback_period_max_hours: 2
+            home_chain_id: BASE
+            twitter_username: dummy_twitter_name
+            service_registry_address_base: '0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE'
+            service_registry_address_celo: '0xE3607b00E75f6405248323A9417ff6b39B244b50'
+            meme_subgraph_url: https://agentsfun-indexer-production.up.railway.app
+        class_name: Params
+    randomness_api:
+        args:
+            api_id: cloudflare
+            headers: {}
+            method: GET
+            parameters: {}
+            response_key: null
+            response_type: dict
+            retries: 5
+            url: https://drand.cloudflare.com/public/latest
+        class_name: RandomnessApi
+    requests:
+        args: {}
+        class_name: Requests
+    signing_dialogues:
+        args: {}
+        class_name: SigningDialogues
+    state:
+        args: {}
+        class_name: SharedState
+    tendermint_dialogues:
+        args: {}
+        class_name: TendermintDialogues
+    srr_dialogues:
+        args: {}
+        class_name: SrrDialogues
+    kv_store_dialogues:
+        args: {}
+        class_name: KvStoreDialogues
 dependencies: {}
 is_abstract: false

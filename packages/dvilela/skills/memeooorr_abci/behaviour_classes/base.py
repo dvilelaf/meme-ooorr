@@ -75,6 +75,10 @@ query Tokens {
       lpPairAddress
       owner
       timestamp
+      memeNonce
+      summonTime
+      memeToken
+      name
     }
   }
 }
@@ -269,7 +273,9 @@ class MemeooorrBaseBehaviour(BaseBehaviour, ABC):  # pylint: disable=too-many-an
         # Get the times
         now = datetime.fromtimestamp(self.get_sync_timestamp())
         summon_time = datetime.fromtimestamp(meme_data["summon_time"])
+        unleash_time = datetime.fromtimestamp(meme_data["unleash_time"])
         seconds_since_summon = (now - summon_time).total_seconds()
+        seconds_since_unleash = (now - unleash_time).total_seconds()
 
         available_actions = copy(AVAILABLE_ACTIONS)
 
@@ -307,6 +313,10 @@ class MemeooorrBaseBehaviour(BaseBehaviour, ABC):  # pylint: disable=too-many-an
             # We can collect if we have hearted this token
             if meme_data.get("token_address", None) not in hearted_memes:
                 available_actions.remove("collect")
+
+        # can only collect until 24hrs of
+        if seconds_since_unleash > 24 * 3600:
+            available_actions.remove("collect")
 
         return available_actions
 
@@ -560,17 +570,54 @@ class MemeooorrBaseBehaviour(BaseBehaviour, ABC):  # pylint: disable=too-many-an
             {
                 "block_number": int(t["blockNumber"]),
                 "chain": t["chain"],
-                "token_address": t["id"].split("-")[1],
+                "token_address": t["memeToken"],
                 "liquidity": int(t["liquidity"]),
                 "heart_count": int(t["heartCount"]),
                 "is_unleashed": t["isUnleashed"],
                 "lp_pair_address": t["lpPairAddress"],
                 "owner": t["owner"],
                 "timestamp": t["timestamp"],
+                "meme_nonce": int(t["memeNonce"]),
+                "summon_time": int(t["summonTime"]),
+                "token_nonce": int(t["memeNonce"]),
             }
             for t in response_json["data"]["memeTokens"]["items"]
             if t["chain"] == self.get_chain_id()
+            # to only include the updated factory contract address's token data
+            and int(t["memeNonce"]) > 0
+            # don't include data where memeToken address is empty
+            and t["memeToken"] != ""
         ]
+
+        for token in tokens:
+            response_msg = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+                contract_address=self.get_meme_factory_address(),
+                contract_id=str(MemeFactoryContract.contract_id),
+                contract_callable="get_meme_summons_info",
+                chain_id=self.get_chain_id(),
+                token_address=token.get("token_address", None),
+            )
+
+            # Check that the response is what we expect
+            if response_msg.performative != ContractApiMessage.Performative.STATE:
+                self.context.logger.error(
+                    f"Could not get the memecoin summon data: {response_msg}"
+                )
+                return None
+
+            summon_data = cast(list, response_msg.state.body.get("token_data", None))
+
+            token["token_name"] = summon_data[0]
+            token["token_ticker"] = summon_data[1]
+            token["token_supply"] = summon_data[2]
+            token["eth_contributed"] = summon_data[3]
+            token["summon_time"] = summon_data[4]
+            token["unleash_time"] = summon_data[5]
+            token["heart_count"] = summon_data[6]
+            token["position_id"] = summon_data[7]
+            token["is_native_first"] = summon_data[8]
+            token["decimals"] = 18
 
         # Load previously hearted memes
         db_data = yield from self._read_kv(keys=("hearted_memes",))
@@ -596,7 +643,7 @@ class MemeooorrBaseBehaviour(BaseBehaviour, ABC):  # pylint: disable=too-many-an
         if meme_coins:
             return meme_coins
 
-        meme_coins = yield from self.get_meme_coins_from_chain()
+        meme_coins = yield from self.get_meme_coins_from_subgraph()
         return meme_coins
 
     def get_min_deploy_value(self) -> int:

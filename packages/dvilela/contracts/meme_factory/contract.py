@@ -20,7 +20,7 @@
 """This module contains the class to connect to an MemeFactory contract."""
 
 import logging
-from typing import Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 import web3
 from aea.common import JSONLike
@@ -169,6 +169,23 @@ class MemeFactoryContract(Contract):
                 continue
 
         return {"token_address": None, "summoner": None, "eth_contributed": None}
+
+    @classmethod
+    def get_meme_summons_info(
+        cls, ledger_api: EthereumApi, contract_address: str, token_address: str
+    ) -> Dict[str, Any]:
+        """Get the data from the memeTokenNonces."""
+        contract_instance = cls.get_instance(ledger_api, contract_address)
+
+        meme_token_nonce = getattr(  # noqa
+            contract_instance.functions, "memeTokenNonces"
+        )  # noqa
+        token_nonce = meme_token_nonce(token_address).call()
+
+        meme_summons = getattr(contract_instance.functions, "memeSummons")  # noqa
+        token_data = meme_summons(token_nonce).call()
+
+        return {"token_data": token_data}
 
     @classmethod
     def get_summon_data(

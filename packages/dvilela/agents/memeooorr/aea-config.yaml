@@ -5,241 +5,241 @@ license: Apache-2.0
 description: An agent that deploys memecoins.
 aea_version: '>=1.19.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeid4555nbqrben3bbz62jsycrtssy5mqso4w23q7bjorln3qur7baq
+    __init__.py: bafybeid4555nbqrben3bbz62jsycrtssy5mqso4w23q7bjorln3qur7baq
 fingerprint_ignore_patterns: []
 connections:
-- valory/ipfs:0.1.0:bafybeiay3g7ioixe5zxilb5vodvz3lpf3jhugvpdzisfzeqlxt2wejaira
-- valory/abci:0.1.0:bafybeiavg4blopyq2mfojlfmsdxpk64ywpot25zi34wfmv4yeal6pbqbfy
-- valory/http_client:0.23.0:bafybeihi772xgzpqeipp3fhmvpct4y6e6tpjp4sogwqrnf3wqspgeilg4u
-- valory/ledger:0.19.0:bafybeigntoericenpzvwejqfuc3kqzo2pscs76qoygg5dbj6f4zxusru5e
-- valory/p2p_libp2p_client:0.1.0:bafybeid3xg5k2ol5adflqloy75ibgljmol6xsvzvezebsg7oudxeeolz7e
-- dvilela/twikit:0.1.0:bafybeigm54eigom3nyp2t3u54yxznhb5gshpydmrmgeibmw6gqnmyqrv6m
-- dvilela/kv_store:0.1.0:bafybeiekugvb2kan4342hliluxl3h5och3fjwqoafdyttpcn57evvyztq4
-- valory/http_server:0.22.0:bafybeihpgu56ovmq4npazdbh6y6ru5i7zuv6wvdglpxavsckyih56smu7m
-- dvilela/genai:0.1.0:bafybeidkxxlonrxirznivkmzc34wmby4e4s57rfg2b7k6xyos23g3y6cdy
+    - valory/ipfs:0.1.0:bafybeiay3g7ioixe5zxilb5vodvz3lpf3jhugvpdzisfzeqlxt2wejaira
+    - valory/abci:0.1.0:bafybeiavg4blopyq2mfojlfmsdxpk64ywpot25zi34wfmv4yeal6pbqbfy
+    - valory/http_client:0.23.0:bafybeihi772xgzpqeipp3fhmvpct4y6e6tpjp4sogwqrnf3wqspgeilg4u
+    - valory/ledger:0.19.0:bafybeigntoericenpzvwejqfuc3kqzo2pscs76qoygg5dbj6f4zxusru5e
+    - valory/p2p_libp2p_client:0.1.0:bafybeid3xg5k2ol5adflqloy75ibgljmol6xsvzvezebsg7oudxeeolz7e
+    - dvilela/twikit:0.1.0:bafybeigm54eigom3nyp2t3u54yxznhb5gshpydmrmgeibmw6gqnmyqrv6m
+    - dvilela/kv_store:0.1.0:bafybeiekugvb2kan4342hliluxl3h5och3fjwqoafdyttpcn57evvyztq4
+    - valory/http_server:0.22.0:bafybeihpgu56ovmq4npazdbh6y6ru5i7zuv6wvdglpxavsckyih56smu7m
+    - dvilela/genai:0.1.0:bafybeidkxxlonrxirznivkmzc34wmby4e4s57rfg2b7k6xyos23g3y6cdy
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeiaw4yr7ubqlp63iz5wxqep3a5fokqs3kqva7sp2nsqg355zzucqgm
-- valory/gnosis_safe_proxy_factory:0.1.0:bafybeidkqhw7smq4kbqryodom6maj7gubc5nbxwm4vi343xbkqxx3brjtm
-- valory/multisend:0.1.0:bafybeig5byt5urg2d2bsecufxe5ql7f4mezg3mekfleeh32nmuusx66p4y
-- dvilela/meme_factory:0.1.0:bafybeifwx7zcrj7fi4nkfdcucomn3ph7jlr3ac364ilayzcnh4sqjma3vu
-- dvilela/service_registry:0.1.0:bafybeie2rrgzcjehlp2feff6bhkuindxzrnuwxe2jcrsy2thcdtrsp2o24
+    - valory/gnosis_safe:0.1.0:bafybeiaw4yr7ubqlp63iz5wxqep3a5fokqs3kqva7sp2nsqg355zzucqgm
+    - valory/gnosis_safe_proxy_factory:0.1.0:bafybeidkqhw7smq4kbqryodom6maj7gubc5nbxwm4vi343xbkqxx3brjtm
+    - valory/multisend:0.1.0:bafybeig5byt5urg2d2bsecufxe5ql7f4mezg3mekfleeh32nmuusx66p4y
+    - dvilela/meme_factory:0.1.0:bafybeigasbg2rsw4hw2metcqmwbffbo24qki63zylczyvd7qlxwdretfkq
+    - dvilela/service_registry:0.1.0:bafybeie2rrgzcjehlp2feff6bhkuindxzrnuwxe2jcrsy2thcdtrsp2o24
 protocols:
-- open_aea/signing:1.0.0:bafybeihv62fim3wl2bayavfcg3u5e5cxu3b7brtu4cn5xoxd6lqwachasi
-- valory/abci:0.1.0:bafybeiaqmp7kocbfdboksayeqhkbrynvlfzsx4uy4x6nohywnmaig4an7u
-- valory/acn:1.1.0:bafybeidluaoeakae3exseupaea4i3yvvk5vivyt227xshjlffywwxzcxqe
-- valory/contract_api:1.0.0:bafybeidgu7o5llh26xp3u3ebq3yluull5lupiyeu6iooi2xyymdrgnzq5i
-- valory/http:1.0.0:bafybeifugzl63kfdmwrxwphrnrhj7bn6iruxieme3a4ntzejf6kmtuwmae
-- valory/ipfs:0.1.0:bafybeiftxi2qhreewgsc5wevogi7yc5g6hbcbo4uiuaibauhv3nhfcdtvm
-- valory/ledger_api:1.0.0:bafybeihdk6psr4guxmbcrc26jr2cbgzpd5aljkqvpwo64bvaz7tdti2oni
-- valory/tendermint:0.1.0:bafybeig4mi3vmlv5zpbjbfuzcgida6j5f2nhrpedxicmrrfjweqc5r7cra
-- valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
-- dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
+    - open_aea/signing:1.0.0:bafybeihv62fim3wl2bayavfcg3u5e5cxu3b7brtu4cn5xoxd6lqwachasi
+    - valory/abci:0.1.0:bafybeiaqmp7kocbfdboksayeqhkbrynvlfzsx4uy4x6nohywnmaig4an7u
+    - valory/acn:1.1.0:bafybeidluaoeakae3exseupaea4i3yvvk5vivyt227xshjlffywwxzcxqe
+    - valory/contract_api:1.0.0:bafybeidgu7o5llh26xp3u3ebq3yluull5lupiyeu6iooi2xyymdrgnzq5i
+    - valory/http:1.0.0:bafybeifugzl63kfdmwrxwphrnrhj7bn6iruxieme3a4ntzejf6kmtuwmae
+    - valory/ipfs:0.1.0:bafybeiftxi2qhreewgsc5wevogi7yc5g6hbcbo4uiuaibauhv3nhfcdtvm
+    - valory/ledger_api:1.0.0:bafybeihdk6psr4guxmbcrc26jr2cbgzpd5aljkqvpwo64bvaz7tdti2oni
+    - valory/tendermint:0.1.0:bafybeig4mi3vmlv5zpbjbfuzcgida6j5f2nhrpedxicmrrfjweqc5r7cra
+    - valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
+    - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 skills:
-- valory/abstract_abci:0.1.0:bafybeieo7pe5wqjphs5izpz5aujjbubymlxub62b3rhx6yglu65ibalffu
-- valory/abstract_round_abci:0.1.0:bafybeibiw4oqwqvo4jccwz5fb73iardzychgvcl66tceiildohoju2ikti
-- valory/termination_abci:0.1.0:bafybeifi2uodnrjsrivj53g3sjutocmyusbx6mlsb6oanqdyt2mfbyvusy
-- valory/transaction_settlement_abci:0.1.0:bafybeigh2vkt74jrad5gtsczrgqcuhcqe7jkgjy7jdw56yamlzwwnaymjy
-- valory/registration_abci:0.1.0:bafybeib3n6vqkfbrcubcbliebjnuwyywdinxkbzt76n6gbn2kg7ace47dq
-- valory/reset_pause_abci:0.1.0:bafybeihkj6lmaypspyxe5qqrjgnolyck62pyvqoylr24ab6ue4steqcw7e
-- dvilela/memeooorr_abci:0.1.0:bafybeiehig6qqgoibs3abunqfm643gg5sue4qema4dr6gti6lmupatqtku
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeifv2y6zpjpwc7nwsezqad2lwnrmqthteskzzdrs4ie4isn6i2i5pm
+    - valory/abstract_abci:0.1.0:bafybeieo7pe5wqjphs5izpz5aujjbubymlxub62b3rhx6yglu65ibalffu
+    - valory/abstract_round_abci:0.1.0:bafybeibiw4oqwqvo4jccwz5fb73iardzychgvcl66tceiildohoju2ikti
+    - valory/termination_abci:0.1.0:bafybeifi2uodnrjsrivj53g3sjutocmyusbx6mlsb6oanqdyt2mfbyvusy
+    - valory/transaction_settlement_abci:0.1.0:bafybeigh2vkt74jrad5gtsczrgqcuhcqe7jkgjy7jdw56yamlzwwnaymjy
+    - valory/registration_abci:0.1.0:bafybeib3n6vqkfbrcubcbliebjnuwyywdinxkbzt76n6gbn2kg7ace47dq
+    - valory/reset_pause_abci:0.1.0:bafybeihkj6lmaypspyxe5qqrjgnolyck62pyvqoylr24ab6ue4steqcw7e
+    - dvilela/memeooorr_abci:0.1.0:bafybeihclcjklhjyma4t7emzj5gpbzlzfkj3j2rlqcljturpbqou4nv72e
+    - dvilela/memeooorr_chained_abci:0.1.0:bafybeiavdpblni26zztz6z6ovg3konaj4oei64srrvxpbgcpdf5eqchhym
 default_ledger: ethereum
 required_ledgers:
-- ethereum
+    - ethereum
 default_routing: {}
 connection_private_key_paths: {}
 private_key_paths: {}
 logging_config:
-  version: 1
-  disable_existing_loggers: false
-  formatters:
-    standard:
-      format: '[%(asctime)s] [%(levelname)s] %(message)s'
-  handlers:
-    logfile:
-      class: logging.FileHandler
-      formatter: standard
-      filename: ${LOG_FILE:str:log.txt}
-      level: ${LOG_LEVEL:str:INFO}
-    console:
-      class: logging.StreamHandler
-      formatter: standard
-      stream: ext://sys.stdout
-  loggers:
-    aea:
-      handlers:
-      - logfile
-      - console
-      propagate: true
+    version: 1
+    disable_existing_loggers: false
+    formatters:
+        standard:
+            format: '[%(asctime)s] [%(levelname)s] %(message)s'
+    handlers:
+        logfile:
+            class: logging.FileHandler
+            formatter: standard
+            filename: ${LOG_FILE:str:log.txt}
+            level: ${LOG_LEVEL:str:INFO}
+        console:
+            class: logging.StreamHandler
+            formatter: standard
+            stream: ext://sys.stdout
+    loggers:
+        aea:
+            handlers:
+                - logfile
+                - console
+            propagate: true
 skill_exception_policy: stop_and_exit
 dependencies:
-  open-aea-ledger-ethereum:
-    version: ==1.59.0
+    open-aea-ledger-ethereum:
+        version: ==1.59.0
 default_connection: null
 ---
 public_id: dvilela/kv_store:0.1.0
 type: connection
 config:
-  db_path: ${str:/tmp/memeooorr.db}
+    db_path: ${str:/tmp/memeooorr.db}
 ---
 public_id: valory/abci:0.1.0
 type: connection
 config:
-  target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
-  host: ${str:localhost}
-  port: ${int:26658}
-  use_tendermint: ${bool:false}
+    target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+    host: ${str:localhost}
+    port: ${int:26658}
+    use_tendermint: ${bool:false}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
 config:
-  ledger_apis:
-    base:
-      address: ${str:http://localhost:8545}
-      chain_id: ${int:8453}
-      poa_chain: ${bool:false}
-      default_gas_price_strategy: ${str:eip1559}
-      gas_price_strategies: &id001
-        gas_station:
-          gas_price_api_key: null
-          gas_price_strategy: fast
-        eip1559:
-          max_gas_fast: 1500
-          fee_history_blocks: 10
-          fee_history_percentile: 5
-          default_priority_fee: ${int:30000000}
-          fallback_estimate:
-            maxFeePerGas: ${int:20000000000}
-            maxPriorityFeePerGas: ${int:3000000000}
-            baseFee: null
-          priority_fee_increase_boundary: ${int:200}
-    celo:
-      address: ${str:http://localhost:8545}
-      chain_id: ${int:42220}
-      poa_chain: ${bool:true}
-      default_gas_price_strategy: ${str:eip1559}
-      gas_price_strategies: *id001
+    ledger_apis:
+        base:
+            address: ${str:http://localhost:8545}
+            chain_id: ${int:8453}
+            poa_chain: ${bool:false}
+            default_gas_price_strategy: ${str:eip1559}
+            gas_price_strategies: &id001
+                gas_station:
+                    gas_price_api_key: null
+                    gas_price_strategy: fast
+                eip1559:
+                    max_gas_fast: 1500
+                    fee_history_blocks: 10
+                    fee_history_percentile: 5
+                    default_priority_fee: ${int:30000000}
+                    fallback_estimate:
+                        maxFeePerGas: ${int:20000000000}
+                        maxPriorityFeePerGas: ${int:3000000000}
+                        baseFee: null
+                    priority_fee_increase_boundary: ${int:200}
+        celo:
+            address: ${str:http://localhost:8545}
+            chain_id: ${int:42220}
+            poa_chain: ${bool:true}
+            default_gas_price_strategy: ${str:eip1559}
+            gas_price_strategies: *id001
 ---
 public_id: valory/p2p_libp2p_client:0.1.0
 type: connection
 config:
-  nodes:
-  - uri: ${str:acn.staging.autonolas.tech:9005}
-    public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+    nodes:
+        - uri: ${str:acn.staging.autonolas.tech:9005}
+          public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
 cert_requests:
-- identifier: acn
-  ledger_id: ethereum
-  message_format: '{public_key}'
-  not_after: '2023-01-01'
-  not_before: '2022-01-01'
-  public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
-  save_path: .certs/acn_cosmos_11000.txt
+    - identifier: acn
+      ledger_id: ethereum
+      message_format: '{public_key}'
+      not_after: '2023-01-01'
+      not_before: '2022-01-01'
+      public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+      save_path: .certs/acn_cosmos_11000.txt
 ---
 public_id: dvilela/memeooorr_chained_abci:0.1.0
 type: skill
 models:
-  benchmark_tool:
-    args:
-      log_dir: ${str:/logs}
-  params:
-    args:
-      cleanup_history_depth: 1
-      cleanup_history_depth_current: null
-      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      genesis_config:
-        genesis_time: '2022-09-26T00:00:00.000000000Z'
-        chain_id: chain-c4daS1
-        consensus_params:
-          block:
-            max_bytes: '22020096'
-            max_gas: '-1'
-            time_iota_ms: '1000'
-          evidence:
-            max_age_num_blocks: '100000'
-            max_age_duration: '172800000000000'
-            max_bytes: '1048576'
-          validator:
-            pub_key_types:
-            - ed25519
-          version: {}
-        voting_power: '10'
-      keeper_timeout: 30.0
-      max_attempts: 10
-      max_healthcheck: 120
-      multisend_address: ${str:0x0000000000000000000000000000000000000000}
-      termination_sleep: ${int:900}
-      init_fallback_gas: 0
-      keeper_allowed_retries: 3
-      reset_pause_duration: ${int:30}
-      on_chain_service_id: ${int:null}
-      reset_tendermint_after: ${int:2}
-      retry_attempts: 400
-      retry_timeout: 3
-      request_retry_delay: 1.0
-      request_timeout: 10.0
-      round_timeout_seconds: 30.0
-      service_id: memeooorr
-      service_registry_address: ${str:0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA}
-      setup:
-        all_participants: ${list:["0x8426B9F3e3E6d8ec2E83391CE3Db9Dec69570234"]}
-        safe_contract_address: ${str:0x0000000000000000000000000000000000000000}
-        consensus_threshold: ${int:null}
-      share_tm_config_on_startup: ${bool:false}
-      sleep_time: 1
-      tendermint_check_sleep_delay: 3
-      tendermint_com_url: ${str:http://localhost:8080}
-      tendermint_max_retries: 5
-      tendermint_url: ${str:http://localhost:26657}
-      tendermint_p2p_url: ${str:localhost:26656}
-      use_termination: ${bool:false}
-      tx_timeout: 10.0
-      validate_timeout: 1205
-      finalize_timeout: 60.0
-      history_check_timeout: 1205
-      use_slashing: ${bool:false}
-      slash_cooldown_hours: ${int:3}
-      slash_threshold_amount: ${int:10000000000000000}
-      light_slash_unit_amount: ${int:5000000000000000}
-      serious_slash_unit_amount: ${int:8000000000000000}
-      multisend_batch_size: ${int:50}
-      ipfs_address: ${str:https://gateway.autonolas.tech/ipfs/}
-      default_chain_id: ${str:base}
-      termination_from_block: ${int:0}
-      minimum_gas_balance: ${float:0.001}
-      min_feedback_replies: ${int:10}
-      meme_factory_address_base: ${str:0x82a9c823332518c32a0c0edc050ef00934cf04d4}
-      meme_factory_address_celo: ${str:0xeea5f1e202dc43607273d54101ff8b58fb008a99}
-      meme_factory_deployment_block_base: ${int:23540622}
-      meme_factory_deployment_block_celo: ${int:29323752}
-      olas_token_address_base: ${str:0x54330d28ca3357F294334BDC454a032e7f353416}
-      olas_token_address_celo: ${str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
-      persona: ${str:a cat lover that is crazy about all-things cats.}
-      feedback_period_min_hours: ${int:1}
-      feedback_period_max_hours: ${int:2}
-      home_chain_id: ${str:BASE}
-      twitter_username: ${str:null}
-      service_registry_address_base: ${str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
-      service_registry_address_celo: ${str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
-      meme_subgraph_url: ${str:https://agentsfun-indexer-production.up.railway.app}
+    benchmark_tool:
+        args:
+            log_dir: ${str:/logs}
+    params:
+        args:
+            cleanup_history_depth: 1
+            cleanup_history_depth_current: null
+            drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+            genesis_config:
+                genesis_time: '2022-09-26T00:00:00.000000000Z'
+                chain_id: chain-c4daS1
+                consensus_params:
+                    block:
+                        max_bytes: '22020096'
+                        max_gas: '-1'
+                        time_iota_ms: '1000'
+                    evidence:
+                        max_age_num_blocks: '100000'
+                        max_age_duration: '172800000000000'
+                        max_bytes: '1048576'
+                    validator:
+                        pub_key_types:
+                            - ed25519
+                    version: {}
+                voting_power: '10'
+            keeper_timeout: 30.0
+            max_attempts: 10
+            max_healthcheck: 120
+            multisend_address: ${str:0x0000000000000000000000000000000000000000}
+            termination_sleep: ${int:900}
+            init_fallback_gas: 0
+            keeper_allowed_retries: 3
+            reset_pause_duration: ${int:30}
+            on_chain_service_id: ${int:null}
+            reset_tendermint_after: ${int:2}
+            retry_attempts: 400
+            retry_timeout: 3
+            request_retry_delay: 1.0
+            request_timeout: 10.0
+            round_timeout_seconds: 30.0
+            service_id: memeooorr
+            service_registry_address: ${str:0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA}
+            setup:
+                all_participants: ${list:["0x8426B9F3e3E6d8ec2E83391CE3Db9Dec69570234"]}
+                safe_contract_address: ${str:0x0000000000000000000000000000000000000000}
+                consensus_threshold: ${int:null}
+            share_tm_config_on_startup: ${bool:false}
+            sleep_time: 1
+            tendermint_check_sleep_delay: 3
+            tendermint_com_url: ${str:http://localhost:8080}
+            tendermint_max_retries: 5
+            tendermint_url: ${str:http://localhost:26657}
+            tendermint_p2p_url: ${str:localhost:26656}
+            use_termination: ${bool:false}
+            tx_timeout: 10.0
+            validate_timeout: 1205
+            finalize_timeout: 60.0
+            history_check_timeout: 1205
+            use_slashing: ${bool:false}
+            slash_cooldown_hours: ${int:3}
+            slash_threshold_amount: ${int:10000000000000000}
+            light_slash_unit_amount: ${int:5000000000000000}
+            serious_slash_unit_amount: ${int:8000000000000000}
+            multisend_batch_size: ${int:50}
+            ipfs_address: ${str:https://gateway.autonolas.tech/ipfs/}
+            default_chain_id: ${str:base}
+            termination_from_block: ${int:0}
+            minimum_gas_balance: ${float:0.001}
+            min_feedback_replies: ${int:10}
+            meme_factory_address_base: ${str:0x82a9c823332518c32a0c0edc050ef00934cf04d4}
+            meme_factory_address_celo: ${str:0xeea5f1e202dc43607273d54101ff8b58fb008a99}
+            meme_factory_deployment_block_base: ${int:23540622}
+            meme_factory_deployment_block_celo: ${int:29323752}
+            olas_token_address_base: ${str:0x54330d28ca3357F294334BDC454a032e7f353416}
+            olas_token_address_celo: ${str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
+            persona: ${str:a cat lover that is crazy about all-things cats.}
+            feedback_period_min_hours: ${int:1}
+            feedback_period_max_hours: ${int:2}
+            home_chain_id: ${str:BASE}
+            twitter_username: ${str:null}
+            service_registry_address_base: ${str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
+            service_registry_address_celo: ${str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
+            meme_subgraph_url: ${str:https://agentsfun-indexer-production.up.railway.app}
 ---
 public_id: valory/http_server:0.22.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  host: ${str:0.0.0.0}
-  port: ${int:8833}
-  target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+    host: ${str:0.0.0.0}
+    port: ${int:8833}
+    target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
 ---
 public_id: dvilela/genai:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  genai_api_key: ${str:null}
+    genai_api_key: ${str:null}
 ---
 public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${str:null}
-  twikit_email: ${str:null}
-  twikit_password: ${str:null}
-  twikit_cookies: ${str:null}
-  twikit_cookies_path: ${str:/tmp/twikit_cookies.json}
-  twikit_disable_tweets: ${bool:false}
+    twikit_username: ${str:null}
+    twikit_email: ${str:null}
+    twikit_password: ${str:null}
+    twikit_cookies: ${str:null}
+    twikit_cookies_path: ${str:/tmp/twikit_cookies.json}
+    twikit_disable_tweets: ${bool:false}
