@@ -391,3 +391,4 @@ fdee57a191711e8c578a87ad7d19e3bcabbafee3:scripts/deployment/globals_base_mainnet
 fdee57a191711e8c578a87ad7d19e3bcabbafee3:scripts/deployment/globals_base_mainnet_meme_beta.json:generic-api-key:16
 fdee57a191711e8c578a87ad7d19e3bcabbafee3:scripts/deployment/globals_base_mainnet_meme_beta.json:generic-api-key:18
 cf5ef5cfdb24d6311f60e4b81b5923a244bcd283:packages/dvilela/skills/memeooorr_chained_abci/skill.yaml:generic-api-key:150
+cf5ef5cfdb24d6311f60e4b81b5923a244bcd283:packages/dvilela/skills/memeooorr_chained_abci/skill.yaml:generic-api-key:151
