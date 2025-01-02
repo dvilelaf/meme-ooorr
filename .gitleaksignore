@@ -390,4 +390,4 @@ f5704a9c546a17ac608b7d987a461963db3d37c4:scripts/deployment/globals_celo_mainnet
 fdee57a191711e8c578a87ad7d19e3bcabbafee3:scripts/deployment/globals_base_mainnet_meme_beta.json:generic-api-key:15
 fdee57a191711e8c578a87ad7d19e3bcabbafee3:scripts/deployment/globals_base_mainnet_meme_beta.json:generic-api-key:16
 fdee57a191711e8c578a87ad7d19e3bcabbafee3:scripts/deployment/globals_base_mainnet_meme_beta.json:generic-api-key:18
-cf5ef5cfdb24d6311f60e4b81b5923a244bcd283:packages/dvilela/skills/memeooorr_chained_abci/skill.yaml:generic-api-key:151
+cf5ef5cfdb24d6311f60e4b81b5923a244bcd283:packages/dvilela/skills/memeooorr_chained_abci/skill.yaml:generic-api-key:150
