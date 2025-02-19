@@ -145,6 +145,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         self.activity_checker_contract_address: str = self._ensure(
             "activity_checker_contract_address", kwargs, str
         )
+        self.tools_to_description = self._ensure("tools_to_description", kwargs, dict)
         self.alternative_model_for_tweets: AlternativeModelForTweets = (
             AlternativeModelForTweets.from_dict(kwargs["alternative_model_for_tweets"])
         )

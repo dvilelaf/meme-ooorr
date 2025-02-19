@@ -19,9 +19,10 @@
 
 """This package contains the rounds of MemeooorrAbciApp."""
 
+from dataclasses import asdict, dataclass, is_dataclass
 import json
 from enum import Enum
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple, cast
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple, cast
 
 from packages.dvilela.skills.memeooorr_abci.payloads import (
     ActionDecisionPayload,
@@ -35,6 +36,8 @@ from packages.dvilela.skills.memeooorr_abci.payloads import (
     LoadDatabasePayload,
     PostTxDecisionMakingPayload,
     PullMemesPayload,
+    PreMechRequestPayload,
+    PostMechRequestPayload,
     TransactionLoopCheckPayload,
 )
 from packages.valory.skills.abstract_round_abci.base import (
@@ -49,6 +52,11 @@ from packages.valory.skills.abstract_round_abci.base import (
     DeserializedCollection,
     EventToTimeout,
     get_name,
+)
+
+from packages.valory.skills.mech_interact_abci.states.base import (
+    MechMetadata,
+    MechInteractionResponse,
 )
 
 
@@ -77,6 +85,7 @@ class Event(Enum):
     TO_ACTION_TWEET = "to_action_tweet"
     ACTION = "action"
     MISSING_TWEET = "missing_tweet"
+    MECH = "mech"
     RETRY = "retry"
 
 
@@ -150,6 +159,23 @@ class SynchronizedData(BaseSynchronizedData):
         return self._get_deserialized("participant_to_staking")
 
     @property
+    def mech_requests(self) -> List[MechMetadata]:
+        """Get the mech requests."""
+        serialized = self.db.get("mech_requests", "[]")
+        if serialized is None:
+            serialized = "[]"
+        requests = json.loads(serialized)
+        return [MechMetadata(**metadata_item) for metadata_item in requests]
+
+    @property
+    def mech_responses(self) -> List[MechInteractionResponse]:
+        """Get the mech responses."""
+        responses = self.db.get("mech_responses", "[]")
+        if isinstance(responses, str):
+            responses = json.loads(responses)
+        return [MechInteractionResponse(**response_item) for response_item in responses]
+
+    @property
     def tx_loop_count(self) -> int:
         """Get the loop count for retrying transaction."""
         return int(self.db.get("tx_loop_count", 0))  # type: ignore
@@ -173,6 +199,16 @@ class EventRoundBase(CollectSameUntilThresholdRound):
         ):
             return self.synchronized_data, Event.NO_MAJORITY
         return None
+
+
+class DataclassEncoder(json.JSONEncoder):
+    """A custom JSON encoder for dataclasses."""
+
+    def default(self, o: Any) -> Any:
+        """The default JSON encoder."""
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
 
 
 class LoadDatabaseRound(CollectSameUntilThresholdRound):
@@ -286,6 +322,40 @@ class PullMemesRound(CollectSameUntilThresholdRound):
     # Event.ROUND_TIMEOUT  # this needs to be mentioned for static checkers
 
 
+@dataclass
+class MechMetadata:
+    """A Mech's metadata."""
+
+    prompt: str
+    tool: str
+    nonce: str
+
+
+@dataclass
+class MechRequest:
+    """A Mech's request."""
+
+    data: str = ""
+    requestId: int = 0
+
+
+@dataclass
+class MechInteractionResponse(MechRequest):
+    """A structure for the response of a mech interaction task."""
+
+    nonce: str = ""
+    result: Optional[str] = None
+    error: str = "Unknown"
+
+    def retries_exceeded(self) -> None:
+        """Set an incorrect format response."""
+        self.error = "Retries were exceeded while trying to get the mech's response."
+
+    def incorrect_format(self, res: Any) -> None:
+        """Set an incorrect format response."""
+        self.error = f"The response's format was unexpected: {res}"
+
+
 class CollectFeedbackRound(CollectSameUntilThresholdRound):
     """CollectFeedbackRound"""
 
@@ -321,15 +391,83 @@ class CollectFeedbackRound(CollectSameUntilThresholdRound):
         return None
 
 
-class EngageTwitterRound(EventRoundBase):
+class EngageTwitterRound(CollectSameUntilThresholdRound):
     """EngageTwitterRound"""
 
     payload_class = EngageTwitterPayload  # type: ignore
     synchronized_data_class = SynchronizedData
-    extended_requirements = ()
+    required_class_attributes = ()
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            payload = json.loads(self.most_voted_payload)
+            new_mech_requests = payload["new_mech_requests"]
+
+            self.context.logger.info(
+                f"new_mech_requests EngageTwitterRound: {new_mech_requests}"
+            )
+
+            if payload["mech_request"] is None:
+                return self.synchronized_data, Event.DONE
+
+            synchronized_data = self.synchronized_data.update(
+                synchronized_data_class=SynchronizedData,
+                **{
+                    get_name(SynchronizedData.mech_requests): json.dumps(
+                        new_mech_requests
+                    ),
+                },
+            )
+
+            return synchronized_data, Event.MECH
+
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
     # This needs to be mentioned for static checkers
     # Event.DONE, Event.ERROR, Event.NO_MAJORITY, Event.ROUND_TIMEOUT
+
+
+class PostMechRequestRound(CollectSameUntilThresholdRound):
+    """PostMechRequestRound"""
+
+    payload_class = PostMechRequestPayload
+    synchronized_data_class = SynchronizedData
+    extended_requirements = ()
+
+    # def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+    #     """Process the end of the block."""
+    #     if self.threshold_reached:
+    #         payload = json.loads(self.most_voted_payload)
+
+    #         # check if there are any responses
+    #         if not payload["mech_responses"]:
+    #             return self.synchronized_data, Event.DONE
+
+    #         # Remove already used responses
+    #         mech_responses = cast(
+    #             SynchronizedData, self.synchronized_data
+    #         ).mech_responses
+
+    #         serialized_responses = json.dumps(mech_responses, cls=DataclassEncoder)
+
+    #         synchronized_data = self.synchronized_data.update(
+    #             synchronized_data_class=SynchronizedData,
+    #             **{
+    #                 get_name(SynchronizedData.mech_responses): serialized_responses,
+    #             },
+    #         )
+    #         return synchronized_data, Event.DONE
+
+    #     if not self.is_majority_possible(
+    #         self.collection, self.synchronized_data.nb_participants
+    #     ):
+    #         return self.synchronized_data, Event.NO_MAJORITY
+    #     return None
 
 
 class ActionDecisionRound(CollectSameUntilThresholdRound):
@@ -548,9 +686,12 @@ class TransactionLoopCheckRound(CollectSameUntilThresholdRound):
 class FinishedToResetRound(DegenerateRound):
     """FinishedToResetRound"""
 
-
 class FinishedToSettlementRound(DegenerateRound):
     """FinishedToSettlementRound"""
+
+
+class FinishedForMechRound(DegenerateRound):
+    """FinishedForMechRound"""
 
 
 class MemeooorrAbciApp(AbciApp[Event]):
@@ -562,6 +703,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         PullMemesRound,
         ActionPreparationRound,
         PostTxDecisionMakingRound,
+        PostMechRequestRound,
         TransactionLoopCheckRound,
     }
     transition_function: AbciAppTransitionFunction = {
@@ -588,6 +730,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         },
         EngageTwitterRound: {
             Event.DONE: ActionDecisionRound,
+            Event.MECH: FinishedEnagageTwitterForMechRound,
             Event.ERROR: EngageTwitterRound,
             Event.NO_MAJORITY: EngageTwitterRound,
             Event.ROUND_TIMEOUT: EngageTwitterRound,
@@ -629,6 +772,11 @@ class MemeooorrAbciApp(AbciApp[Event]):
             Event.SETTLE: FinishedToSettlementRound,
             Event.ROUND_TIMEOUT: CallCheckpointRound,
             Event.NO_MAJORITY: CallCheckpointRound,
+        },
+        PostMechRequestRound: {
+            Event.DONE: EngageTwitterRound,
+            Event.NO_MAJORITY: PostMechRequestRound,
+            Event.ROUND_TIMEOUT: PostMechRequestRound,
         },
         TransactionLoopCheckRound: {
             Event.DONE: FinishedToResetRound,

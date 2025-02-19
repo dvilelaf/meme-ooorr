@@ -105,6 +105,8 @@ extra:
         max_heart_amount_celo: ${MAX_HEART_AMOUNT_CELO:float:0.2}
         staking_token_contract_address: ${STAKING_TOKEN_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
         activity_checker_contract_address: ${ACTIVITY_CHECKER_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
+        tools_to_description:
+          dummy_tool: A tool that does nothing, and provides no info.
         alternative_model_for_tweets: ${ALTERNATIVE_MODEL_FOR_TWEETS:dict:{"use":false,"url":"https://api.fireworks.ai/inference/v1/chat/completions","api_key":null,"model":"accounts/sentientfoundation/models/dobby-mini-unhinged-llama-3-1-8b","max_tokens":16384,"top_p":1,"top_k":40,"presence_penalty":0,"frequency_penalty":0,"temperature":0.6}}
         tx_loop_breaker_count: 3
 ---

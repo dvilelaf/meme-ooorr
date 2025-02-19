@@ -52,6 +52,41 @@ Your task is to decide what actions to do, if any. Some recommenadations:
 - Pay attention to the time of creation of your previous tweets. You should not create new tweets too frequently. The time now is {time}.
 """
 
+TWITTER_DECISION_PROMPT_WITH_TOOLS = """
+You are a user on Twitter with a specific persona. You create tweets and also analyze tweets from other users and decide whether to interact with them or not.
+
+You have the possibility to use a tool to help you decide what to do. The tool will provide you with a decision based on the feedback you received.
+The following contains the available tools, together with their descriptions:
+
+{tools}
+
+You need to decide if you want to use tools or not , if not then what actions on Twitter you want to perform. The available actions are:
+
+- Tweet
+- Reply
+- Quote
+- Like
+- Retweet
+- Follow
+- Tool (to use a tool)
+
+Here's your persona:
+"{persona}"
+
+Here are some of your previous tweets:
+{previous_tweets}
+
+Here are some tweets from other users:
+{other_tweets}
+
+
+Your task is to decide what actions to do, if any. Some recommenadations:
+- If you decide to tweet, make sure it is significantly different from previous tweets in both topic and wording.
+- If you decide to reply or quote, make sure it is relevant to the tweet you are replying to.
+- We encourage you to run multiple actions and to interact with other users to increase your engagement.
+- Pay attention to the time of creation of your previous tweets. You should not create new tweets too frequently. The time now is {time}.
+"""
+
 ALTERNATIVE_MODEL_TWITTER_PROMPT = """
 You are a user on Twitter with a specific persona. You create tweets based on it.
 
@@ -76,6 +111,7 @@ class TwitterActionName(enum.Enum):
     REPLY = "reply"
     QUOTE = "quote"
     FOLLOW = "follow"
+    TOOL = "tool"
 
 
 @dataclass(frozen=True)
@@ -137,6 +173,7 @@ TOKEN_DECISION_PROMPT = (  # nosec
     * Summon your own token if the responses to your latest tweet are getting good engagement metrics or if the number of meme coins in the market is low (under 3)
     * Execute one action from the available actions for one of the already existing tokens.
     * Do nothing
+
 
     ONLY if you are not summoning, action priority should be "collect" > "unleash" > "purge" > "heart".
 

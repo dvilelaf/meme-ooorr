@@ -19,6 +19,7 @@
 
 """This package contains round behaviours of MemeooorrAbciApp."""
 
+from dataclasses import asdict
 import json
 import random
 import secrets
@@ -33,6 +34,7 @@ from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     ALTERNATIVE_MODEL_TWITTER_PROMPT,
     TWITTER_DECISION_PROMPT,
+    TWITTER_DECISION_PROMPT_WITH_TOOLS,
     build_twitter_action_schema,
 )
 from packages.dvilela.skills.memeooorr_abci.rounds import (
@@ -45,6 +47,7 @@ from packages.dvilela.skills.memeooorr_abci.rounds import (
     Event,
 )
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
+from uuid import uuid4
 
 
 MAX_TWEET_CHARS = 280
@@ -320,12 +323,19 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            event = yield from self.get_event()
+            event, new_mech_requests = yield from self.get_event()
 
-            payload = EngageTwitterPayload(
-                sender=self.context.agent_address,
-                event=event,
-            )
+            if event == Event.MECH.value:
+                payload = EngageTwitterPayload(
+                    sender=self.context.agent_address,
+                    event=event,
+                    mech_request=json.dumps(new_mech_requests, sort_keys=True),
+                )
+            else:
+                payload = EngageTwitterPayload(
+                    sender=self.context.agent_address,
+                    event=event,
+                )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -333,7 +343,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
 
         self.set_done()
 
-    def get_event(self) -> Generator[None, None, str]:
+    def get_event(self) -> Generator[None, None, Union[str, Tuple[str, List]]]:
         """Get the next event"""
 
         if self.params.skip_engagement:
@@ -401,9 +411,12 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
             }
 
         # Build and post interactions
-        event, new_interacted_tweet_ids = yield from self.interact_twitter(
-            pending_tweets
+        event, new_interacted_tweet_ids, new_mech_requests = (
+            yield from self.interact_twitter(pending_tweets)
         )
+
+        if event == Event.MECH.value:
+            return event, new_mech_requests
 
         if event == Event.DONE.value:
             interacted_tweet_ids.extend(new_interacted_tweet_ids)
@@ -421,7 +434,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
 
     def interact_twitter(  # pylint: disable=too-many-locals,too-many-statements
         self, pending_tweets: dict
-    ) -> Generator[None, None, Tuple[str, List]]:
+    ) -> Generator[None, None, Tuple[str, List, List]]:
         """Decide whether to like a tweet based on the persona."""
         new_interacted_tweet_ids: List[str] = []
         persona = yield from self.get_persona()
@@ -449,12 +462,15 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         else:
             previous_tweets = "No previous tweets"
 
-        prompt = TWITTER_DECISION_PROMPT.format(
+        prompt = TWITTER_DECISION_PROMPT_WITH_TOOLS.format(
             persona=persona,
             previous_tweets=previous_tweets,
             other_tweets=other_tweets,
+            tools="TOOL 1 : GOOGLE SEARCH",  # temp setup
             time=self.get_sync_time_str(),
         )
+
+        self.context.logger.info(f"Prompting the LLM for a decision : {prompt}")
 
         llm_response = yield from self._call_genai(
             prompt=prompt,
@@ -462,42 +478,72 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         )
         self.context.logger.info(f"LLM response for twitter decision: {llm_response}")
 
+        #i need to check for previous mech responses over here 
+
         if llm_response is None:
             self.context.logger.error("Error getting a response from the LLM.")
             return Event.ERROR.value, new_interacted_tweet_ids
 
         json_response = json.loads(llm_response)
 
-        for interaction in json_response:
-            tweet_id = interaction.get("selected_tweet_id", None)
-            user_id = interaction.get("user_id", None)
-            action = interaction.get("action", None)
-            text = interaction.get("text", None)
+        if "tool_action" in json_response:
+            self.context.logger.info("Tool action detected")
 
-            if action == "none":
-                self.context.logger.error("Action is none")
-                continue
-
-            if action != "tweet" and str(tweet_id) not in pending_tweets.keys():
-                self.context.logger.error(
-                    f"Action is {action} but tweet_id is not valid [{tweet_id}]"
+            new_mech_requests = []
+            # This is a temporary setup may change it later after getting more clarity on the tool
+            mech_responses = self.synchronized_data.mech_responses
+            nonce = str(uuid4())
+            tool_name = json_response["tool_action"]["tool_name"]
+            tool_input = json_response["tool_action"]["tool_input"]
+            new_mech_requests.append(
+                asdict(  # temp setup
+                    nonce=nonce,
+                    tool=tool_name,
+                    prompt=tool_input,
                 )
-                continue
+            )
+            self.context.logger.info(f"new_mech_requests: {new_mech_requests}")
 
-            if action == "follow" and (
-                not user_id
-                or user_id not in [t["user_id"] for t in pending_tweets.values()]
-            ):
-                self.context.logger.error(
-                    f"Action is {action} but user_id is not valid [{user_id}]"
-                )
-                continue
+            return Event.MECH.value, new_interacted_tweet_ids, new_mech_requests
 
-            # use yield from self.sleep(1) to simulate a delay use secrests to randomize the delay
-            # adding random delay to avoid rate limiting
-            delay = secrets.randbelow(5)
-            self.context.logger.info(f"Sleeping for {delay} seconds")
-            yield from self.sleep(delay)
+        elif "tweet_action" in json_response:
+            self.context.logger.info("Tweet action detected")
+            tweet_action = json_response["tweet_action"]
+
+            for interaction in json_response:
+                tweet_id = interaction.get("selected_tweet_id", None)
+                user_id = interaction.get("user_id", None)
+                action = interaction.get("action", None)
+                text = interaction.get("text", None)
+
+                if action == "none":
+                    self.context.logger.error("Action is none")
+                    continue
+
+                if action == "tool":
+                    self.context.logger.error("Action is Tool")
+                    continue
+
+                if action != "tweet" and str(tweet_id) not in pending_tweets.keys():
+                    self.context.logger.error(
+                        f"Action is {action} but tweet_id is not valid [{tweet_id}]"
+                    )
+                    continue
+
+                if action == "follow" and (
+                    not user_id
+                    or user_id not in [t["user_id"] for t in pending_tweets.values()]
+                ):
+                    self.context.logger.error(
+                        f"Action is {action} but user_id is not valid [{user_id}]"
+                    )
+                    continue
+
+                # use yield from self.sleep(1) to simulate a delay use secrests to randomize the delay
+                # adding random delay to avoid rate limiting
+                delay = secrets.randbelow(5)
+                self.context.logger.info(f"Sleeping for {delay} seconds")
+                yield from self.sleep(delay)
 
             self.context.logger.info("Sending a new tweet")
             if action == "tweet":
@@ -512,44 +558,47 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
                 yield from self.post_tweet(tweet=[text], store=True)
                 continue
 
-            self.context.logger.info(f"Trying to {action} tweet {tweet_id}")
-            user_name = pending_tweets[str(tweet_id)]["user_name"]
+                self.context.logger.info(f"Trying to {action} tweet {tweet_id}")
+                user_name = pending_tweets[str(tweet_id)]["user_name"]
 
-            if action == "like":
-                liked = yield from self.like_tweet(tweet_id)
-                if liked:
-                    new_interacted_tweet_ids.append(tweet_id)
-                continue
+                if action == "like":
+                    liked = yield from self.like_tweet(tweet_id)
+                    if liked:
+                        new_interacted_tweet_ids.append(tweet_id)
+                    continue
 
-            if action == "follow" and user_id:
-                followed = yield from self.follow_user(user_id)
-                if followed:
-                    new_interacted_tweet_ids.append(tweet_id)
-                continue
+                if action == "follow" and user_id:
+                    followed = yield from self.follow_user(user_id)
+                    if followed:
+                        new_interacted_tweet_ids.append(tweet_id)
+                    continue
 
-            if action == "retweet":
-                retweeted = yield from self.retweet(tweet_id)
-                if retweeted:
-                    new_interacted_tweet_ids.append(tweet_id)
-                continue
+                if action == "retweet":
+                    retweeted = yield from self.retweet(tweet_id)
+                    if retweeted:
+                        new_interacted_tweet_ids.append(tweet_id)
+                    continue
 
-            if not is_tweet_valid(text):
-                self.context.logger.error("The tweet is too long.")
-                continue
+                if not is_tweet_valid(text):
+                    self.context.logger.error("The tweet is too long.")
+                    continue
 
-            if action == "reply":
-                responded = yield from self.respond_tweet(tweet_id, text)
-                if responded:
-                    new_interacted_tweet_ids.append(tweet_id)
+                if action == "reply":
+                    responded = yield from self.respond_tweet(tweet_id, text)
+                    if responded:
+                        new_interacted_tweet_ids.append(tweet_id)
 
-            if action == "quote":
-                quoted = yield from self.respond_tweet(
-                    tweet_id, text, quote=True, user_name=user_name
-                )
-                if quoted:
-                    new_interacted_tweet_ids.append(tweet_id)
+                if action == "quote":
+                    quoted = yield from self.respond_tweet(
+                        tweet_id, text, quote=True, user_name=user_name
+                    )
+                    if quoted:
+                        new_interacted_tweet_ids.append(tweet_id)
 
-        return Event.DONE.value, new_interacted_tweet_ids
+            return Event.DONE.value, new_interacted_tweet_ids
+        else:
+            self.context.logger.error("Invalid response from the LLM.")
+            return Event.ERROR.value, new_interacted_tweet_ids
 
 
 class ActionTweetBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-ancestors
