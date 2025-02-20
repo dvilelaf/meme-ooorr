@@ -140,5 +140,8 @@ bump-packages:
 	echo "Bumping packages to open-aea $${AEA_VERSION}" && \
 	autonomy packages sync --source valory-xyz/open-autonomy:v$${AUTONOMY_VERSION} --source valory-xyz/open-aea:v$${AEA_VERSION} --update-packages
 
+.PHONY: gitleaks-ignore
+gitleaks-ignore:
+	python scripts/gitleaks_ignore.py
 
 v := $(shell pip -V | grep virtualenvs)

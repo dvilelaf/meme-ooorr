@@ -1,0 +1,159 @@
+name: decision_making_abci
+author: dvilela
+version: 0.1.0
+type: skill
+description: A decision maker skill.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeigpcuvsyzzujap342no35q6npgt7pwjxexkrt3bvzeo7cmeteqluq
+  behaviours.py: bafybeif4qldgkf55jamkopi3w7vhc6rpm4rcqwolbwqdncevl7dsj3474q
+  dialogues.py: bafybeigt7f5iqzpjfclatbrir7qqgckavm765lwfygaxmnqru24ak3ihme
+  fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
+  handlers.py: bafybeifjzh6o5qowybnc2oocokyymr2x6xzjl6pp773eypepzyhhzlflfi
+  models.py: bafybeifmnx5alsik4nbpwtubgxkxemcorvsycem3n3k7dvb7ri4f7jpfsq
+  payloads.py: bafybeianvp7rqfjcbt5ajftrzkzu2xzteeinip7sf4w5xuvdpbyd5rwsiq
+  rounds.py: bafybeihe4ooo3ikznwnabm3zawv6mjw54z3vutzg5hozqffhiy4nwqxdfa
+fingerprint_ignore_patterns: []
+connections: []
+contracts: []
+protocols:
+- valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
+- dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
+skills:
+- valory/abstract_round_abci:0.1.0:bafybeia27qmw6w5ds5fcrpj2475brnz742aampe3sgochloijs2l7jovai
+behaviours:
+  main:
+    args: {}
+    class_name: MemeooorrRoundBehaviour
+handlers:
+  abci:
+    args: {}
+    class_name: ABCIHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ipfs:
+    args: {}
+    class_name: IpfsHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
+  srr:
+    args: {}
+    class_name: SrrHandler
+  kv_store:
+    args: {}
+    class_name: KvStoreHandler
+models:
+  abci_dialogues:
+    args: {}
+    class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  ipfs_dialogues:
+    args: {}
+    class_name: IpfsDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  params:
+    args:
+      cleanup_history_depth: 1
+      cleanup_history_depth_current: null
+      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      finalize_timeout: 60.0
+      genesis_config:
+        chain_id: chain-c4daS1
+        consensus_params:
+          block:
+            max_bytes: '22020096'
+            max_gas: '-1'
+            time_iota_ms: '1000'
+          evidence:
+            max_age_duration: '172800000000000'
+            max_age_num_blocks: '100000'
+            max_bytes: '1048576'
+          validator:
+            pub_key_types:
+            - ed25519
+          version: {}
+        genesis_time: '2022-05-20T16:00:21.735122717Z'
+        voting_power: '10'
+      history_check_timeout: 1205
+      ipfs_domain_name: null
+      keeper_allowed_retries: 3
+      keeper_timeout: 30.0
+      max_attempts: 10
+      max_healthcheck: 120
+      on_chain_service_id: null
+      request_retry_delay: 1.0
+      request_timeout: 10.0
+      reset_pause_duration: 10
+      reset_tendermint_after: 2
+      retry_attempts: 400
+      retry_timeout: 3
+      round_timeout_seconds: 30.0
+      service_id: memeooorr
+      service_registry_address: null
+      setup:
+        all_participants:
+        - '0x0000000000000000000000000000000000000000'
+        consensus_threshold: null
+        safe_contract_address: '0x0000000000000000000000000000000000000000'
+      share_tm_config_on_startup: false
+      sleep_time: 1
+      tendermint_check_sleep_delay: 3
+      tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
+      tendermint_p2p_url: localhost:26656
+      tendermint_url: http://localhost:26657
+      tx_timeout: 10.0
+      ipfs_address: https://gateway.autonolas.tech/ipfs/
+      validate_timeout: 1205
+      default_chain_id: ethereum
+    class_name: Params
+  requests:
+    args: {}
+    class_name: Requests
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  state:
+    args: {}
+    class_name: SharedState
+  tendermint_dialogues:
+    args: {}
+    class_name: TendermintDialogues
+  srr_dialogues:
+    args: {}
+    class_name: SrrDialogues
+  kv_store_dialogues:
+    args: {}
+    class_name: KvStoreDialogues
+dependencies:
+  twitter_text_parser:
+    version: ==3.0.0
+  textblob:
+    version: '>=0.18.0.post0'
+  PyYAML:
+    version: '>=3.10,<=6.0.1'
+is_abstract: true
+customs: []
