@@ -522,19 +522,15 @@ class MemeooorrBaseBehaviour(
 
     def _call_genai(
         self,
-        prompt: str,
-        schema: Optional[Dict] = None,
-        temperature: Optional[float] = None,
+        method: str,
+        kwargs: Optional[Dict[str, Any]] = None,
     ) -> Generator[None, None, Optional[str]]:
         """Send a request message from the skill context."""
 
-        payload_data: Dict[str, Any] = {"prompt": prompt}
-
-        if schema is not None:
-            payload_data["schema"] = schema
-
-        if temperature is not None:
-            payload_data["temperature"] = temperature
+        payload_data: Dict[str, Any] = {
+            "method": method,
+            "kwargs": kwargs or {},
+        }
 
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         srr_message, srr_dialogue = srr_dialogues.create(
@@ -547,9 +543,10 @@ class MemeooorrBaseBehaviour(
         response = yield from self._do_connection_request(srr_message, srr_dialogue)  # type: ignore
 
         response_json = json.loads(response.payload)  # type: ignore
+        response_error = response.error
 
-        if "error" in response_json:
-            self.context.logger.error(response_json["error"])
+        if response_error:
+            self.context.logger.error(response_json)
             return None
 
         return response_json["response"]  # type: ignore

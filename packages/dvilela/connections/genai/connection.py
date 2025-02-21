@@ -24,7 +24,7 @@ import json
 import pickle  # nosec
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Tuple, cast
+from typing import Any, Dict, Tuple, cast, Optional
 from google.api_core.exceptions import InternalServerError, ResourceExhausted
 import google.generativeai as genai  # type: ignore
 from aea.configurations.base import PublicId
@@ -174,26 +174,23 @@ class GenaiConnection(BaseSyncConnection):
     def _get_response(self, payload: dict) -> Tuple[Dict, bool]:
         """Get response from Genai."""
 
-        REQUIRED_PROPERTIES = ["method", "kwargs"]
-        AVAILABLE_MODELS = [
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-2.0-flash",
-        ]
-        AVAILABLE_METHODS = [
-            "generate_content",
-            "start_chat",
-            "send_message",
-        ]
-
         # Check properties
+        REQUIRED_PROPERTIES = ["method"]
+
         if not all(i in payload for i in REQUIRED_PROPERTIES):
             return {
                 "error": f"Some parameter is missing from the request data: required={REQUIRED_PROPERTIES}, got={list(payload.keys())}"
             }, True
 
         # Check method
+        AVAILABLE_METHODS = [
+            "generate_content",
+            "start_chat",
+            "send_message",
+        ]
+
         method_name = payload.get("method")
+
         if method_name not in AVAILABLE_METHODS:
             return {
                 "error": f"Method {method_name} is not in the list of available methods {AVAILABLE_METHODS}"
@@ -202,43 +199,33 @@ class GenaiConnection(BaseSyncConnection):
         method = getattr(self, method_name)
 
         # Check model
-        model_name = payload.get("model", "gemini-1.5-flash")
+        AVAILABLE_MODELS = [
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-2.0-flash",
+        ]
+
+        model_name = payload.get("model", "gemini-2.0-flash")
         if model_name not in AVAILABLE_MODELS:
             return {
                 "error": f"Model {model_name} is not an available model [{AVAILABLE_MODELS}]"
             }, True
 
         self.logger.info(f"Calling genai: {payload}")
-        model = genai.GenerativeModel(model_name)
 
         try:
             # Avoid calling more than 1 time every 5 seconds (API limit is 15 req/min for flash)
             while (datetime.now(timezone.utc) - self.last_call).total_seconds() < 5:
                 time.sleep(1)
 
-            kwargs = {
-                "temperature": payload.get("temperature", DEFAULT_TEMPERATURE)
-            }
-
-            if "schema" in payload:
-                schema = payload["schema"]
-                schema_class = pickle.loads(bytes.fromhex(schema["class"]))  # nosec
-                kwargs["response_mime_type"] = "application/json"
-                is_list = schema.get("is_list", False)
-                if not is_list:
-                    kwargs["response_schema"] = schema_class
-                else:
-                    kwargs["response_schema"] = list[schema_class]  # type: ignore
-
-            response = await method(**payload.get("kwargs", {}))
-
+            response, error = method(**payload.get("kwargs", {}))
 
             self.logger.info(f"LLM response: {response.text}")
             self.last_call = datetime.now(timezone.utc)
         except Exception as e:
             return {"error": f"Exception while calling Genai:\n{e}"}, True
 
-        return {"response": response.text}, False  # type: ignore
+        return response, error   # type: ignore
 
     def on_connect(self) -> None:
         """
@@ -254,8 +241,24 @@ class GenaiConnection(BaseSyncConnection):
         Connection status set automatically.
         """
 
-    def generate_content(self, model, prompt, generation_config_kwargs) -> str:
+    def generate_content(self, model_name, prompt, **kwargs) -> Tuple[Dict, bool]:
         """Generate content (one shot)"""
+
+        model = genai.GenerativeModel(model_name)
+
+        generation_config_kwargs = {
+            "temperature": kwargs.get("temperature", DEFAULT_TEMPERATURE)
+        }
+
+        if "schema" in kwargs:
+            schema = kwargs["schema"]
+            schema_class = pickle.loads(bytes.fromhex(schema["class"]))  # nosec
+            generation_config_kwargs["response_mime_type"] = "application/json"
+            is_list = schema.get("is_list", False)
+            if not is_list:
+                generation_config_kwargs["response_schema"] = schema_class
+            else:
+                generation_config_kwargs["response_schema"] = list[schema_class]  # type: ignore
 
         response = model.generate_content(
             prompt,
@@ -264,22 +267,23 @@ class GenaiConnection(BaseSyncConnection):
             ),
         )
 
-        return response
+        return {"response": response.text}, False
 
-    def start_chat(self, model_name, tools) -> bool:
+    def start_chat(self, model_name, tools) -> Tuple[Dict, bool]:
         """Start a chat"""
         self.model = genai.GenerativeModel(
-            model_name=model_name, tools=tools
+            model_name=model_name,
+            tools=tools
         )
         self.chat = self.model.start_chat()
-        return True
+        return None, False
 
-    def send_message(self, message) -> str:
+    def send_message(self, message) -> Tuple[Dict, bool]:
         """Send a message to the chat"""
         while True:
             try:
-                result = self.chat.send_message(message)
-                return result
+                response = self.chat.send_message(message)
+                return {"response": response}, False
             except ResourceExhausted:
                 print("Hit rate limit. Retrying...")
                 time.sleep(10)

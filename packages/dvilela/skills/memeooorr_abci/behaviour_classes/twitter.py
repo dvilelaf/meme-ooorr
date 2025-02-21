@@ -457,8 +457,11 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         )
 
         llm_response = yield from self._call_genai(
-            prompt=prompt,
-            schema=build_twitter_action_schema(),
+            method="generate_content",
+            kwargs={
+                "prompt": prompt,
+                "schema": build_twitter_action_schema()
+            },
         )
         self.context.logger.info(f"LLM response for twitter decision: {llm_response}")
 
