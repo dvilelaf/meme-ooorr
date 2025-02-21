@@ -341,9 +341,9 @@ class TwikitConnection(Connection):
                     )
                     break
                 raise ValueError("Could not test the cookies")
-            except Exception:
+            except Exception as e:
                 self.logger.error(
-                    f"Could not validate the cookies [{retries} / 3 retries]"
+                    f"Could not validate the cookies [{retries} / 3 retries]: {e}"
                 )
                 retries += 1
                 time.sleep(3)
@@ -367,8 +367,10 @@ class TwikitConnection(Connection):
             valid_login = await self.validate_login()
             if valid_login:
                 self.logged_in = True
+            else:
+                raise ValueError("Could not validate the cookies")
 
-        except twikit.errors.Unauthorized:
+        except (twikit.errors.Unauthorized, ValueError):
             self.logger.error("Twitter cookies are not valid. Regenerating...")
             self.cookies_path.unlink()
 

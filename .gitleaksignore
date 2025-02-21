@@ -421,3 +421,4 @@ cfbb54a04c37080455365581e2179746cad4e0d0:packages/dvilela/contracts/staking_toke
 4604cd7c2345a4025e0907f19a3cdb863d1ed572:packages/dvilela/skills/memeooorr_abci/skill.yaml:generic-api-key:178
 e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-api-key:117
 e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-api-key:129
+40fd80a757e3eff0fa68d5db2c8583bafd07ecfe:packages/dvilela/skills/decision_making_abci/skill.yaml:generic-api-key:81
