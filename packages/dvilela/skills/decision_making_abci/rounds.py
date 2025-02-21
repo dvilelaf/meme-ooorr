@@ -35,6 +35,8 @@ from packages.valory.skills.abstract_round_abci.base import (
     DeserializedCollection,
     EventToTimeout,
 )
+import pickle
+from dataclasses import dataclass
 
 
 class Event(Enum):
@@ -44,6 +46,38 @@ class Event(Enum):
     NO_MAJORITY = "no_majority"
     ROUND_TIMEOUT = "round_timeout"
     SETTLE = "settle"
+
+
+@dataclass(frozen=True)
+class SystemEvent:
+    """SystemEvent"""
+
+    tool_event: Event
+    tool_arguments: Optional[Dict[str, Any]]
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to a dictionary."""
+        return {
+            "tool_event": self.tool_event,
+            "tool_arguments": self.tool_arguments.value,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "SystemEvent":
+        """Create an instance from a dictionary."""
+        return cls(
+            tool_event=data["tool_event"],
+            tool_arguments=data["tool_arguments"],
+        )
+
+    def __repr__(self) -> str:
+        """Return a string representation of the object."""
+        return f"SystemEvent(tool_event={self.tool_event}, tool_arguments={self.tool_arguments}"
+
+
+def build_llm_response_schema() -> dict:
+    """Build a schema for the llm response"""
+    return {"class": pickle.dumps(SystemEvent).hex(), "is_list": False}
 
 
 class SynchronizedData(BaseSynchronizedData):

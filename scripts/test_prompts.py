@@ -136,7 +136,7 @@ random.shuffle(TOKENS)
 
 genai.configure(api_key=os.getenv("GENAI_API_KEY"))
 
-model = genai.GenerativeModel("gemini-2.0-flash-exp")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # fmt: off
 TOKEN_SUMMARY = (  # nosec

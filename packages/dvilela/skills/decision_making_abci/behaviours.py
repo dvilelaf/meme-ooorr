@@ -20,10 +20,8 @@
 """This package contains round behaviours of DecisionMakingAbciApp."""
 
 import json
-import pickle
 from abc import ABC
-from dataclasses import dataclass
-from typing import Any, Dict, Generator, Optional, Set, Type, cast
+from typing import Any, Dict, Generator, Optional, Set, Type, cast, Tuple
 
 from aea.protocols.base import Message
 
@@ -41,6 +39,7 @@ from packages.dvilela.skills.decision_making_abci.rounds import (
     DecisionMakingRound,
     Event,
     SynchronizedData,
+    SystemEvent
 )
 from packages.valory.protocols.srr.dialogues import SrrDialogue, SrrDialogues
 from packages.valory.protocols.srr.message import SrrMessage
@@ -50,38 +49,6 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     BaseBehaviour,
 )
 from packages.valory.skills.abstract_round_abci.models import Requests
-
-
-@dataclass(frozen=True)
-class SystemEvent:
-    """SystemEvent"""
-
-    tool_event: Event
-    tool_arguments: Optional[Dict[str, Any]]
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to a dictionary."""
-        return {
-            "tool_event": self.tool_event,
-            "tool_arguments": self.tool_arguments.value,
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SystemEvent":
-        """Create an instance from a dictionary."""
-        return cls(
-            tool_event=data["tool_event"],
-            tool_arguments=data["tool_arguments"],
-        )
-
-    def __repr__(self) -> str:
-        """Return a string representation of the object."""
-        return f"SystemEvent(tool_event={self.tool_event}, tool_arguments={self.tool_arguments}"
-
-
-def build_llm_response_schema() -> dict:
-    """Build a schema for the llm response"""
-    return {"class": pickle.dumps(SystemEvent).hex(), "is_list": False}
 
 
 class DecisionMakingBaseBehaviour(
@@ -166,18 +133,19 @@ class DecisionMakingBehaviour(
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            event = yield from self.get_next_event()
+            event, system_event = yield from self.get_next_event()
 
             payload = DecisionMakingPayload(
                 sender=self.context.agent_address,
                 event=event.value,
+                system_event=system_event
             )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
-    def get_next_event(self) -> Generator[None, None, Event]:
+    def get_next_event(self) -> Generator[None, None, Tuple[Event, tool_args]]:
         """Get the next event."""
 
         tool_output = self.synchronized_data.tool_output
@@ -186,7 +154,7 @@ class DecisionMakingBehaviour(
 
         # If tool output is null, this is the first time we are running the decision making
         if tool_output is None:
-            event = yield from self.call_llm()
+            event = yield from self.call_llm(self.params.system_prompt)
             return event
 
         # If the tool is done, we call the LLM
@@ -218,12 +186,12 @@ class DecisionMakingBehaviour(
                 return event
         return None
 
-    def call_llm(self, data: Optional[str] = None) -> Generator[None, None, Event]:
+    def call_llm(self, prompt) -> Generator[None, None, Event]:
         """Call the LLM"""
         self.context.logger.info("Calling the LLM")
 
         llm_response = yield from self._call_genai(
-            prompt=self.params.system_prompt.format(data=data),
+            prompt=prompt,
             schema=build_llm_response_schema(),
         )
         self.context.logger.info(f"LLM response: {llm_response}")

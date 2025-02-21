@@ -25,6 +25,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 
 from packages.dvilela.skills.decision_making_abci.rounds import DecisionMakingAbciApp
+from packages.dvilela.skills.decision_making_abci.prompts import DEFAULT_SYSTEM_PROMPT
 from packages.valory.skills.abstract_round_abci.models import BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -50,7 +51,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
-        self.system_prompt = self._ensure("system_prompt", kwargs, str)
+        self.system_prompt = kwargs.get("system_prompt", DEFAULT_SYSTEM_PROMPT)
         super().__init__(*args, **kwargs)
 
 
