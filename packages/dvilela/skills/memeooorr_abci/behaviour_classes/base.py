@@ -754,7 +754,7 @@ class MemeooorrBaseBehaviour(
             is_unleashed
             and seconds_since_unleash < 24 * 3600
             and is_hearted
-            and not is_collectable
+            and is_collectable
         ):
             available_actions.append("collect")
 
