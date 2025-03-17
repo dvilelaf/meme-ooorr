@@ -1,18 +1,18 @@
-name: memeooorr_chained_abci
+name: agents_fun_abci
 author: dvilela
 version: 0.1.0
 type: skill
-description: The chained abci for the memeooorr skill.
+description: The chained abci for the agents_fun skill.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeiacqbub377oj2uvkw3lu2u43zv5rpdd2z4jx7dailiffqttksds24
-  behaviours.py: bafybeidabq5scnvljux2732bdbg7xnpnnz54y6t2kdooltd2jgugkz2voi
-  composition.py: bafybeid3l6jnskz5o3jdgxizez6d4tk2o4ccz7kgez2t5g5n2u463zlkbm
-  dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
+  behaviours.py: bafybeiajrkvi5qfbdrs6gftaqa67awh7ypa25stqfpjmtlcpf2p77hugse
+  composition.py: bafybeia4j6wilbornbr36qdkblcd2apllzfq47u5xu3jakgat7q4l2lcfe
+  dialogues.py: bafybeibdn5je7fb7nedmu5ketxn2dazy35vs2v4g3ii7vu7nw375dtubxi
   fsm_specification.yaml: bafybeigyvy6by6sztwpjbtnuw7ekv2jzjdnxejutcereeqaz4r5yolz4my
-  handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
-  models.py: bafybeiggsxlwg3vzl5nnkkzlmrn7akdki7wxcdk6qfulzau25dq6fl45uu
+  handlers.py: bafybeigk3ble72uvscxyzpgsaakf3c7hkloym7yqsamckcxxe27mg2xohm
+  models.py: bafybeia326m7t7n3ll4pnudotehljblz3ykvxqhq7m6osuhmnb6syo5lvu
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -23,11 +23,12 @@ skills:
 - valory/reset_pause_abci:0.1.0:bafybeigebq46oqz2mx2iajupr6p5pgm6z5pvfye5w6zypsseuqtvta7b4a
 - valory/transaction_settlement_abci:0.1.0:bafybeifkftgkyzrxwxjdyqixpp7vk6aqmufikalmwx3kydtlg74tonu47u
 - valory/termination_abci:0.1.0:bafybeieurwmfernodqyczj5ertsgfbjtjnrlgvte7sli4sajnbopty7inu
-- dvilela/memeooorr_abci:0.1.0:bafybeibbxudtkc4u5bot5zuze6zrzjcbp7kx2lvp44pml4aq6fkt2xlzfy
+- dvilela/decision_making_abci:0.1.0:bafybeiath3ishpukxik4pttiwvddd5ulkng7gljpe3x5yvmhjfft3p3cai
+- dvilela/engage_twitter_abci:0.1.0:bafybeifmwzitykxyrv3nsrvuws7hdk6afp463vxgq3ddgtpkxnvzssljrm
 behaviours:
   main:
     args: {}
-    class_name: MemeooorrChainedConsensusBehaviour
+    class_name: AgentsFunChainedConsensusBehaviour
 handlers:
   abci:
     args: {}
@@ -114,7 +115,7 @@ models:
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
-      service_id: memeooorr
+      service_id: agents_fun
       service_registry_address: null
       setup:
         all_participants: []

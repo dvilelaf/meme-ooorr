@@ -1,37 +1,33 @@
-name: decision_making_abci
+name: engage_twitter_abci
 author: dvilela
 version: 0.1.0
 type: skill
-description: A decision maker skill.
+description: A skill to engage with other agents on Twitter.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeigpcuvsyzzujap342no35q6npgt7pwjxexkrt3bvzeo7cmeteqluq
-  behaviours.py: bafybeigrf5nn5dim63py7ftbcpkbwagef2zohj2gfvtrl3sxex6tzwtrx4
-  dialogues.py: bafybeigt7f5iqzpjfclatbrir7qqgckavm765lwfygaxmnqru24ak3ihme
-  fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
-  handlers.py: bafybeiayin7q6ca5dh3dhixpvrtgvzh4on54rstwmbry6nfv5medvpgl5u
-  models.py: bafybeicxevvj65o6bvsff2deqfwvbqib2dj47wqc2kbdrvygj2y3kfihwm
-  payloads.py: bafybeianvp7rqfjcbt5ajftrzkzu2xzteeinip7sf4w5xuvdpbyd5rwsiq
-  prompts.py: bafybeib5fqvkpzwzjyae3lgdrudiqw4avra4e2sfchsa4onecbjytljnh4
-  rounds.py: bafybeia75aouvvmfogu2mrjunfrguiuc6tay3axapwnqblmrkphpy54r6y
-  rounds_info.py: bafybeiepdyp3r4a7f535w5yxizauvedaine7hfbqeaj5gnx5y5bi4z6fzu
-  tool_output.py: bafybeigv6l2xq6v5lb4g5bknsmppsqp6zsasgqlzldrbowfg6noejp6qfq
+  __init__.py: bafybeidorrnxjv4n4ngovxnu4mzod46kyrdncfmli4hapqeqnzp7imq7hm
+  behaviours.py: bafybeigjuqcamlqucgwlwaqnixh43zvfc3e4at2qpfmhb477zbdsesxkxi
+  dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
+  fsm_specification.yaml: bafybeif7ywyws7xm3dtf3ijxozhwerjebo6ejlx42ujtpehizlqfgtci4i
+  handlers.py: bafybeift2ajkdjzixtlgrypww3sin7kcycgpywriz2ohdyvepjlkogxxce
+  models.py: bafybeibmed24jno4eg6eh43wgd6q6uk7s5rxqewfrnbf4n6xv3m2uhftte
+  payloads.py: bafybeidchykhmmyvrfcus7jfwg4ttlajq7fidxx73bjktt6keyzokzw6hi
+  prompts.py: bafybeigtpr6w5etqbz2i2ifcorcknppedhsaonzbt4gxz7gmo2cuo6xtcu
+  rounds.py: bafybeiexssdm7oc2lawhtrzsqmvjxtfm5no7eerqargeb524t4njgvg2de
 fingerprint_ignore_patterns: []
-connections:
-- dvilela/genai:0.1.0:bafybeigcamnjehig74fxfvhgb7bsr2vbnarpwoth2zvwb5vr2x6phn72yi
-- valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
+connections: []
 contracts: []
 protocols:
 - valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
-- valory/http:1.0.0:bafybeih4azmfwtamdbkhztkm4xitep3gx6tfdnoz6tvllmaqnhu3klejfa
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeia27qmw6w5ds5fcrpj2475brnz742aampe3sgochloijs2l7jovai
+- dvilela/memeooorr_abci:0.1.0:bafybeibbxudtkc4u5bot5zuze6zrzjcbp7kx2lvp44pml4aq6fkt2xlzfy
 behaviours:
   main:
     args: {}
-    class_name: DecisionMakingRoundBehaviour
+    class_name: EngageTwitterRoundBehaviour
 handlers:
   abci:
     args: {}
@@ -112,30 +108,7 @@ models:
       on_chain_service_id: null
       request_retry_delay: 1.0
       request_timeout: 10.0
-      reset_pause_duration: 10
-      reset_tendermint_after: 2
-      retry_attempts: 400
-      retry_timeout: 3
-      round_timeout_seconds: 30.0
-      service_id: agents_fun
-      service_registry_address: null
-      setup:
-        all_participants:
-        - '0x0000000000000000000000000000000000000000'
-        consensus_threshold: null
-        safe_contract_address: '0x0000000000000000000000000000000000000000'
-      share_tm_config_on_startup: false
-      sleep_time: 1
-      tendermint_check_sleep_delay: 3
-      tendermint_com_url: http://localhost:8080
-      tendermint_max_retries: 5
-      tendermint_p2p_url: localhost:26656
-      tendermint_url: http://localhost:26657
-      tx_timeout: 10.0
-      ipfs_address: https://gateway.autonolas.tech/ipfs/
-      validate_timeout: 1205
-      default_chain_id: ethereum
-      service_endpoint: memeooorr.dummy.com/
+      skip_engagement: false
     class_name: Params
   requests:
     args: {}

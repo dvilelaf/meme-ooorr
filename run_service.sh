@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 REPO_PATH=$PWD
-MEMEOOORR_DB=$REPO_PATH/memeooorr.db
+AGENT_DB=$REPO_PATH/agents_fun.db
 TWITTER_COOKIES=$REPO_PATH/twikit_cookies.json
 
 # Remove previous service build
-if test -d memeooorr; then
+if test -d agents_fun; then
   echo "Removing previous service build"
-  sudo rm -r memeooorr
+  sudo rm -r agents_fun
 fi
 
 # Push packages and fetch service
@@ -15,7 +15,7 @@ make clean
 
 autonomy push-all
 
-autonomy fetch --local --service dvilela/memeooorr && cd memeooorr
+autonomy fetch --local --service dvilela/agents_fun && cd agents_fun
 
 # Build the image
 autonomy init --reset --author dvilela --remote --ipfs --ipfs-node "/dns/registry.autonolas.tech/tcp/443/https"
@@ -33,9 +33,9 @@ autonomy deploy build -ltm --agent-cpu-limit 4.0 --agent-memory-limit 8192 --age
 deployment_dir=$(ls -d abci_build_* | grep '^abci_build_' | head -n 1)
 
 # Copy the database
-if test -e $MEMEOOORR_DB; then
+if test -e $AGENT_DB; then
   echo "Copying backup database"
-  cp $MEMEOOORR_DB $deployment_dir/persistent_data/logs
+  cp $AGENT_DB $deployment_dir/persistent_data/logs
 fi
 
 # Copy the cookies

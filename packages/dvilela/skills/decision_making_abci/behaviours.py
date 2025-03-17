@@ -21,26 +21,23 @@
 
 import json
 from abc import ABC
-from typing import Any, Dict, Generator, Optional, Set, Type, cast, Tuple
+from typing import Any, Dict, Generator, Optional, Set, Tuple, Type, cast
 
 from aea.protocols.base import Message
 
 from packages.dvilela.connections.genai.connection import (
     PUBLIC_ID as GENAI_CONNECTION_PUBLIC_ID,
 )
-from packages.dvilela.skills.decision_making_abci.models import (
-    Params,
-    SharedState,
-    ToolOutput,
-)
+from packages.dvilela.skills.decision_making_abci.models import Params, SharedState
 from packages.dvilela.skills.decision_making_abci.rounds import (
     DecisionMakingAbciApp,
     DecisionMakingPayload,
     DecisionMakingRound,
     Event,
     SynchronizedData,
-    SystemEvent
+    SystemEvent,
 )
+from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
 from packages.valory.protocols.srr.dialogues import SrrDialogue, SrrDialogues
 from packages.valory.protocols.srr.message import SrrMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
@@ -87,27 +84,14 @@ class DecisionMakingBaseBehaviour(
         response = yield from self.wait_for_message(timeout=timeout)
         return response
 
-    def _call_genai(
-        self,
-        prompt: str,
-        schema: Optional[Dict] = None,
-        temperature: Optional[float] = None,
-    ) -> Generator[None, None, Optional[str]]:
+    def _call_genai(self, **kwargs: Any) -> Generator[None, None, Optional[str]]:
         """Send a request message from the skill context."""
-
-        payload_data: Dict[str, Any] = {"prompt": prompt}
-
-        if schema is not None:
-            payload_data["schema"] = schema
-
-        if temperature is not None:
-            payload_data["temperature"] = temperature
 
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         srr_message, srr_dialogue = srr_dialogues.create(
             counterparty=str(GENAI_CONNECTION_PUBLIC_ID),
             performative=SrrMessage.Performative.REQUEST,
-            payload=json.dumps(payload_data),
+            payload=json.dumps(**kwargs),
         )
         srr_message = cast(SrrMessage, srr_message)
         srr_dialogue = cast(SrrDialogue, srr_dialogue)
@@ -138,19 +122,19 @@ class DecisionMakingBehaviour(
             payload = DecisionMakingPayload(
                 sender=self.context.agent_address,
                 event=event.value,
-                system_event=system_event
+                system_event=system_event,
             )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
-    def get_next_event(self) -> Generator[None, None, Tuple[Event, tool_args]]:
+    def get_next_event(self) -> Generator[None, None, Event]:
         """Get the next event."""
 
         tool_output = self.synchronized_data.tool_output
 
-        self.context.logger(f"Tool output: {tool_output}")
+        self.context.logger.info(f"Tool output: {tool_output}")
 
         # If tool output is null, this is the first time we are running the decision making
         if tool_output is None:
@@ -186,13 +170,23 @@ class DecisionMakingBehaviour(
                 return event
         return None
 
-    def call_llm(self, prompt) -> Generator[None, None, Event]:
+    def start_llm_chat(self) -> Generator[None, None, str]:
+        """Start the chat"""
+        self.context.logger.info("Calling the LLM")
+
+        llm_response = yield from self._call_genai(
+            method="start_chat",
+            tool_dict=self.build_tool_dict(),
+        )
+        self.context.logger.info(f"LLM response: {llm_response}")
+
+    def send_message_to_llm(self, message) -> Generator[None, None, Event]:
         """Call the LLM"""
         self.context.logger.info("Calling the LLM")
 
         llm_response = yield from self._call_genai(
-            prompt=prompt,
-            schema=build_llm_response_schema(),
+            method="send_message",
+            message=message,
         )
         self.context.logger.info(f"LLM response: {llm_response}")
 

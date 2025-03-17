@@ -19,11 +19,13 @@
 
 """This package contains the rounds of DecisionMakingAbciApp."""
 
+import pickle
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, FrozenSet, Optional, Set, Tuple
+from typing import Any, Dict, FrozenSet, Optional, Set, Tuple
 
-from packages.dvilela.skills.decision_making_abci.models import ToolOutput
 from packages.dvilela.skills.decision_making_abci.payloads import DecisionMakingPayload
+from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
@@ -35,8 +37,6 @@ from packages.valory.skills.abstract_round_abci.base import (
     DeserializedCollection,
     EventToTimeout,
 )
-import pickle
-from dataclasses import dataclass
 
 
 class Event(Enum):
@@ -46,6 +46,7 @@ class Event(Enum):
     NO_MAJORITY = "no_majority"
     ROUND_TIMEOUT = "round_timeout"
     SETTLE = "settle"
+    ENGAGE_TWITTER = "engage_twitter"
 
 
 @dataclass(frozen=True)
@@ -134,6 +135,10 @@ class FinishedToResetRound(DegenerateRound):
     """FinishedToResetRound"""
 
 
+class FinishedToEngageTwitterRound(DegenerateRound):
+    """FinishedToEngageTwitterRound"""
+
+
 class DecisionMakingAbciApp(AbciApp[Event]):
     """DecisionMakingAbciApp"""
 
@@ -147,13 +152,16 @@ class DecisionMakingAbciApp(AbciApp[Event]):
             Event.SETTLE: FinishedToSettlementRound,
             Event.NO_MAJORITY: DecisionMakingRound,
             Event.ROUND_TIMEOUT: DecisionMakingRound,
+            Event.ENGAGE_TWITTER: FinishedToEngageTwitterRound,
         },
         FinishedToSettlementRound: {},
         FinishedToResetRound: {},
+        FinishedToEngageTwitterRound: {},
     }
     final_states: Set[AppState] = {
         FinishedToSettlementRound,
         FinishedToResetRound,
+        FinishedToEngageTwitterRound,
     }
     event_to_timeout: EventToTimeout = {}
     cross_period_persisted_keys: FrozenSet[str] = set()
@@ -163,4 +171,5 @@ class DecisionMakingAbciApp(AbciApp[Event]):
     db_post_conditions: Dict[AppState, Set[str]] = {
         FinishedToSettlementRound: {"most_voted_tx_hash"},
         FinishedToResetRound: set(),
+        FinishedToEngageTwitterRound: set(),
     }

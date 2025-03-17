@@ -28,7 +28,7 @@ import yaml
 from dotenv import load_dotenv
 
 
-AGENT_NAME = "memeooorr"
+AGENT_NAME = "agents_fun"
 
 PATH_TO_VAR = {
     # Chains

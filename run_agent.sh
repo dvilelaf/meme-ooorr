@@ -11,9 +11,9 @@ cleanup() {
 trap cleanup EXIT
 
 # Remove previous agent if exists
-if test -d memeooorr; then
+if test -d agents_fun; then
   echo "Removing previous agent build"
-  sudo rm -r memeooorr
+  sudo rm -r agents_fun
 fi
 
 # Remove empty directories to avoid wrong hashes
@@ -29,14 +29,14 @@ make clean
 autonomy packages lock
 
 # Fetch the agent
-autonomy fetch --local --agent dvilela/memeooorr
+autonomy fetch --local --agent dvilela/agents_fun
 
 # Replace params with env vars
 source .env
 python scripts/aea-config-replace.py
 
 # Copy and add the keys and issue certificates
-cd memeooorr
+cd agents_fun
 cp $PWD/../ethereum_private_key.txt .
 autonomy add-key ethereum ethereum_private_key.txt
 autonomy issue-certificates

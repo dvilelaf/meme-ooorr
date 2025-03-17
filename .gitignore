@@ -22,6 +22,9 @@ ethereum_private_key.txt
 memeooorr
 !packages/dvilela/agents/memeooorr
 !packages/dvilela/services/memeooorr
+agents_fun
+!packages/dvilela/agents/agents_fun
+!packages/dvilela/services/agents_fun
 packages/__pycache__/
 packages/dvilela/protocols/kv_store
 __pycache__/
@@ -30,6 +33,7 @@ __pycache__/
 .vscode/settings.json
 
 memeooorr.db
+agent.db
 
 TODO.md
 

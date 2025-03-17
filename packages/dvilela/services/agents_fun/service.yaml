@@ -1,13 +1,13 @@
-name: memeooorr
+name: agents_fun
 author: dvilela
 version: 0.1.0
-description: A service that deploys memecoins.
+description: A service that uses tools.
 aea_version: '>=1.0.0, <2.0.0'
 license: Apache-2.0
 fingerprint:
-  README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
+  README.md: bafybeife7p33kpcvflthoxm3agp3yw4lddolx2iohszqrcoi7sz5gupf74
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeiecpur7xepmrvwtlj3wpmlwlcbb6ssclvgq3ixgwgoh6xvyuot4aa
+agent: dvilela/agents_fun:0.1.0:bafybeigsxvzmaczd7jwwesdb6uc2cgbcnpqovlqnat4inydnkkg27cz2gy
 number_of_agents: 1
 deployment:
   agent:
@@ -15,7 +15,7 @@ deployment:
       0:
         8716: 8716
 ---
-public_id: dvilela/memeooorr_chained_abci:0.1.0
+public_id: dvilela/agents_fun_abci:0.1.0
 type: skill
 extra:
   params_args:
@@ -66,7 +66,7 @@ extra:
         request_retry_delay: 1.0
         request_timeout: 10.0
         round_timeout_seconds: 30.0
-        service_id: memeooorr
+        service_id: agents_fun
         service_registry_address: ${SERVICE_REGISTRY_ADDRESS:str:0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA}
         share_tm_config_on_startup: ${USE_ACN:bool:false}
         sleep_time: 1
@@ -74,7 +74,7 @@ extra:
         tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
         tendermint_max_retries: 5
         tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
-        tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:memeooorr_tm_0:26656}
+        tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:agents_fun_tm_0:26656}
         tx_timeout: 10.0
         use_termination: ${USE_TERMINATION:bool:false}
         validate_timeout: 1205
@@ -180,7 +180,7 @@ type: connection
 config:
   host: ${HTTP_SERVER_HOST:str:0.0.0.0}
   port: ${HTTP_SERVER_PORT:int:8716}
-  target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+  target_skill_id: dvilela/agents_fun_abci:0.1.0
 ---
 public_id: dvilela/mirror_db:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection

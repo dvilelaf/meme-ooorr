@@ -17,14 +17,13 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the shared state for the abci skill of DecisionMakingAbciApp."""
+"""This module contains the shared state for the abci skill of MemeooorrAbciApp."""
 
+from dataclasses import dataclass
+from typing import Any, Dict
 
-from typing import Any
-
-from packages.dvilela.skills.decision_making_abci.prompts import DEFAULT_SYSTEM_PROMPT
-from packages.dvilela.skills.decision_making_abci.rounds import DecisionMakingAbciApp
-from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
+from packages.dvilela.skills.memeooorr_abci.rounds import MemeooorrAbciApp
+from packages.valory.skills.abstract_round_abci.models import BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
 )
@@ -37,15 +36,11 @@ from packages.valory.skills.abstract_round_abci.models import (
 class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
-    abci_app_cls = DecisionMakingAbciApp
+    abci_app_cls = MemeooorrAbciApp
 
 
 Requests = BaseRequests
 BenchmarkTool = BaseBenchmarkTool
-
-
-class RandomnessApi(ApiSpecs):
-    """A model that wraps ApiSpecs for randomness api specifications."""
 
 
 class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
@@ -53,6 +48,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
-        self.service_endpoint = self._ensure("service_endpoint", kwargs, str)
-        self.system_prompt = kwargs.get("system_prompt", DEFAULT_SYSTEM_PROMPT)
+
+        self.skip_engagement = self._ensure("skip_engagement", kwargs, bool)
+
         super().__init__(*args, **kwargs)

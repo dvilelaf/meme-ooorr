@@ -1,11 +1,11 @@
-agent_name: memeooorr
+agent_name: agents_fun
 author: dvilela
 version: 0.1.0
 license: Apache-2.0
-description: An agent that deploys memecoins.
+description: An agent that uses tools.
 aea_version: '>=1.19.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeid4555nbqrben3bbz62jsycrtssy5mqso4w23q7bjorln3qur7baq
+  __init__.py: bafybeiahjlvrs56sjgjk2umucxwfdq4ipfjvpcddjxtolxtp2wrjclkvqm
 fingerprint_ignore_patterns: []
 connections:
 - valory/ipfs:0.1.0:bafybeici34tuoym3evnzfgbnmgbdy5smshh5jx6ew6zfchmm4tmyzvpg34
@@ -44,8 +44,10 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeifkftgkyzrxwxjdyqixpp7vk6aqmufikalmwx3kydtlg74tonu47u
 - valory/registration_abci:0.1.0:bafybeifaa6ejpihwxxxswqd5qfy63rixml43d3ljnezilflvdtclspjj6y
 - valory/reset_pause_abci:0.1.0:bafybeigebq46oqz2mx2iajupr6p5pgm6z5pvfye5w6zypsseuqtvta7b4a
+- dvilela/decision_making_abci:0.1.0:bafybeiath3ishpukxik4pttiwvddd5ulkng7gljpe3x5yvmhjfft3p3cai
+- dvilela/engage_twitter_abci:0.1.0:bafybeifmwzitykxyrv3nsrvuws7hdk6afp463vxgq3ddgtpkxnvzssljrm
+- dvilela/agents_fun_abci:0.1.0:bafybeigixxn2zzz6zwouoqwop4mimwhspbufvpvpgoev243i3x6cdvs4hi
 - dvilela/memeooorr_abci:0.1.0:bafybeibbxudtkc4u5bot5zuze6zrzjcbp7kx2lvp44pml4aq6fkt2xlzfy
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeialr4tjnaki4jf6b5zl2rtknq2p2qhfbnczgom62fuksgmyxzdh3e
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -88,7 +90,7 @@ config:
 public_id: valory/abci:0.1.0
 type: connection
 config:
-  target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+  target_skill_id: dvilela/agents_fun_abci:0.1.0
   host: ${str:localhost}
   port: ${int:26658}
   use_tendermint: ${bool:false}
@@ -138,7 +140,7 @@ cert_requests:
   public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
   save_path: .certs/acn_cosmos_11000.txt
 ---
-public_id: dvilela/memeooorr_chained_abci:0.1.0
+public_id: dvilela/agents_fun_abci:0.1.0
 type: skill
 models:
   benchmark_tool:
@@ -181,7 +183,7 @@ models:
       request_retry_delay: 1.0
       request_timeout: 10.0
       round_timeout_seconds: 30.0
-      service_id: memeooorr
+      service_id: agents_fun
       service_registry_address: ${str:0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA}
       setup:
         all_participants: ${list:["0x8426B9F3e3E6d8ec2E83391CE3Db9Dec69570234"]}
@@ -240,7 +242,7 @@ type: connection
 config:
   host: ${str:0.0.0.0}
   port: ${int:8833}
-  target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+  target_skill_id: dvilela/agents_fun_abci:0.1.0
 ---
 public_id: dvilela/genai:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection

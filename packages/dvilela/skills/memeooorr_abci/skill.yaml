@@ -8,11 +8,11 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeidorrnxjv4n4ngovxnu4mzod46kyrdncfmli4hapqeqnzp7imq7hm
   behaviour_classes/__init__.py: bafybeicjks4kxsb2r6a4armmaqxyxngwm3pouegq3fycm37rbe7otiwsre
-  behaviour_classes/base.py: bafybeia34tmkof6pprnsuovywixxa3llyi6g7ki2mxfimcnp7v6x7cdwny
+  behaviour_classes/base.py: bafybeidf5a47wts67fkd3wgu7rszdmejlkuhs5rdqthwrybzffmizpsizy
   behaviour_classes/chain.py: bafybeianlgx76tkdoyx3giz2bs5oreb5duietjw4bnwnw5ob76ul4klt5m
-  behaviour_classes/db.py: bafybeiauc4p2r6copukkhf7muenet3rhvh6iriyj4b3v6v2p2dlqddbih4
-  behaviour_classes/llm.py: bafybeia6pr7dzvrx4hdns2xhfz3s323oz5jfboy3x2f7tnbch6pnafihwy
-  behaviour_classes/twitter.py: bafybeig7fbtvlxh257zgoxjb5fetknrzh7hcluzdda5vkds6xlvij2eqme
+  behaviour_classes/db.py: bafybeidbonkoclqbf6liz2fcvcs3lvhflqibrqthacggya6lvqpbpgck2a
+  behaviour_classes/llm.py: bafybeicsm3g5vmwn6lronwnaavzuhfrhcffmf27dzkvfwbo5scvyykvv4e
+  behaviour_classes/twitter.py: bafybeiajgf2ggzuk35qnnyrqtpvypsitpmuxpdv47hmdohgoypue54xuya
   behaviours.py: bafybeigzehjvjeriroh7ucal7s7szdrebkwcispyi7iznwnbzq2gcok6zi
   dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
   fsm_specification.yaml: bafybeif7ywyws7xm3dtf3ijxozhwerjebo6ejlx42ujtpehizlqfgtci4i
@@ -27,7 +27,7 @@ connections:
 - dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu
 - dvilela/twikit:0.1.0:bafybeidlkheanvu54yv2pjxrupgnnom772arzamqaj7fgiwwifscllzema
 - dvilela/mirror_db:0.1.0:bafybeifhl7e5odr53pbz2bog3tysyyfnimrz2acksgnal4yza4faxam6pa
-- dvilela/genai:0.1.0:bafybeihp6t4y7mynitwj3afwet2lr5ittrqmk4hop7ycmgyyx3nqkc5sty
+- dvilela/genai:0.1.0:bafybeigcamnjehig74fxfvhgb7bsr2vbnarpwoth2zvwb5vr2x6phn72yi
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeidao75ykdhkm7brclsslx3iinmgnvdiot5npanfbmatcaqrcvlsk4

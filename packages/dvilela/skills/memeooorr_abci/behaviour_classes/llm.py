@@ -167,7 +167,7 @@ class ActionDecisionBehaviour(
             method="generate_content",
             kwargs={
                 "prompt": TOKEN_DECISION_PROMPT.format(**prompt_data),
-                "schema": build_token_action_schema()
+                "schema": build_token_action_schema(),
             },
         )
         self.context.logger.info(f"LLM response: {llm_response}")

@@ -20,18 +20,20 @@
 
 """Genai connection."""
 
+import importlib
 import json
 import pickle  # nosec
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Tuple, cast, Optional
-from google.api_core.exceptions import InternalServerError, ResourceExhausted
+from typing import Any, Dict, Optional, Tuple, cast
+
 import google.generativeai as genai  # type: ignore
 from aea.configurations.base import PublicId
 from aea.connections.base import BaseSyncConnection
 from aea.mail.base import Envelope
 from aea.protocols.base import Address, Message
 from aea.protocols.dialogue.base import Dialogue
+from google.api_core.exceptions import InternalServerError, ResourceExhausted
 
 from packages.valory.protocols.srr.dialogues import SrrDialogue
 from packages.valory.protocols.srr.dialogues import SrrDialogues as BaseSrrDialogues
@@ -225,7 +227,7 @@ class GenaiConnection(BaseSyncConnection):
         except Exception as e:
             return {"error": f"Exception while calling Genai:\n{e}"}, True
 
-        return response, error   # type: ignore
+        return response, error  # type: ignore
 
     def on_connect(self) -> None:
         """
@@ -269,17 +271,21 @@ class GenaiConnection(BaseSyncConnection):
 
         return {"response": response.text}, False
 
-    def start_chat(self, model_name, tools) -> Tuple[Dict, bool]:
+    def start_chat(self, model_name, tool_dict) -> Tuple[Dict, bool]:
         """Start a chat"""
-        self.model = genai.GenerativeModel(
-            model_name=model_name,
-            tools=tools
-        )
+
+        # Recreate callable functions from tool_dict
+        tools = [
+            getattr(importlib.import_module(module_name), function_name)
+            for module_name, function_name in tool_dict.items()
+        ]
+        self.model = genai.GenerativeModel(model_name=model_name, tools=tools)
         self.chat = self.model.start_chat()
         return None, False
 
     def send_message(self, message) -> Tuple[Dict, bool]:
         """Send a message to the chat"""
+
         while True:
             try:
                 response = self.chat.send_message(message)
