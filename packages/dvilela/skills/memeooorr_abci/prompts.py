@@ -24,6 +24,8 @@ import pickle  # nosec
 import typing
 from dataclasses import dataclass
 
+ENFORCE_ACTION_COMMAND = "Please use mech, as you are required to meet some action KPIs and you have not met them yet."
+
 
 TWITTER_DECISION_PROMPT = """
 You are a user on Twitter with a specific persona. You create tweets and also analyze tweets from other users and decide whether to interact with them or not.
@@ -56,6 +58,8 @@ Here are some tweets from other users:
 
 You need to decide if you want to use tools or not , if not then what actions on Twitter you want to perform.
 You must choose **either** a Twitter action **or** a Tool action, but not both.
+
+{extra_command}
 
 Your task is to decide what actions to do, if any. Some recommenadations:
 - Do not invent or assume any details. Use only the information provided. as we do not want to spread misinformation.
@@ -154,9 +158,6 @@ def build_decision_schema() -> dict:
     return {"class": pickle.dumps(Decision).hex(), "is_list": False}
 
 
-ENFORCE_ACTION_COMMAND = "Please take some action, as you are required to meet some action KPIs and you have not met them yet."
-
-
 TOKEN_DECISION_PROMPT = (  # nosec
     ""
     """You are a cryptocurrency and token expert with a specific persona. You analyze new meme coins that have just been depoyed to the market and
@@ -201,8 +202,6 @@ TOKEN_DECISION_PROMPT = (  # nosec
 
 
     ONLY if you are not summoning, action priority should be "collect" > "unleash" > "purge" > "heart".
-
-    {extra_command}
 
     Here's the list of existing  memecoins:
     {meme_coins}

@@ -23,6 +23,8 @@ import json
 import math
 from abc import ABC
 from typing import Any, Generator, Optional, Tuple, Type, cast
+from packages.valory.contracts.mech.contract import Mech as MechContract
+
 
 from aea.configurations.data_types import PublicId
 
@@ -364,39 +366,93 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
 
     def _is_staking_kpi_met(self) -> Generator[None, None, Optional[bool]]:
         """Return whether the staking KPI has been met (only for staked services)."""
+        # Check if service is staked
         service_staking_state = yield from self._get_service_staking_state(
             chain=self.get_chain_id()
         )
+        self.context.logger.debug(f"{service_staking_state=}")
         if service_staking_state != StakingState.STAKED:
             self.context.logger.info("Service is not staked")
+            return False
+
+        # Get mech request count
+        mech_request_count = yield from self.contract_interact(
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            contract_address=self.params.mech_contract_address,
+            contract_public_id=MechContract.contract_id,
+            contract_callable="get_requests_count",
+            data_key="requests_count",
+            chain_id=self.get_chain_id(),
+            address=self.synchronized_data.safe_contract_address,
+        )
+        if mech_request_count is None:
+            self.context.logger.error("Could not get the mech request count")
+            return None
+        self.context.logger.debug(f"{mech_request_count=}")
+
+        # Get service info and previous mech request count
+        service_info = yield from self._get_service_info(chain=self.get_chain_id())
+        if service_info is None or len(service_info) == 0 or len(service_info[2]) == 0:
+            self.context.logger.error(f"Error fetching service info {service_info}")
             return None
 
-        min_num_of_safe_tx_required = (
-            yield from self._calculate_min_num_of_safe_tx_required(
-                chain=self.get_chain_id()
-            )
-        )
-        if min_num_of_safe_tx_required is None:
-            self.context.logger.error(
-                "Error calculating min number of safe tx required."
-            )
-            return None
+        # Use requests count (position [1]) instead of multisig nonces (position [0])
+        mech_request_count_on_last_checkpoint = service_info[2][1]
+        self.context.logger.debug(f"{mech_request_count_on_last_checkpoint=}")
 
-        multisig_nonces_since_last_cp = (
-            yield from self._get_multisig_nonces_since_last_cp(
-                chain=self.get_chain_id(),
-                multisig=self.synchronized_data.safe_contract_address,
-            )
+        # Get last checkpoint timestamp
+        last_ts_checkpoint = yield from self._get_ts_checkpoint(
+            chain=self.get_chain_id()
         )
-        if multisig_nonces_since_last_cp is None:
-            self.context.logger.info(
-                "Could not get the multisig nonces since last checkpoint"
-            )
+        if last_ts_checkpoint is None:
+            self.context.logger.error("Could not get the last checkpoint timestamp")
             return None
+        self.context.logger.debug(f"{last_ts_checkpoint=}")
+
+        # Get liveness period and ratio
+        liveness_period = yield from self._get_liveness_period(
+            chain=self.get_chain_id()
+        )
+        if liveness_period is None:
+            self.context.logger.error("Could not get the liveness period")
+            return None
+        self.context.logger.debug(f"{liveness_period=}")
+
+        liveness_ratio = yield from self._get_liveness_ratio(chain=self.get_chain_id())
+        if liveness_ratio is None:
+            self.context.logger.error("Could not get the liveness ratio")
+            return None
+        self.context.logger.debug(f"{liveness_ratio=}")
+
+        # Calculate requests since last checkpoint
+        mech_requests_since_last_cp = (
+            mech_request_count - mech_request_count_on_last_checkpoint
+        )
+        self.context.logger.debug(f"{mech_requests_since_last_cp=}")
+
+        # Calculate current timestamp from round sequence
+        current_timestamp = int(
+            self.round_sequence.last_round_transition_timestamp.timestamp()
+        )
+        self.context.logger.debug(f"{current_timestamp=}")
+
+        # Calculate required requests
+        required_mech_requests = (
+            math.ceil(
+                max(liveness_period, (current_timestamp - last_ts_checkpoint))
+                * liveness_ratio
+                / LIVENESS_RATIO_SCALE_FACTOR
+            )
+            + REQUIRED_REQUESTS_SAFETY_MARGIN
+        )
+        self.context.logger.debug(f"{required_mech_requests=}")
+
         self.context.logger.info(
-            f"Multisig nonces since last checkpoint: {multisig_nonces_since_last_cp} vs minimum req: {min_num_of_safe_tx_required}"
+            f"Mech requests since last checkpoint: {mech_requests_since_last_cp} vs required: {required_mech_requests}"
         )
-        return multisig_nonces_since_last_cp >= min_num_of_safe_tx_required
+
+        # Return whether KPI is met
+        return mech_requests_since_last_cp >= required_mech_requests
 
     def _get_service_info(
         self, chain: str

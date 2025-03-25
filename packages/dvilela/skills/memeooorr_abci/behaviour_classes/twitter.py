@@ -36,6 +36,7 @@ from packages.dvilela.skills.memeooorr_abci.prompts import (
     ALTERNATIVE_MODEL_TWITTER_PROMPT,
     MECH_RESPONSE_SUBPROMPT,
     TWITTER_DECISION_PROMPT,
+    ENFORCE_ACTION_COMMAND,
     build_decision_schema,
 )
 from packages.dvilela.skills.memeooorr_abci.rounds import (
@@ -720,6 +721,11 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
 
             previous_tweets = tweets if isinstance(tweets, dict) else {}
 
+            is_staking_kpi_met = self.synchronized_data.is_staking_kpi_met
+            extra_command = (
+                ENFORCE_ACTION_COMMAND if is_staking_kpi_met is False else ""
+            )
+
             prompt = TWITTER_DECISION_PROMPT.format(
                 persona=persona,
                 previous_tweets=previous_tweets_str,
@@ -727,6 +733,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
                 mech_response="",
                 tools=self.generate_mech_tool_info(),
                 time=self.get_sync_time_str(),
+                extra_command=extra_command,
             )
 
             # Save data for future mech responses
