@@ -7,19 +7,19 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeigpcuvsyzzujap342no35q6npgt7pwjxexkrt3bvzeo7cmeteqluq
-  behaviours.py: bafybeigrf5nn5dim63py7ftbcpkbwagef2zohj2gfvtrl3sxex6tzwtrx4
+  behaviours.py: bafybeicrzb5sviwqlffqxg7c4ryhx5lee2pibbzlwotdyjlvmz2e5p742i
   dialogues.py: bafybeigt7f5iqzpjfclatbrir7qqgckavm765lwfygaxmnqru24ak3ihme
   fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
-  handlers.py: bafybeiayin7q6ca5dh3dhixpvrtgvzh4on54rstwmbry6nfv5medvpgl5u
+  handlers.py: bafybeiftlwbfj6bvaw2j2h56v6aufghegrbzmsdi7pz66wu3ondffyrtiu
   models.py: bafybeicxevvj65o6bvsff2deqfwvbqib2dj47wqc2kbdrvygj2y3kfihwm
   payloads.py: bafybeianvp7rqfjcbt5ajftrzkzu2xzteeinip7sf4w5xuvdpbyd5rwsiq
   prompts.py: bafybeib5fqvkpzwzjyae3lgdrudiqw4avra4e2sfchsa4onecbjytljnh4
-  rounds.py: bafybeia75aouvvmfogu2mrjunfrguiuc6tay3axapwnqblmrkphpy54r6y
+  rounds.py: bafybeifm3rziuotgwgdxfxkiqklhvwaz5jetg6ojc7dsapxt3cid7fl5pi
   rounds_info.py: bafybeiepdyp3r4a7f535w5yxizauvedaine7hfbqeaj5gnx5y5bi4z6fzu
   tool_output.py: bafybeigv6l2xq6v5lb4g5bknsmppsqp6zsasgqlzldrbowfg6noejp6qfq
 fingerprint_ignore_patterns: []
 connections:
-- dvilela/genai:0.1.0:bafybeigcamnjehig74fxfvhgb7bsr2vbnarpwoth2zvwb5vr2x6phn72yi
+- dvilela/genai:0.1.0:bafybeigkfirinabss4y7y2b7d7ayu5oi47aid6ilq6wkr62cntbqqedx2m
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
 contracts: []
 protocols:
@@ -27,7 +27,7 @@ protocols:
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 - valory/http:1.0.0:bafybeih4azmfwtamdbkhztkm4xitep3gx6tfdnoz6tvllmaqnhu3klejfa
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeia27qmw6w5ds5fcrpj2475brnz742aampe3sgochloijs2l7jovai
+- valory/abstract_round_abci:0.1.0:bafybeiezhbsm2ctlw7frt53jxpdq6d5cq2xaruzsedg66nqmi4prrglame
 behaviours:
   main:
     args: {}

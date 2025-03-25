@@ -18,13 +18,13 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeia27qmw6w5ds5fcrpj2475brnz742aampe3sgochloijs2l7jovai
-- valory/registration_abci:0.1.0:bafybeifaa6ejpihwxxxswqd5qfy63rixml43d3ljnezilflvdtclspjj6y
-- valory/reset_pause_abci:0.1.0:bafybeigebq46oqz2mx2iajupr6p5pgm6z5pvfye5w6zypsseuqtvta7b4a
-- valory/transaction_settlement_abci:0.1.0:bafybeifkftgkyzrxwxjdyqixpp7vk6aqmufikalmwx3kydtlg74tonu47u
-- valory/termination_abci:0.1.0:bafybeieurwmfernodqyczj5ertsgfbjtjnrlgvte7sli4sajnbopty7inu
-- dvilela/decision_making_abci:0.1.0:bafybeiath3ishpukxik4pttiwvddd5ulkng7gljpe3x5yvmhjfft3p3cai
-- dvilela/engage_twitter_abci:0.1.0:bafybeifmwzitykxyrv3nsrvuws7hdk6afp463vxgq3ddgtpkxnvzssljrm
+- valory/abstract_round_abci:0.1.0:bafybeiezhbsm2ctlw7frt53jxpdq6d5cq2xaruzsedg66nqmi4prrglame
+- valory/registration_abci:0.1.0:bafybeigrxf2uhudr4ode6p77jikrjzfemfttqhoqez366qugqdckbb6wzi
+- valory/reset_pause_abci:0.1.0:bafybeid5tsasmon5gennzigr3ffkctz3womegogkhqcatdb6g7l7llwfu4
+- valory/transaction_settlement_abci:0.1.0:bafybeidfhgtyvsltd6naqrifycbobb7nlqk2gtnjvtolbli3okqovdm2su
+- valory/termination_abci:0.1.0:bafybeif7lxvscvrsbr6f74ymbb5t3apnfwjxzvwmtixyy7hclpx2pqa3oa
+- dvilela/decision_making_abci:0.1.0:bafybeiddhma37quwpbjy6ddb4x5ko4oh3qanyxcm5vomn2vzzgm5d34wx4
+- dvilela/engage_twitter_abci:0.1.0:bafybeiga6beqkp2pbtt3rgs55zbr27yzz4ar6vdfqnbaku7s6pwcwiecqa
 behaviours:
   main:
     args: {}
