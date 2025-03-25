@@ -22,6 +22,7 @@
 
 import asyncio
 import json
+import os
 import secrets
 import time
 from asyncio import Task
@@ -260,6 +261,7 @@ class TwikitConnection(Connection):
             "filter_suspended_users",
             "get_user_by_screen_name",
             "get_twitter_user_id",
+            "upload_media",
         ]
 
         if not all(i in payload for i in REQUIRED_PROPERTIES):
@@ -553,6 +555,53 @@ class TwikitConnection(Connection):
                 raise ValueError("Twitter ID (twid) not found in cookies.")
 
             return twid
+
+    async def upload_media(self, media_path: str) -> Optional[str]:
+        """
+        Upload media to Twitter.
+
+        :param media_path: Path to the media file.
+        :return: Media ID if successful, None otherwise.
+        """
+        media_id = None
+        retries = 0
+
+        while retries < MAX_POST_RETRIES:
+            try:
+                self.logger.info(f"Uploading media from path: {media_path}")
+
+                # Make sure the media_path is a string, not a dictionary
+                if isinstance(media_path, dict) and "latest_image_path" in media_path:
+                    actual_path = media_path["latest_image_path"]
+                    self.logger.info(f"Extracted path from dictionary: {actual_path}")
+                    media_path = actual_path
+
+                # Check if file exists
+                if not os.path.exists(media_path):
+                    raise FileNotFoundError(
+                        f"Media file not found at path: {media_path}"
+                    )
+
+                # Upload media to Twitter
+                result = await self.client.upload_media(source=media_path)
+                media_id = result
+
+                if media_id is not None:
+                    self.logger.info(f"Media uploaded with ID: {media_id}")
+                    break
+            except FileNotFoundError as e:
+                self.logger.error(f"Media file not found: {e}")
+                break  # No point retrying if the file doesn't exist
+            except Exception as e:
+                self.logger.error(f"Failed to upload media: {e}. Retrying...")
+            finally:
+                retries += 1
+                if retries < MAX_POST_RETRIES:
+                    # Add random delay between retries
+                    delay = secrets.randbelow(5)
+                    time.sleep(delay)
+
+        return media_id
 
 
 def tweet_to_json(tweet: Any, user_id: Optional[str] = None) -> Dict:

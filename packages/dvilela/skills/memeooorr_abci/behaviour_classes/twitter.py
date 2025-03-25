@@ -22,8 +22,10 @@
 import json
 import random
 import secrets
+from dataclasses import asdict
 from datetime import datetime
-from typing import Dict, Generator, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Union
+from uuid import uuid4
 
 from twitter_text import parse_tweet  # type: ignore
 
@@ -32,8 +34,9 @@ from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
 )
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     ALTERNATIVE_MODEL_TWITTER_PROMPT,
+    MECH_RESPONSE_SUBPROMPT,
     TWITTER_DECISION_PROMPT,
-    build_twitter_action_schema,
+    build_decision_schema,
 )
 from packages.dvilela.skills.memeooorr_abci.rounds import (
     ActionTweetPayload,
@@ -45,6 +48,7 @@ from packages.dvilela.skills.memeooorr_abci.rounds import (
     Event,
 )
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
+from packages.valory.skills.mech_interact_abci.states.base import MechMetadata
 
 
 MAX_TWEET_CHARS = 280
@@ -320,11 +324,25 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            event = yield from self.get_event()
+            event, new_mech_requests = yield from self.get_event()
 
+            if new_mech_requests:
+                mech_requests = json.dumps(new_mech_requests, sort_keys=True)
+                self.context.logger.info(f"Mech Requests JSON: {mech_requests}")
+
+            # Determine mech_request value based on event type
+            mech_request = (
+                json.dumps(new_mech_requests, sort_keys=True)
+                if event == Event.MECH.value
+                else None
+            )
+
+            # Create payload with appropriate mech_request value
             payload = EngageTwitterPayload(
                 sender=self.context.agent_address,
                 event=event,
+                mech_request=mech_request,
+                tx_submitter=self.matching_round.auto_round_id(),
             )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -333,14 +351,778 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
 
         self.set_done()
 
-    def get_event(self) -> Generator[None, None, str]:
-        """Get the next event"""
+    def get_event(self) -> Generator[None, None, Tuple[str, List]]:
+        """
+        Get the next event for Twitter engagement.
 
+        Returns:
+            Tuple[str, List]: Event type and any new mech requests.
+        """
+        new_mech_requests: List[Dict[str, Any]] = []
+
+        # Skip engagement if configured
         if self.params.skip_engagement:
             self.context.logger.info("Skipping engagement on Twitter")
-            return Event.DONE.value
+            return Event.DONE.value, new_mech_requests
 
+        # Handle differently based on mech_for_twitter state
+        if self.synchronized_data.mech_for_twitter:
+            (
+                pending_tweets,
+                interacted_tweet_ids,
+            ) = yield from self._handle_mech_for_twitter()
+        else:
+            (
+                pending_tweets,
+                interacted_tweet_ids,
+            ) = yield from self._handle_regular_engagement()
+
+        # Process interactions
+        (
+            event,
+            new_interacted_tweet_ids,
+            new_mech_requests,
+        ) = yield from self.interact_twitter(pending_tweets)
+
+        # Handle results based on event type
+        if event == Event.MECH.value:
+            return event, new_mech_requests
+
+        if event == Event.DONE.value:
+            yield from self._update_interacted_tweets(
+                interacted_tweet_ids, new_interacted_tweet_ids
+            )
+
+        return event, new_mech_requests
+
+    def _handle_mech_for_twitter(self) -> Generator[None, None, Tuple[dict, list]]:
+        """
+        Handle Twitter engagement when mech_for_twitter is True.
+
+        Returns:
+            Tuple[dict, list]: Pending tweets and interacted tweet IDs.
+        """
+        self.context.logger.info(
+            "Mech for twitter detected, using Mech response for decision"
+        )
+
+        # Fetch pending tweets from db
+        pending_tweets_data = yield from self._read_kv(
+            keys=("pending_tweets_for_tw_mech",)
+        )
+        pending_tweets = {}
+        if pending_tweets_data:
+            pending_tweets = json.loads(
+                pending_tweets_data["pending_tweets_for_tw_mech"]
+            )
+        else:
+            self.context.logger.error("No pending tweets found in KV store")
+
+        # Fetch previously interacted tweets
+        interacted_ids_data = yield from self._read_kv(
+            keys=("interacted_tweet_ids_for_tw_mech",)
+        )
+        interacted_tweet_ids = []
+        if interacted_ids_data:
+            interacted_tweet_ids = json.loads(
+                interacted_ids_data["interacted_tweet_ids_for_tw_mech"]
+            )
+        else:
+            self.context.logger.error("No interacted tweets found in KV store")
+
+        return pending_tweets, interacted_tweet_ids
+
+    def _handle_regular_engagement(self) -> Generator[None, None, Tuple[dict, list]]:
+        """
+        Handle Twitter engagement when mech_for_twitter is False.
+
+        Returns:
+            Tuple[dict, list]: Pending tweets and interacted tweet IDs.
+        """
         # Get other memeooorr handles
+        agent_handles = yield from self.get_agent_handles()
+        self.context.logger.info(f"Not suspended users: {agent_handles}")
+
+        if not agent_handles:
+            self.context.logger.error("No valid Twitter handles")
+            return {}, []
+
+        # Load previously interacted tweets
+        interacted_tweet_ids = yield from self._get_interacted_tweet_ids()
+
+        # Get latest tweets from each agent - CHANGE HERE: convert list to set
+        pending_tweets = yield from self._collect_pending_tweets(
+            agent_handles, set(interacted_tweet_ids)
+        )
+
+        # Store data for mech processing
+        yield from self._store_engagement_data(interacted_tweet_ids, pending_tweets)
+
+        return pending_tweets, interacted_tweet_ids
+
+    def _get_interacted_tweet_ids(self) -> Generator[None, None, list]:
+        """Get previously interacted tweet IDs from the database."""
+        db_data = yield from self._read_kv(keys=("interacted_tweet_ids",))
+
+        if db_data is None:
+            self.context.logger.error("Error while loading the database")
+            return []
+
+        return json.loads(db_data["interacted_tweet_ids"] or "[]")
+
+    def _collect_pending_tweets(
+        self, agent_handles: list[str], interacted_tweet_ids: set[int]
+    ) -> Generator[None, None, dict]:
+        """Collect pending tweets from agent handles that haven't been interacted with."""
+        pending_tweets = {}
+
+        for agent_handle in agent_handles:
+            latest_tweets = yield from self._call_twikit(
+                method="get_user_tweets",
+                twitter_handle=agent_handle,
+            )
+
+            if not latest_tweets:
+                self.context.logger.info(f"Couldn't get any tweets from {agent_handle}")
+                continue
+
+            tweet_id = latest_tweets[0]["id"]
+
+            # Skip previously interacted tweets
+            if int(tweet_id) in interacted_tweet_ids:
+                self.context.logger.info(
+                    f"Tweet {tweet_id} was already interacted with"
+                )
+                continue
+
+            pending_tweets[tweet_id] = {
+                "text": latest_tweets[0]["text"],
+                "user_name": latest_tweets[0]["user_name"],
+                "user_id": latest_tweets[0]["user_id"],
+            }
+
+        return pending_tweets
+
+    def _store_engagement_data(
+        self, interacted_tweet_ids: list[int], pending_tweets: dict[str, dict[str, str]]
+    ) -> Generator[None, None, None]:
+        """Store engagement data in the database for mech processing."""
+        yield from self._write_kv(
+            {
+                "interacted_tweet_ids_for_tw_mech": json.dumps(
+                    interacted_tweet_ids, sort_keys=True
+                )
+            }
+        )
+        self.context.logger.info("Wrote interacted tweet ids to db")
+
+        yield from self._write_kv(
+            {"pending_tweets_for_tw_mech": json.dumps(pending_tweets, sort_keys=True)}
+        )
+        self.context.logger.info("Wrote pending tweets to db")
+
+    def _update_interacted_tweets(
+        self, interacted_tweet_ids: list[int], new_interacted_tweet_ids: list[int]
+    ) -> Generator[None, None, None]:
+        """Update the list of interacted tweets in the database."""
+        interacted_tweet_ids.extend(new_interacted_tweet_ids)
+        yield from self._write_kv(
+            {"interacted_tweet_ids": json.dumps(interacted_tweet_ids, sort_keys=True)}
+        )
+        self.context.logger.info("Updated interacted tweets in db")
+
+    def interact_twitter(  # pylint: disable=too-many-locals
+        self, pending_tweets: dict
+    ) -> Generator[None, None, Tuple[str, List, List]]:
+        """Decide whether to interact with tweets based on the persona's preferences."""
+        new_interacted_tweet_ids: List[int] = []
+        persona = yield from self.get_persona()
+
+        # Track retry attempts
+        max_retries = 3
+        retry_count = 0
+        valid_response = False
+        json_response = None
+
+        # Try to get the previously stored prompt first
+        stored_prompt_data = yield from self._read_kv(keys=("last_prompt",))
+        stored_prompt = (
+            stored_prompt_data.get("last_prompt") if stored_prompt_data else None
+        )
+
+        # Check if we should use a stored prompt or generate a new one
+        if stored_prompt and retry_count > 0:
+            self.context.logger.info("Using previously stored prompt")
+            prompt = stored_prompt
+            # We still need previous_tweets for potential media handling
+            previous_tweets = yield from self._get_stored_kv_data(
+                "previous_tweets_for_tw_mech", {}
+            )
+        else:
+            # Generate a new prompt and store it
+            prompt, previous_tweets = yield from self._prepare_prompt_data(
+                pending_tweets, persona
+            )
+
+        while not valid_response and retry_count < max_retries:
+            # Get LLM decision about how to interact with tweets
+            llm_response = yield from self._get_llm_decision(prompt)
+            if llm_response is None:
+                self.context.logger.error("Error getting a response from the LLM.")
+                return Event.ERROR.value, new_interacted_tweet_ids, []
+
+            # Parse LLM response
+            try:
+                json_response = json.loads(llm_response)
+                self.context.logger.info(
+                    f"LLM response after JSON parsing: {json_response}"
+                )
+
+                # Validate response format
+                if json_response is not None and self._validate_llm_response(
+                    json_response
+                ):
+                    valid_response = True
+                else:
+                    retry_count += 1
+                    self.context.logger.warning(
+                        f"Invalid response format from LLM (attempt {retry_count}/{max_retries})"
+                    )
+                    # If we need to retry, use the stored prompt
+                    if retry_count > 0 and stored_prompt:
+                        prompt = stored_prompt
+
+            except json.JSONDecodeError as e:
+                self.context.logger.error(f"Error decoding LLM response: {e}")
+                self.context.logger.error(f"LLM Response: {llm_response}")
+                retry_count += 1
+                # If we need to retry, use the stored prompt
+                if retry_count > 0 and stored_prompt:
+                    prompt = stored_prompt
+                continue
+
+        # If we couldn't get a valid response after max retries
+        if not valid_response or json_response is None:
+            self.context.logger.error(
+                f"Failed to get valid response after {max_retries} attempts"
+            )
+            return Event.ERROR.value, new_interacted_tweet_ids, []
+
+        # At this point, json_response must be valid and not None
+        assert json_response is not None, "json_response should not be None here"
+
+        # Handle tool action if present
+        if "tool_action" in json_response and json_response["tool_action"] is not None:
+            # The validation should have already caught this, but double-check
+            if self.synchronized_data.mech_for_twitter:
+                self.context.logger.error(
+                    "LLM provided a tool action when mech_for_twitter is True. "
+                    "This should not happen after our validation."
+                )
+                return Event.ERROR.value, new_interacted_tweet_ids, []
+
+            # Handle the tool action normally
+            event, new_interacted_tweet_id, mech_request = self._handle_tool_action(
+                json_response
+            )
+            return event, new_interacted_tweet_id, mech_request
+
+        # Handle tweet actions if present
+        if "tweet_action" in json_response:
+            (
+                event,
+                new_interacted_tweet_id,
+                mech_request,
+            ) = yield from self._handle_tweet_actions(
+                json_response,
+                pending_tweets,
+                previous_tweets,
+                persona,
+                new_interacted_tweet_ids,
+            )
+            return event, new_interacted_tweet_id, mech_request
+
+        # This point should not be reached due to our validation
+        self.context.logger.error("Invalid response from the LLM.")
+        return Event.ERROR.value, new_interacted_tweet_ids, []
+
+    def _prepare_prompt_data(
+        self, pending_tweets: dict, persona: str
+    ) -> Generator[None, None, Tuple[str, dict]]:
+        """Prepare the prompt data for LLM decision making."""
+        previous_tweets = {}
+
+        if self.synchronized_data.mech_for_twitter:
+            # Read saved data for mech response
+            previous_tweets = yield from self._get_stored_kv_data(
+                "previous_tweets_for_tw_mech", {}
+            )
+            other_tweets = yield from self._get_stored_kv_data(
+                "other_tweets_for_tw_mech", {}
+            )
+
+            # Prepare prompt with mech response
+            mech_responses = self.synchronized_data.mech_responses
+            if not mech_responses:
+                self.context.logger.error("No mech responses found")
+
+            subprompt_with_mech_response = MECH_RESPONSE_SUBPROMPT.format(
+                mech_response=mech_responses,
+            )
+
+            prompt = TWITTER_DECISION_PROMPT.format(
+                persona=persona,
+                previous_tweets=previous_tweets,
+                other_tweets=other_tweets,
+                mech_response=subprompt_with_mech_response,
+                tools=self.generate_mech_tool_info(),
+                time=self.get_sync_time_str(),
+            )
+
+            # Clear stored data
+            self.context.logger.info(
+                "Clearing all the pending tweets, interacted tweet id, previous tweets and other tweets from db"
+            )
+            yield from self._write_kv({"previous_tweets_for_tw_mech": ""})
+            yield from self._write_kv({"other_tweets_for_tw_mech": ""})
+            yield from self._write_kv({"interacted_tweet_ids_for_tw_mech": ""})
+            yield from self._write_kv({"pending_tweets_for_tw_mech": ""})
+        else:
+            # Standard approach
+            self.context.logger.info(
+                "No Mech for twitter detected, using prompt for decision and introducing tools to LLM"
+            )
+
+            # Prepare other tweets data
+            other_tweets = "\n\n".join(
+                [
+                    f"tweet_id: {t_id}\ntweet_text: {t_data['text']}\nuser_id: {t_data['user_id']}"
+                    for t_id, t_data in dict(
+                        random.sample(list(pending_tweets.items()), len(pending_tweets))
+                    ).items()
+                ]
+            )
+
+            # Get previous tweets
+            tweets = yield from self.get_previous_tweets()
+            tweets = tweets[-5:] if tweets else None
+
+            if tweets:
+                random.shuffle(tweets)
+                previous_tweets_str = "\n\n".join(
+                    [
+                        f"tweet_id: {tweet['tweet_id']}\ntweet_text: {tweet['text']}\ntime: {datetime.fromtimestamp(tweet['timestamp']).strftime('%Y-%m-%d %H:%M:%S')}"
+                        for tweet in tweets
+                    ]
+                )
+            else:
+                previous_tweets_str = "No previous tweets"
+
+            previous_tweets = tweets if isinstance(tweets, dict) else {}
+
+            prompt = TWITTER_DECISION_PROMPT.format(
+                persona=persona,
+                previous_tweets=previous_tweets_str,
+                other_tweets=other_tweets,
+                mech_response="",
+                tools=self.generate_mech_tool_info(),
+                time=self.get_sync_time_str(),
+            )
+
+            # Save data for future mech responses
+            self.context.logger.info("Saving previous tweets and other tweets to db")
+            yield from self._write_kv(
+                {"previous_tweets_for_tw_mech": json.dumps(tweets)}
+            )
+            self.context.logger.info("Wrote previous tweets to db")
+            yield from self._write_kv(
+                {"other_tweets_for_tw_mech": json.dumps(pending_tweets)}
+            )
+            self.context.logger.info("Wrote other tweets to db")
+
+        # saving the prompt to the kv store for retrying if llm response is invalid
+        yield from self._write_kv({"last_prompt": prompt})
+
+        return prompt, previous_tweets
+
+    def _get_stored_kv_data(
+        self, key: str, default_value: Any
+    ) -> Generator[None, None, Any]:
+        """Helper to get and parse stored KV data."""
+        data = yield from self._read_kv(keys=(key,))
+        if not data:
+            self.context.logger.error(f"No {key} found in KV store")
+            return default_value
+        return json.loads(data[key])
+
+    def _get_llm_decision(self, prompt: str) -> Generator[None, None, Optional[str]]:
+        """Get decision from LLM."""
+        self.context.logger.info(f"Prompting the LLM for a decision: {prompt}")
+        llm_response = yield from self._call_genai(
+            prompt=prompt,
+            schema=build_decision_schema(),
+        )
+        self.context.logger.info(f"LLM response for twitter decision: {llm_response}")
+        return llm_response
+
+    def _validate_llm_response(  # pylint: disable=too-many-return-statements
+        self, json_response: dict
+    ) -> bool:
+        """Validate that the LLM response has either valid tweet_action or valid tool_action"""
+        # If mech_for_twitter is True, only tweet_action with 'tweet_with_media' is allowed
+        if self.synchronized_data.mech_for_twitter:
+            if (
+                "tweet_action" in json_response
+                and json_response["tweet_action"] is not None
+            ):
+                # Check both possible field names: action_type (schema format) and action (actual response format)
+                action = json_response["tweet_action"].get(
+                    "action_type", json_response["tweet_action"].get("action")
+                )
+                if action == "tweet_with_media":
+                    # Ensure we have the required text field for media tweet
+                    if "text" in json_response["tweet_action"]:
+                        return True
+
+                    self.context.logger.error(
+                        "Invalid tweet_with_media action: missing 'text' field"
+                    )
+                    return False
+
+                self.context.logger.error(
+                    f"Invalid action type: {action}. Only 'tweet_with_media' is allowed when mech_for_twitter is True"
+                )
+                return False
+
+            self.context.logger.error(
+                "Invalid LLM response: expected tweet_action with type 'tweet_with_media' when mech_for_twitter is True"
+            )
+            return False
+
+        # Normal validation when mech_for_twitter is False
+        if (
+            "tweet_action" in json_response
+            and json_response["tweet_action"] is not None
+        ):
+            # For non-mech context, tweet_with_media should not be allowed
+            if isinstance(json_response["tweet_action"], list):
+                for action in json_response["tweet_action"]:
+                    action_type = action.get("action")
+                    if action_type == "tweet_with_media":
+                        self.context.logger.error(
+                            "Invalid action: 'tweet_with_media' is not allowed when mech_for_twitter is False"
+                        )
+                        return False
+            else:
+                action_type = json_response["tweet_action"].get(
+                    "action_type", json_response["tweet_action"].get("action")
+                )
+                if action_type == "tweet_with_media":
+                    self.context.logger.error(
+                        "Invalid action: 'tweet_with_media' is not allowed when mech_for_twitter is False"
+                    )
+                    return False
+            return True
+
+        if "tool_action" in json_response and json_response["tool_action"] is not None:
+            # Ensure tool_action has both required fields
+            if (
+                "tool_name" not in json_response["tool_action"]
+                or "tool_input" not in json_response["tool_action"]
+            ):
+                self.context.logger.error(
+                    f"Invalid tool_action format: missing required fields. Got: {json_response['tool_action']}"
+                )
+                return False
+            return True
+
+        self.context.logger.error(
+            "Invalid LLM response: neither tweet_action nor tool_action is valid"
+        )
+        return False
+
+    def _handle_tool_action(self, json_response: dict) -> Tuple[str, List, List]:
+        """Handle tool action from LLM response."""
+        self.context.logger.info("Tool action detected")
+
+        # Validate that we have both tool_name and tool_input
+        if (
+            "tool_action" not in json_response
+            or not json_response["tool_action"]
+            or "tool_name" not in json_response["tool_action"]
+            or "tool_input" not in json_response["tool_action"]
+        ):
+            self.context.logger.error(
+                "Invalid tool action: missing tool_name or tool_input"
+            )
+            return Event.ERROR.value, [], []
+
+        new_mech_requests = []
+        nonce = str(uuid4())
+        tool_name = json_response["tool_action"]["tool_name"]
+        tool_input = json_response["tool_action"]["tool_input"]
+
+        new_mech_requests.append(
+            asdict(
+                MechMetadata(
+                    nonce=nonce,
+                    tool=tool_name,
+                    prompt=tool_input,
+                )
+            )
+        )
+
+        return Event.MECH.value, [], new_mech_requests
+
+    def _handle_tweet_actions(  # pylint: disable=too-many-arguments
+        self,
+        json_response: dict,
+        pending_tweets: dict,
+        previous_tweets: dict,
+        persona: str,
+        new_interacted_tweet_ids: List[int],
+    ) -> Generator[None, None, Tuple[str, List, List]]:
+        """Handle tweet actions from LLM response."""
+        self.context.logger.info("Tweet action detected")
+        tweet_actions = json_response["tweet_action"]
+
+        # Ensure tweet_actions is a list
+        if isinstance(tweet_actions, str):
+            tweet_actions = [{"action": tweet_actions}]
+        elif not isinstance(tweet_actions, list):
+            tweet_actions = [tweet_actions]
+
+        for interaction in tweet_actions:
+            # Process each interaction
+            yield from self._process_single_interaction(
+                interaction,
+                pending_tweets,
+                previous_tweets,
+                persona,
+                new_interacted_tweet_ids,
+            )
+
+        return Event.DONE.value, new_interacted_tweet_ids, []
+
+    def _process_single_interaction(  # pylint: disable=too-many-arguments
+        self,
+        interaction: dict,
+        pending_tweets: dict,
+        previous_tweets: dict,
+        persona: str,
+        new_interacted_tweet_ids: List[int],
+    ) -> Generator[None, None, None]:
+        """Process a single tweet interaction."""
+        # Ensure interaction is a dictionary
+        if not isinstance(interaction, dict):
+            self.context.logger.error(f"Invalid interaction format: {interaction}")
+            return
+
+        tweet_id = interaction.get("selected_tweet_id", None)
+        user_id = interaction.get("user_id", None)
+        action = interaction.get("action", None)
+        text = interaction.get("text", None)
+        media_path = interaction.get("media_path", None)
+
+        # Validate action and parameters
+        if not self._validate_interaction(action, tweet_id, user_id, pending_tweets):
+            return
+
+        # Add random delay to avoid rate limiting
+        delay = secrets.randbelow(5)
+        self.context.logger.info(f"Sleeping for {delay} seconds")
+        yield from self.sleep(delay)
+
+        # Handle tweet action based on type
+        if action == "tweet":
+            yield from self._handle_new_tweet(text, previous_tweets, persona)
+        elif action == "tweet_with_media":
+            # fetching the media path from kv store
+            media_path = yield from self._read_kv(keys=("latest_image_path",))
+            self.context.logger.info(f"Media path from kv store: {media_path}")
+            if not media_path:
+                self.context.logger.error(
+                    "No media path found in KV store for tweet_with_media action"
+                )
+                return
+            yield from self._handle_tweet_with_media(text, previous_tweets, persona)
+        else:
+            yield from self._handle_tweet_interaction(
+                action,
+                tweet_id,
+                text,
+                user_id,
+                pending_tweets,
+                new_interacted_tweet_ids,
+            )
+
+    def _validate_interaction(
+        self, action: str, tweet_id: str, user_id: str, pending_tweets: dict
+    ) -> bool:
+        """Validate tweet interaction parameters."""
+        if action == "none":
+            self.context.logger.error("Action is none")
+            return False
+
+        # Treat tweet_with_media like tweet - it doesn't need a tweet_id
+        if (
+            action not in ["tweet", "tweet_with_media"]
+            and str(tweet_id) not in pending_tweets.keys()
+        ):
+            self.context.logger.error(
+                f"Action is {action} but tweet_id is not valid [{tweet_id}]"
+            )
+            return False
+
+        if action == "follow" and (
+            not user_id
+            or user_id not in [t["user_id"] for t in pending_tweets.values()]
+        ):
+            self.context.logger.error(
+                f"Action is {action} but user_id is not valid [{user_id}]"
+            )
+            return False
+
+        return True
+
+    def _handle_new_tweet(
+        self, text: str, previous_tweets: dict, persona: str
+    ) -> Generator[None, None, None]:
+        """Handle creating a new tweet."""
+        # Optionally, replace the tweet with one generated by the alternative model
+        new_text = yield from self.replace_tweet_with_alternative_model(
+            ALTERNATIVE_MODEL_TWITTER_PROMPT.format(
+                persona=persona,
+                previous_tweets=previous_tweets,
+            )
+        )
+        text = new_text or text
+
+        if not is_tweet_valid(text):
+            self.context.logger.error("The tweet is too long.")
+            return
+
+        yield from self.post_tweet(tweet=[text], store=True)
+
+    def _handle_tweet_interaction(  # pylint: disable=too-many-arguments
+        self,
+        action: str,
+        tweet_id: str,
+        text: str,
+        user_id: str,
+        pending_tweets: dict,
+        new_interacted_tweet_ids: List[int],
+    ) -> Generator[None, None, None]:
+        """Handle interaction with an existing tweet."""
+        if text and not is_tweet_valid(text):
+            self.context.logger.error("The tweet is too long.")
+            return
+
+        self.context.logger.info(f"Trying to {action} tweet {tweet_id}")
+        user_name = pending_tweets[str(tweet_id)]["user_name"]
+
+        if action == "like":
+            liked = yield from self.like_tweet(tweet_id)
+            if liked:
+                new_interacted_tweet_ids.append(int(tweet_id))
+
+        elif action == "follow" and user_id:
+            followed = yield from self.follow_user(user_id)
+            if followed:
+                new_interacted_tweet_ids.append(int(tweet_id))
+
+        elif action == "retweet":
+            retweeted = yield from self.retweet(tweet_id)
+            if retweeted:
+                new_interacted_tweet_ids.append(int(tweet_id))
+
+        elif action == "reply":
+            responded = yield from self.respond_tweet(tweet_id, text)
+            if responded:
+                new_interacted_tweet_ids.append(int(tweet_id))
+
+        elif action == "quote":
+            quoted = yield from self.respond_tweet(
+                tweet_id, text, quote=True, user_name=user_name
+            )
+            if quoted:
+                new_interacted_tweet_ids.append(int(tweet_id))
+
+    def _handle_tweet_with_media(
+        self, text: str, previous_tweets: dict, persona: str
+    ) -> Generator[None, None, None]:
+        """Handle creating a new tweet with media."""
+        # Optionally, replace the tweet with one generated by the alternative model
+        new_text = yield from self.replace_tweet_with_alternative_model(
+            ALTERNATIVE_MODEL_TWITTER_PROMPT.format(
+                persona=persona,
+                previous_tweets=previous_tweets,
+            )
+        )
+        text = new_text or text
+
+        if not is_tweet_valid(text):
+            self.context.logger.error("The tweet is too long.")
+            return
+
+        # Get the latest image path from the database
+        db_data = yield from self._read_kv(keys=("latest_image_path",))
+
+        if not db_data or "latest_image_path" not in db_data:
+            self.context.logger.error(
+                "No image path found for tweet_with_media action."
+            )
+            return
+
+        image_path = db_data["latest_image_path"]
+        self.context.logger.info(f"Using image from path: {image_path}")
+
+        # Upload the media first
+        media_id = yield from self._call_twikit(
+            method="upload_media",
+            media_path=image_path,  # Pass the path as a string, not as a dictionary
+        )
+
+        if not media_id:
+            self.context.logger.error(f"Failed to upload media from path: {image_path}")
+            return
+
+        # Post tweet with the uploaded media ID
+        self.context.logger.info(f"Posting tweet with media_id: {media_id}")
+        tweet_ids = yield from self._call_twikit(
+            method="post", tweets=[{"text": text, "media_ids": [media_id]}]
+        )
+
+        if not tweet_ids:
+            self.context.logger.error("Failed posting tweet with media to Twitter.")
+            return
+
+        latest_tweet = {
+            "tweet_id": tweet_ids[0],
+            "text": text,
+            "media_path": image_path,
+            "timestamp": self.get_sync_timestamp(),
+        }
+
+        # Write latest tweet to the database
+        yield from self.store_tweet(latest_tweet)
+        self.context.logger.info("Wrote latest tweet with media to db")
+
+    def generate_mech_tool_info(self) -> str:
+        """Generate tool info"""
+
+        tools_dict = self.params.tools_for_mech
+        tools_info = "\n" + "\n".join(
+            [
+                f"- {tool_name}: {tool_description}"
+                for tool_name, tool_description in tools_dict.items()
+            ]
+        )
+        self.context.logger.info(tools_info)
+        return tools_info
+
+    def get_agent_handles(self) -> Generator[None, None, List[str]]:
+        """Get the agent handles"""
         agent_handles = yield from self.get_memeooorr_handles_from_mirror_db()
         if agent_handles:
             # Filter out suspended accounts
@@ -361,195 +1143,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
                 user_names=agent_handles,
             )
 
-        self.context.logger.info(f"Not suspended users: {agent_handles}")
-
-        if not agent_handles:
-            self.context.logger.error("No valid Twitter handles")
-            return Event.DONE.value
-
-        # Load previously responded tweets
-        db_data = yield from self._read_kv(keys=("interacted_tweet_ids",))
-
-        if db_data is None:
-            self.context.logger.error("Error while loading the database")
-            interacted_tweet_ids = []
-        else:
-            interacted_tweet_ids = json.loads(db_data["interacted_tweet_ids"] or "[]")
-
-        # Get their latest tweet
-        pending_tweets = {}
-        for agent_handle in agent_handles:
-            # By default only 1 tweet is retrieved (the latest one)
-            latest_tweets = yield from self._call_twikit(
-                method="get_user_tweets",
-                twitter_handle=agent_handle,
-            )
-            if not latest_tweets:
-                self.context.logger.info("Couldn't get any tweets")
-                continue
-            tweet_id = latest_tweets[0]["id"]
-
-            # Only respond to not previously interacted tweets
-            if int(tweet_id) in interacted_tweet_ids:
-                self.context.logger.info("Tweet was already interacted with")
-                continue
-
-            pending_tweets[tweet_id] = {
-                "text": latest_tweets[0]["text"],
-                "user_name": latest_tweets[0]["user_name"],
-                "user_id": latest_tweets[0]["user_id"],
-            }
-
-        # Build and post interactions
-        event, new_interacted_tweet_ids = yield from self.interact_twitter(
-            pending_tweets
-        )
-
-        if event == Event.DONE.value:
-            interacted_tweet_ids.extend(new_interacted_tweet_ids)
-            # Write latest responded tweets to the database
-            yield from self._write_kv(
-                {
-                    "interacted_tweet_ids": json.dumps(
-                        interacted_tweet_ids, sort_keys=True
-                    )
-                }
-            )
-            self.context.logger.info("Wrote latest tweet to db")
-
-        return event
-
-    def interact_twitter(  # pylint: disable=too-many-locals,too-many-statements
-        self, pending_tweets: dict
-    ) -> Generator[None, None, Tuple[str, List]]:
-        """Decide whether to like a tweet based on the persona."""
-        new_interacted_tweet_ids: List[str] = []
-        persona = yield from self.get_persona()
-
-        other_tweets = "\n\n".join(
-            [
-                f"tweet_id: {t_id}\ntweet_text: {t_data['text']}\nuser_id: {t_data['user_id']}"
-                for t_id, t_data in dict(
-                    random.sample(list(pending_tweets.items()), len(pending_tweets))
-                ).items()
-            ]
-        )
-
-        tweets = yield from self.get_previous_tweets()  # type: ignore
-        tweets = tweets[-5:] if tweets else None  # type: ignore
-
-        if tweets:
-            random.shuffle(tweets)
-            previous_tweets = "\n\n".join(
-                [
-                    f"tweet_id: {tweet['tweet_id']}\ntweet_text: {tweet['text']}\ntime: {datetime.fromtimestamp(tweet['timestamp']).strftime('%Y-%m-%d %H:%M:%S')}"
-                    for tweet in tweets
-                ]
-            )
-        else:
-            previous_tweets = "No previous tweets"
-
-        prompt = TWITTER_DECISION_PROMPT.format(
-            persona=persona,
-            previous_tweets=previous_tweets,
-            other_tweets=other_tweets,
-            time=self.get_sync_time_str(),
-        )
-
-        llm_response = yield from self._call_genai(
-            method="generate_content",
-            kwargs={"prompt": prompt, "schema": build_twitter_action_schema()},
-        )
-        self.context.logger.info(f"LLM response for twitter decision: {llm_response}")
-
-        if llm_response is None:
-            self.context.logger.error("Error getting a response from the LLM.")
-            return Event.ERROR.value, new_interacted_tweet_ids
-
-        json_response = json.loads(llm_response)
-
-        for interaction in json_response:
-            tweet_id = interaction.get("selected_tweet_id", None)
-            user_id = interaction.get("user_id", None)
-            action = interaction.get("action", None)
-            text = interaction.get("text", None)
-
-            if action == "none":
-                self.context.logger.error("Action is none")
-                continue
-
-            if action != "tweet" and str(tweet_id) not in pending_tweets.keys():
-                self.context.logger.error(
-                    f"Action is {action} but tweet_id is not valid [{tweet_id}]"
-                )
-                continue
-
-            if action == "follow" and (
-                not user_id
-                or user_id not in [t["user_id"] for t in pending_tweets.values()]
-            ):
-                self.context.logger.error(
-                    f"Action is {action} but user_id is not valid [{user_id}]"
-                )
-                continue
-
-            # use yield from self.sleep(1) to simulate a delay use secrests to randomize the delay
-            # adding random delay to avoid rate limiting
-            delay = secrets.randbelow(5)
-            self.context.logger.info(f"Sleeping for {delay} seconds")
-            yield from self.sleep(delay)
-
-            self.context.logger.info("Sending a new tweet")
-            if action == "tweet":
-                # Optionally, replace the tweet with one generated by the alternative LLM
-                new_text = yield from self.replace_tweet_with_alternative_model(
-                    ALTERNATIVE_MODEL_TWITTER_PROMPT.format(
-                        persona=persona,
-                        previous_tweets=previous_tweets,
-                    )
-                )
-                text = new_text or text
-                yield from self.post_tweet(tweet=[text], store=True)
-                continue
-
-            self.context.logger.info(f"Trying to {action} tweet {tweet_id}")
-            user_name = pending_tweets[str(tweet_id)]["user_name"]
-
-            if action == "like":
-                liked = yield from self.like_tweet(tweet_id)
-                if liked:
-                    new_interacted_tweet_ids.append(tweet_id)
-                continue
-
-            if action == "follow" and user_id:
-                followed = yield from self.follow_user(user_id)
-                if followed:
-                    new_interacted_tweet_ids.append(tweet_id)
-                continue
-
-            if action == "retweet":
-                retweeted = yield from self.retweet(tweet_id)
-                if retweeted:
-                    new_interacted_tweet_ids.append(tweet_id)
-                continue
-
-            if not is_tweet_valid(text):
-                self.context.logger.error("The tweet is too long.")
-                continue
-
-            if action == "reply":
-                responded = yield from self.respond_tweet(tweet_id, text)
-                if responded:
-                    new_interacted_tweet_ids.append(tweet_id)
-
-            if action == "quote":
-                quoted = yield from self.respond_tweet(
-                    tweet_id, text, quote=True, user_name=user_name
-                )
-                if quoted:
-                    new_interacted_tweet_ids.append(tweet_id)
-
-        return Event.DONE.value, new_interacted_tweet_ids
+        return agent_handles
 
 
 class ActionTweetBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-ancestors

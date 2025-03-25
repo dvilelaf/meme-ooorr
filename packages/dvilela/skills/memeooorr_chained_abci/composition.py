@@ -20,6 +20,10 @@
 """This package contains round behaviours of MemeooorrChainedSkillAbciApp."""
 
 import packages.dvilela.skills.memeooorr_abci.rounds as MemeooorrAbci
+import packages.valory.skills.mech_interact_abci.rounds as MechInteractAbci
+import packages.valory.skills.mech_interact_abci.states.final_states as MechFinalStates
+import packages.valory.skills.mech_interact_abci.states.request as MechRequestStates
+import packages.valory.skills.mech_interact_abci.states.response as MechResponseStates
 import packages.valory.skills.registration_abci.rounds as RegistrationAbci
 import packages.valory.skills.reset_pause_abci.rounds as ResetAndPauseAbci
 import packages.valory.skills.transaction_settlement_abci.rounds as TransactionSettlementAbci
@@ -45,7 +49,14 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
     TransactionSettlementAbci.FailedRound: MemeooorrAbci.TransactionLoopCheckRound,
     ResetAndPauseAbci.FinishedResetAndPauseRound: MemeooorrAbci.PullMemesRound,
     ResetAndPauseAbci.FinishedResetAndPauseErrorRound: ResetAndPauseAbci.ResetAndPauseRound,
+    MemeooorrAbci.FinishedForMechRequestRound: MechRequestStates.MechRequestRound,
+    MechFinalStates.FinishedMechRequestRound: TransactionSettlementAbci.RandomnessTransactionSubmissionRound,
+    MechFinalStates.FinishedMechResponseRound: MemeooorrAbci.PostMechResponseRound,
+    MechFinalStates.FinishedMechRequestSkipRound: MemeooorrAbci.FailedMechRequestRound,
+    MechFinalStates.FinishedMechResponseTimeoutRound: MemeooorrAbci.FailedMechResponseRound,
+    MemeooorrAbci.FinishedForMechResponseRound: MechResponseStates.MechResponseRound,
 }
+
 
 termination_config = BackgroundAppConfig(
     round_cls=BackgroundRound,
@@ -59,6 +70,7 @@ MemeooorrChainedSkillAbciApp = chain(
         MemeooorrAbci.MemeooorrAbciApp,
         TransactionSettlementAbci.TransactionSubmissionAbciApp,
         ResetAndPauseAbci.ResetPauseAbciApp,
+        MechInteractAbci.MechInteractAbciApp,
     ),
     abci_app_transition_mapping,
 ).add_background_app(termination_config)

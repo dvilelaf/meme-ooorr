@@ -129,4 +129,24 @@ ROUNDS_INFO = {
         "name": "Transaction Loop Check",
         "description": "Checks if the transaction settlement ABCI is in an infinite loop and breaks it if it is",
     },
+    "failed_mech_request_round": {
+        "name": "Failed Mech Request",
+        "description": "Handles a failed Mech request",
+    },
+    "failed_mech_response_round": {
+        "name": "Failed Mech Response",
+        "description": "Handles a failed Mech response",
+    },
+    "mech_request_round": {
+        "name": "Mech Request",
+        "description": "Handles a Mech request",
+    },
+    "mech_response_round": {
+        "name": "Mech Response",
+        "description": "Handles a Mech response",
+    },
+    "post_mech_response_round": {
+        "name": "Post Mech response",
+        "description": "Handles a post Mech response",
+    },
 }

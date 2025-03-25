@@ -75,7 +75,7 @@ generators:
 .PHONY: common-checks-1
 common-checks-1:
 	tomte check-copyright --author author_name
-	tomte check-doc-links
+	tomte check-doc-links --url-skips https://soft-sly-slug.base-mainnet.quiknode.pro/f13d998d9d68685faeee903499e15b4b386a8b1c/
 	tox -p -e check-hash -e check-packages -e check-doc-hashes
 
 .PHONY: fix-abci-app-specs

@@ -36,6 +36,11 @@ from packages.dvilela.skills.memeooorr_abci.behaviour_classes.db import (
 from packages.dvilela.skills.memeooorr_abci.behaviour_classes.llm import (
     ActionDecisionBehaviour,
 )
+from packages.dvilela.skills.memeooorr_abci.behaviour_classes.mech import (
+    FailedMechRequestBehaviour,
+    FailedMechResponseBehaviour,
+    PostMechResponseBehaviour,
+)
 from packages.dvilela.skills.memeooorr_abci.behaviour_classes.twitter import (
     ActionTweetBehaviour,
     CollectFeedbackBehaviour,
@@ -66,4 +71,7 @@ class MemeooorrRoundBehaviour(AbstractRoundBehaviour):
         PostTxDecisionMakingBehaviour,
         CallCheckpointBehaviour,
         TransactionLoopCheckBehaviour,
+        PostMechResponseBehaviour,
+        FailedMechRequestBehaviour,
+        FailedMechResponseBehaviour,
     ]

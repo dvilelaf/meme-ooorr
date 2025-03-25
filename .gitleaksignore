@@ -1,7 +1,6 @@
 5a2cc25f75c16938f30da18a9be6ea88f7110d7d:packages/dvilela/services/memeooorr/service.yaml:generic-api-key:60
 5a2cc25f75c16938f30da18a9be6ea88f7110d7d:packages/dvilela/skills/memeooorr_chained_abci/skill.yaml:generic-api-key:83
 5a2cc25f75c16938f30da18a9be6ea88f7110d7d:packages/dvilela/agents/memeooorr/aea-config.yaml:generic-api-key:126
-5a2cc25f75c16938f30da18a9be6ea88f7110d7d:packages/dvilela/skills/memeooorr_abci/skill.yaml:generic-api-key:887fa2ce3e55eaeebb9b17c8ab40b5affbc769c4cc:packages/dvilela/services/memeooorr/service.yaml:generic-api-key:60
 7fa2ce3e55eaeebb9b17c8ab40b5affbc769c4cc:packages/dvilela/skills/memeooorr_chained_abci/skill.yaml:generic-api-key:83
 7fa2ce3e55eaeebb9b17c8ab40b5affbc769c4cc:packages/dvilela/agents/memeooorr/aea-config.yaml:generic-api-key:126
 7fa2ce3e55eaeebb9b17c8ab40b5affbc769c4cc:packages/dvilela/skills/memeooorr_abci/skill.yaml:generic-api-key:88
@@ -422,3 +421,9 @@ cfbb54a04c37080455365581e2179746cad4e0d0:packages/dvilela/contracts/staking_toke
 e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-api-key:117
 e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-api-key:129
 40fd80a757e3eff0fa68d5db2c8583bafd07ecfe:packages/dvilela/skills/decision_making_abci/skill.yaml:generic-api-key:81
+3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/agents_fun_abci/skill.yaml:generic-api-key:84
+3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/agents_fun_abci/skill.yaml:generic-api-key:151
+3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/agents_fun_abci/skill.yaml:generic-api-key:152
+3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/services/agents_fun/service.yaml:generic-api-key:55
+3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/agents/agents_fun/aea-config.yaml:generic-api-key:153
+3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/engage_twitter_abci/skill.yaml:generic-api-key:83

@@ -56,6 +56,9 @@ from packages.valory.contracts.staking_token.contract import StakingTokenContrac
 from packages.valory.protocols.contract_api import ContractApiMessage
 from packages.valory.protocols.ledger_api import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
+from packages.valory.skills.mech_interact_abci.behaviours.round_behaviour import (
+    MechRequestBehaviour,
+)
 from packages.valory.skills.transaction_settlement_abci.payload_tools import (
     hash_payload_to_hex,
 )
@@ -716,6 +719,10 @@ class PostTxDecisionMakingBehaviour(
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             event = "None"
 
+            self.context.logger.info(
+                f"Checking the tx submitter is the current round: {self.synchronized_data.tx_submitter}"
+            )
+
             if (
                 self.synchronized_data.tx_submitter
                 == CallCheckpointBehaviour.matching_round.auto_round_id()
@@ -727,6 +734,12 @@ class PostTxDecisionMakingBehaviour(
                 == ActionPreparationBehaviour.matching_round.auto_round_id()
             ):
                 event = Event.ACTION.value
+
+            if (
+                self.synchronized_data.tx_submitter
+                == MechRequestBehaviour.matching_round.auto_round_id()
+            ):
+                event = Event.MECH.value
 
             payload = PostTxDecisionMakingPayload(
                 sender=self.context.agent_address,

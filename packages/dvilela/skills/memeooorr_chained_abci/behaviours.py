@@ -29,6 +29,9 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
 )
+from packages.valory.skills.mech_interact_abci.behaviours.round_behaviour import (
+    MechInteractRoundBehaviour,
+)
 from packages.valory.skills.registration_abci.behaviours import (
     AgentRegistrationRoundBehaviour,
     RegistrationStartupBehaviour,
@@ -56,5 +59,6 @@ class MemeooorrChainedConsensusBehaviour(AbstractRoundBehaviour):
         *MemeooorrRoundBehaviour.behaviours,
         *TerminationAbciBehaviours.behaviours,
         *TransactionSettlementRoundBehaviour.behaviours,
+        *MechInteractRoundBehaviour.behaviours,
     }
     background_behaviours_cls = {BackgroundBehaviour}

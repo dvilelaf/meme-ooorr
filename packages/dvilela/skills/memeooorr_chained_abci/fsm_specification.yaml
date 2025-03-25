@@ -9,6 +9,7 @@ alphabet_in:
 - FINALIZE_TIMEOUT
 - INCORRECT_SERIALIZATION
 - INSUFFICIENT_FUNDS
+- MECH
 - MISSING_TWEET
 - NEGATIVE
 - NONE
@@ -19,6 +20,7 @@ alphabet_in:
 - RETRY
 - ROUND_TIMEOUT
 - SETTLE
+- SKIP_REQUEST
 - SUSPICIOUS_ACTIVITY
 - VALIDATE_TIMEOUT
 - WAIT
@@ -40,8 +42,13 @@ states:
 - CollectFeedbackRound
 - CollectSignatureRound
 - EngageTwitterRound
+- FailedMechRequestRound
+- FailedMechResponseRound
 - FinalizationRound
 - LoadDatabaseRound
+- MechRequestRound
+- MechResponseRound
+- PostMechResponseRound
 - PostTxDecisionMakingRound
 - PullMemesRound
 - RandomnessTransactionSubmissionRound
@@ -102,8 +109,17 @@ transition_func:
     (CollectSignatureRound, ROUND_TIMEOUT): CollectSignatureRound
     (EngageTwitterRound, DONE): ActionDecisionRound
     (EngageTwitterRound, ERROR): EngageTwitterRound
+    (EngageTwitterRound, MECH): MechRequestRound
     (EngageTwitterRound, NO_MAJORITY): EngageTwitterRound
     (EngageTwitterRound, ROUND_TIMEOUT): EngageTwitterRound
+    (FailedMechRequestRound, DONE): EngageTwitterRound
+    (FailedMechRequestRound, ERROR): EngageTwitterRound
+    (FailedMechRequestRound, NO_MAJORITY): EngageTwitterRound
+    (FailedMechRequestRound, ROUND_TIMEOUT): EngageTwitterRound
+    (FailedMechResponseRound, DONE): EngageTwitterRound
+    (FailedMechResponseRound, ERROR): EngageTwitterRound
+    (FailedMechResponseRound, NO_MAJORITY): EngageTwitterRound
+    (FailedMechResponseRound, ROUND_TIMEOUT): EngageTwitterRound
     (FinalizationRound, CHECK_HISTORY): CheckTransactionHistoryRound
     (FinalizationRound, CHECK_LATE_ARRIVING_MESSAGE): SynchronizeLateMessagesRound
     (FinalizationRound, DONE): ValidateTransactionRound
@@ -113,8 +129,19 @@ transition_func:
     (LoadDatabaseRound, DONE): CheckStakingRound
     (LoadDatabaseRound, NO_MAJORITY): LoadDatabaseRound
     (LoadDatabaseRound, ROUND_TIMEOUT): LoadDatabaseRound
+    (MechRequestRound, DONE): RandomnessTransactionSubmissionRound
+    (MechRequestRound, NO_MAJORITY): MechRequestRound
+    (MechRequestRound, ROUND_TIMEOUT): MechRequestRound
+    (MechRequestRound, SKIP_REQUEST): FailedMechRequestRound
+    (MechResponseRound, DONE): PostMechResponseRound
+    (MechResponseRound, NO_MAJORITY): MechResponseRound
+    (MechResponseRound, ROUND_TIMEOUT): FailedMechResponseRound
+    (PostMechResponseRound, DONE): EngageTwitterRound
+    (PostMechResponseRound, NO_MAJORITY): PostMechResponseRound
+    (PostMechResponseRound, ROUND_TIMEOUT): PostMechResponseRound
     (PostTxDecisionMakingRound, ACTION): ActionPreparationRound
     (PostTxDecisionMakingRound, DONE): ResetAndPauseRound
+    (PostTxDecisionMakingRound, MECH): MechResponseRound
     (PostTxDecisionMakingRound, NO_MAJORITY): PostTxDecisionMakingRound
     (PostTxDecisionMakingRound, ROUND_TIMEOUT): PostTxDecisionMakingRound
     (PullMemesRound, DONE): CollectFeedbackRound

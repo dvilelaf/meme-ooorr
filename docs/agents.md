@@ -51,7 +51,7 @@
 
 3. Deploy a [Safe on Base](https://app.safe.global/welcome) (it's free) and set your agent address as a signer.
 
-4. Create an [X account](https://x.com/), get a a [Gemini API key](https://ai.google.dev/gemini-api/docs/api-key) and, if you plan to test against a Tenderly fork, create a [Tenderly](https://tenderly.co/) account as well.
+4. Create an [X account](x.com), get a a [Gemini API key](https://ai.google.dev/gemini-api/docs/api-key) and, if you plan to test against a Tenderly fork, create a [Tenderly](https://tenderly.co/) account as well.
 
 6. Make a copy of the env file:
 

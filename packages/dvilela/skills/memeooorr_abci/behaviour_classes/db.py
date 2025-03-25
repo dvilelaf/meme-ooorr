@@ -43,6 +43,7 @@ class LoadDatabaseBehaviour(
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             persona = yield from self.load_db()
+            yield from self.populate_keys_in_kv()
 
             payload = LoadDatabasePayload(
                 sender=self.context.agent_address,
@@ -61,3 +62,10 @@ class LoadDatabaseBehaviour(
 
         self.context.logger.info(f"Loaded from the db\npersona={persona}")
         return persona
+
+    def populate_keys_in_kv(self) -> Generator[None, None, None]:
+        """This function is used to populate the keys in the KV store which are required in EngageTwitterRound."""
+        yield from self._write_kv({"previous_tweets_for_tw_mech": ""})
+        yield from self._write_kv({"other_tweets_for_tw_mech": ""})
+        yield from self._write_kv({"interacted_tweet_ids_for_tw_mech": ""})
+        yield from self._write_kv({"pending_tweets_for_tw_mech": ""})

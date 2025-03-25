@@ -38,7 +38,7 @@ def openai_call():
     )
 
     completion = client.completions.create(
-        model="accounts/sentientfoundation/models/dobby-mini-unhinged-llama-3-1-8b",
+        model="accounts/sentientfoundation/models/dobby-unhinged-llama-3-3-70b-new",
         prompt="Write a tweet about memecoins",
     )
     print(completion.choices[0].text)
@@ -48,7 +48,7 @@ def api_call():
     """Call through API"""
     url = "https://api.fireworks.ai/inference/v1/chat/completions"
     payload = {
-        "model": "accounts/sentientfoundation/models/dobby-mini-unhinged-llama-3-1-8b",
+        "model": "accounts/sentientfoundation/models/dobby-unhinged-llama-3-3-70b-new",
         "max_tokens": 16384,
         "top_p": 1,
         "top_k": 40,
@@ -60,7 +60,7 @@ def api_call():
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+        "Authorization": f"Bearer {os.getenv('FIREWORKS_API_KEY')}",
     }
     response = requests.request(
         "POST", url, headers=headers, data=json.dumps(payload), timeout=60

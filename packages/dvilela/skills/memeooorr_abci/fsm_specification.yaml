@@ -2,6 +2,7 @@ alphabet_in:
 - ACTION
 - DONE
 - ERROR
+- MECH
 - MISSING_TWEET
 - NO_FUNDS
 - NO_MAJORITY
@@ -11,12 +12,17 @@ alphabet_in:
 - WAIT
 default_start_state: LoadDatabaseRound
 final_states:
+- FinishedForMechRequestRound
+- FinishedForMechResponseRound
 - FinishedToResetRound
 - FinishedToSettlementRound
 label: MemeooorrAbciApp
 start_states:
 - ActionPreparationRound
+- FailedMechRequestRound
+- FailedMechResponseRound
 - LoadDatabaseRound
+- PostMechResponseRound
 - PostTxDecisionMakingRound
 - PullMemesRound
 - TransactionLoopCheckRound
@@ -29,9 +35,14 @@ states:
 - CheckStakingRound
 - CollectFeedbackRound
 - EngageTwitterRound
+- FailedMechRequestRound
+- FailedMechResponseRound
+- FinishedForMechRequestRound
+- FinishedForMechResponseRound
 - FinishedToResetRound
 - FinishedToSettlementRound
 - LoadDatabaseRound
+- PostMechResponseRound
 - PostTxDecisionMakingRound
 - PullMemesRound
 - TransactionLoopCheckRound
@@ -67,13 +78,26 @@ transition_func:
     (CollectFeedbackRound, ROUND_TIMEOUT): CollectFeedbackRound
     (EngageTwitterRound, DONE): ActionDecisionRound
     (EngageTwitterRound, ERROR): EngageTwitterRound
+    (EngageTwitterRound, MECH): FinishedForMechRequestRound
     (EngageTwitterRound, NO_MAJORITY): EngageTwitterRound
     (EngageTwitterRound, ROUND_TIMEOUT): EngageTwitterRound
+    (FailedMechRequestRound, DONE): EngageTwitterRound
+    (FailedMechRequestRound, ERROR): EngageTwitterRound
+    (FailedMechRequestRound, NO_MAJORITY): EngageTwitterRound
+    (FailedMechRequestRound, ROUND_TIMEOUT): EngageTwitterRound
+    (FailedMechResponseRound, DONE): EngageTwitterRound
+    (FailedMechResponseRound, ERROR): EngageTwitterRound
+    (FailedMechResponseRound, NO_MAJORITY): EngageTwitterRound
+    (FailedMechResponseRound, ROUND_TIMEOUT): EngageTwitterRound
     (LoadDatabaseRound, DONE): CheckStakingRound
     (LoadDatabaseRound, NO_MAJORITY): LoadDatabaseRound
     (LoadDatabaseRound, ROUND_TIMEOUT): LoadDatabaseRound
+    (PostMechResponseRound, DONE): EngageTwitterRound
+    (PostMechResponseRound, NO_MAJORITY): PostMechResponseRound
+    (PostMechResponseRound, ROUND_TIMEOUT): PostMechResponseRound
     (PostTxDecisionMakingRound, ACTION): ActionPreparationRound
     (PostTxDecisionMakingRound, DONE): FinishedToResetRound
+    (PostTxDecisionMakingRound, MECH): FinishedForMechResponseRound
     (PostTxDecisionMakingRound, NO_MAJORITY): PostTxDecisionMakingRound
     (PostTxDecisionMakingRound, ROUND_TIMEOUT): PostTxDecisionMakingRound
     (PullMemesRound, DONE): CollectFeedbackRound

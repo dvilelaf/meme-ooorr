@@ -27,17 +27,26 @@ from dataclasses import dataclass
 
 TWITTER_DECISION_PROMPT = """
 You are a user on Twitter with a specific persona. You create tweets and also analyze tweets from other users and decide whether to interact with them or not.
-You need to decide what actions on Twitter you want to perform. The available actions are:
 
+Here's your persona:
+"{persona}"
+
+You have the possibility to use a tool to help you decide what to do. The tool will provide you with a decision based on the feedback you received.
+The following contains the available tools, together with their descriptions:
+
+Available Tool actions are:
+{tools}
+
+{mech_response}
+
+Available Twitter actions are:
 - Tweet
+- Tweet With Media
 - Reply
 - Quote
 - Like
 - Retweet
 - Follow
-
-Here's your persona:
-"{persona}"
 
 Here are some of your previous tweets:
 {previous_tweets}
@@ -45,12 +54,31 @@ Here are some of your previous tweets:
 Here are some tweets from other users:
 {other_tweets}
 
+You need to decide if you want to use tools or not , if not then what actions on Twitter you want to perform.
+You must choose **either** a Twitter action **or** a Tool action, but not both.
+
 Your task is to decide what actions to do, if any. Some recommenadations:
+- Do not invent or assume any details. Use only the information provided. as we do not want to spread misinformation.
 - If you decide to tweet, make sure it is significantly different from previous tweets in both topic and wording.
+- If you receive a mech response, you must use the mech response to make your twitter action decision and use Tweet With Media.
+- You can not use a tool if mech response is found.
+- You cannot use the twitter action "Tweet With Media" if you have not received a mech response.
 - If you decide to reply or quote, make sure it is relevant to the tweet you are replying to.
 - We encourage you to run multiple actions and to interact with other users to increase your engagement.
 - Pay attention to the time of creation of your previous tweets. You should not create new tweets too frequently. The time now is {time}.
+
+You must return a JSON object with either a "twitter_action" or a "tool_action" key, but not both.
 """
+
+
+MECH_RESPONSE_SUBPROMPT = """
+As you know You have the possibility to use a tool to help you decide what to do. The tool will provide you with a decision based on the feedback you received.
+previously you requested a mech response, so you must use the mech response to make your twitter action decision.
+
+here is the mech response:
+{mech_response}
+"""
+
 
 ALTERNATIVE_MODEL_TWITTER_PROMPT = """
 You are a user on Twitter with a specific persona. You create tweets based on it.
@@ -76,6 +104,13 @@ class TwitterActionName(enum.Enum):
     REPLY = "reply"
     QUOTE = "quote"
     FOLLOW = "follow"
+    TWEET_WITH_MEDIA = "tweet_with_media"
+
+
+class ToolActionName(enum.Enum):
+    """ToolActionName"""
+
+    STABLE_DIFFUSION = "stabilityai-stable-diffusion-v1-6"
 
 
 @dataclass(frozen=True)
@@ -88,9 +123,35 @@ class TwitterAction:
     text: str
 
 
+@dataclass(frozen=True)
+class ToolAction:
+    """ToolAction"""
+
+    tool_name: ToolActionName
+    tool_input: str
+
+
 def build_twitter_action_schema() -> dict:
     """Build a schema for Twitter action response"""
     return {"class": pickle.dumps(TwitterAction).hex(), "is_list": True}
+
+
+def build_tool_action_schema() -> dict:
+    """Build a schema for Tool action response"""
+    return {"class": pickle.dumps(ToolAction).hex(), "is_list": False}
+
+
+@dataclass(frozen=True)
+class Decision:
+    """Decision"""
+
+    tool_action: typing.Optional[ToolAction]
+    tweet_action: typing.Optional[TwitterAction]
+
+
+def build_decision_schema() -> dict:
+    """Build a schema for the decision response"""
+    return {"class": pickle.dumps(Decision).hex(), "is_list": False}
 
 
 ENFORCE_ACTION_COMMAND = "Please take some action, as you are required to meet some action KPIs and you have not met them yet."
@@ -137,6 +198,7 @@ TOKEN_DECISION_PROMPT = (  # nosec
     * Summon your own token if the responses to your latest tweet are getting good engagement metrics or if the number of meme coins in the market is low (under 3)
     * Execute one action from the available actions for one of the already existing tokens.
     * Do nothing
+
 
     ONLY if you are not summoning, action priority should be "collect" > "unleash" > "purge" > "heart".
 

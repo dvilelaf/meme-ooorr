@@ -58,6 +58,8 @@ class EngageTwitterPayload(BaseTxPayload):
     """Represent a transaction payload for the EngageTwitterRound."""
 
     event: str
+    mech_request: Optional[str]
+    tx_submitter: str
 
 
 @dataclass(frozen=True)
@@ -113,6 +115,16 @@ class CallCheckpointPayload(BaseTxPayload):
 
     tx_submitter: str
     tx_hash: Optional[str]
+
+
+@dataclass(frozen=True)
+class MechPayload(BaseTxPayload):
+    """Represent a transaction payload for Mech-related rounds.
+
+    Used for PostMechRequestRound, FailedMechRequestRound, and FailedMechResponseRound.
+    """
+
+    mech_for_twitter: bool
 
 
 @dataclass(frozen=True)

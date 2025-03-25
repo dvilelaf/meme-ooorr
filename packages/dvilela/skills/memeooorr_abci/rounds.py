@@ -20,8 +20,9 @@
 """This package contains the rounds of MemeooorrAbciApp."""
 
 import json
+from dataclasses import asdict, is_dataclass
 from enum import Enum
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple, cast
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple, cast
 
 from packages.dvilela.skills.memeooorr_abci.payloads import (
     ActionDecisionPayload,
@@ -33,6 +34,7 @@ from packages.dvilela.skills.memeooorr_abci.payloads import (
     CollectFeedbackPayload,
     EngageTwitterPayload,
     LoadDatabasePayload,
+    MechPayload,
     PostTxDecisionMakingPayload,
     PullMemesPayload,
     TransactionLoopCheckPayload,
@@ -49,6 +51,10 @@ from packages.valory.skills.abstract_round_abci.base import (
     DeserializedCollection,
     EventToTimeout,
     get_name,
+)
+from packages.valory.skills.mech_interact_abci.states.base import (
+    MechInteractionResponse,
+    MechMetadata,
 )
 
 
@@ -77,7 +83,9 @@ class Event(Enum):
     TO_ACTION_TWEET = "to_action_tweet"
     ACTION = "action"
     MISSING_TWEET = "missing_tweet"
+    MECH = "mech"
     RETRY = "retry"
+    NONE = "none"
 
 
 class SynchronizedData(BaseSynchronizedData):
@@ -150,9 +158,31 @@ class SynchronizedData(BaseSynchronizedData):
         return self._get_deserialized("participant_to_staking")
 
     @property
+    def mech_requests(self) -> List[MechMetadata]:
+        """Get the mech requests."""
+        serialized = self.db.get("mech_requests", "[]")
+        if serialized is None:
+            serialized = "[]"
+        requests = json.loads(serialized)
+        return [MechMetadata(**metadata_item) for metadata_item in requests]
+
+    @property
+    def mech_responses(self) -> List[MechInteractionResponse]:
+        """Get the mech responses."""
+        responses = self.db.get("mech_responses", "[]")
+        if isinstance(responses, str):
+            responses = json.loads(responses)
+        return [MechInteractionResponse(**response_item) for response_item in responses]
+
+    @property
     def tx_loop_count(self) -> int:
         """Get the loop count for retrying transaction."""
         return int(self.db.get("tx_loop_count", 0))  # type: ignore
+
+    @property
+    def mech_for_twitter(self) -> bool:
+        """Get the mech for twitter."""
+        return bool(self.db.get("mech_for_twitter", False))
 
 
 class EventRoundBase(CollectSameUntilThresholdRound):
@@ -173,6 +203,16 @@ class EventRoundBase(CollectSameUntilThresholdRound):
         ):
             return self.synchronized_data, Event.NO_MAJORITY
         return None
+
+
+class DataclassEncoder(json.JSONEncoder):
+    """A custom JSON encoder for dataclasses."""
+
+    def default(self, o: Any) -> Any:
+        """The default JSON encoder."""
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
 
 
 class LoadDatabaseRound(CollectSameUntilThresholdRound):
@@ -321,15 +361,124 @@ class CollectFeedbackRound(CollectSameUntilThresholdRound):
         return None
 
 
-class EngageTwitterRound(EventRoundBase):
-    """EngageTwitterRound"""
+class EngageTwitterRound(CollectSameUntilThresholdRound):
+    """EngageTwitterRound handles Twitter engagement decisions and mech requests"""
 
-    payload_class = EngageTwitterPayload  # type: ignore
+    payload_class = EngageTwitterPayload
     synchronized_data_class = SynchronizedData
     extended_requirements = ()
 
+    def end_block(  # pylint: disable=too-many-return-statements
+        self,
+    ) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            payload = EngageTwitterPayload(
+                *(("dummy_sender",) + self.most_voted_payload_values)
+            )
+
+            self.context.logger.info(f"EngageTwitterRound payload recived: {payload}")
+            event = Event(payload.event)
+            # checking if event is mech
+            if event == Event.MECH:
+                # Handle mech requests if present
+                if hasattr(payload, "mech_request") and payload.mech_request:
+                    try:
+                        mech_requests = json.loads(payload.mech_request)
+
+                        # Update synchronized data with new mech requests
+                        synchronized_data = self.synchronized_data.update(
+                            synchronized_data_class=SynchronizedData,
+                            **{
+                                get_name(SynchronizedData.mech_requests): json.dumps(
+                                    mech_requests, cls=DataclassEncoder
+                                ),
+                            },
+                        )
+                        return synchronized_data, Event.MECH
+                    except json.JSONDecodeError as e:
+                        self.context.logger.error(f"Failed to parse mech_request: {e}")
+                        return self.synchronized_data, Event.ERROR
+
+            synchronized_data = self.synchronized_data.update(
+                synchronized_data_class=SynchronizedData,
+                **{
+                    get_name(SynchronizedData.mech_for_twitter): False,
+                },
+            )
+            return synchronized_data, Event.DONE
+
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+
+        return None
+
+
+# This post mech round is the Happy path for the mech_interaction_abci
+class MechRoundBase(CollectSameUntilThresholdRound):
+    """Base class for Mech-related rounds to reduce code duplication"""
+
+    synchronized_data_class = SynchronizedData
+    extended_requirements = ()
+
+    # children classes should set this to the appropriate payload class
+    payload_class = MechPayload
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            # Create payload instance using the subclass's payload_class
+            payload = self.payload_class(
+                *(("dummy_sender",) + self.most_voted_payload_values)
+            )
+
+            self.context.logger.info(
+                f"{self.__class__.__name__} payload received: {payload}"
+            )
+
+            synchronized_data = self.synchronized_data.update(
+                synchronized_data_class=SynchronizedData,
+                **{
+                    get_name(
+                        SynchronizedData.mech_for_twitter
+                    ): payload.mech_for_twitter,
+                },
+            )
+
+            return synchronized_data, Event.DONE
+
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+
+        return None
+
+
+class PostMechResponseRound(MechRoundBase):
+    """PostMechResponseRound"""
+
     # This needs to be mentioned for static checkers
-    # Event.DONE, Event.ERROR, Event.NO_MAJORITY, Event.ROUND_TIMEOUT
+    # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT
+
+
+class FailedMechRequestRound(MechRoundBase):
+    """FailedMechRequestRound"""
+
+    # This needs to be mentioned for static checkers
+    # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT , Event.ERROR
+
+
+class FailedMechResponseRound(MechRoundBase):
+    """FailedMechResponseRound handles the case where the mech response is not received.
+
+    It is always going to end in EngageTwitterRound.
+    """
+
+    # This needs to be mentioned for static checkers
+    # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT , Event.ERROR
 
 
 class ActionDecisionRound(CollectSameUntilThresholdRound):
@@ -460,7 +609,7 @@ class PostTxDecisionMakingRound(EventRoundBase):
     extended_requirements = ()
 
     # This needs to be mentioned for static checkers
-    # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.ACTION
+    # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.ACTION , Event.MECH
 
 
 class CallCheckpointRound(CollectSameUntilThresholdRound):
@@ -553,6 +702,14 @@ class FinishedToSettlementRound(DegenerateRound):
     """FinishedToSettlementRound"""
 
 
+class FinishedForMechRequestRound(DegenerateRound):
+    """FinishedForMechRequestRound"""
+
+
+class FinishedForMechResponseRound(DegenerateRound):
+    """FinishedForMechResponseRound"""
+
+
 class MemeooorrAbciApp(AbciApp[Event]):
     """MemeooorrAbciApp"""
 
@@ -562,7 +719,10 @@ class MemeooorrAbciApp(AbciApp[Event]):
         PullMemesRound,
         ActionPreparationRound,
         PostTxDecisionMakingRound,
+        PostMechResponseRound,
         TransactionLoopCheckRound,
+        FailedMechRequestRound,
+        FailedMechResponseRound,
     }
     transition_function: AbciAppTransitionFunction = {
         LoadDatabaseRound: {
@@ -588,6 +748,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         },
         EngageTwitterRound: {
             Event.DONE: ActionDecisionRound,
+            Event.MECH: FinishedForMechRequestRound,
             Event.ERROR: EngageTwitterRound,
             Event.NO_MAJORITY: EngageTwitterRound,
             Event.ROUND_TIMEOUT: EngageTwitterRound,
@@ -623,6 +784,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
             Event.ACTION: ActionPreparationRound,
             Event.NO_MAJORITY: PostTxDecisionMakingRound,
             Event.ROUND_TIMEOUT: PostTxDecisionMakingRound,
+            Event.MECH: FinishedForMechResponseRound,
         },
         CallCheckpointRound: {
             Event.DONE: FinishedToResetRound,
@@ -630,17 +792,41 @@ class MemeooorrAbciApp(AbciApp[Event]):
             Event.ROUND_TIMEOUT: CallCheckpointRound,
             Event.NO_MAJORITY: CallCheckpointRound,
         },
+        PostMechResponseRound: {
+            Event.DONE: EngageTwitterRound,
+            Event.NO_MAJORITY: PostMechResponseRound,
+            Event.ROUND_TIMEOUT: PostMechResponseRound,
+        },
         TransactionLoopCheckRound: {
             Event.DONE: FinishedToResetRound,
             Event.RETRY: FinishedToSettlementRound,
             Event.NO_MAJORITY: TransactionLoopCheckRound,
             Event.ROUND_TIMEOUT: TransactionLoopCheckRound,
         },
+        FailedMechRequestRound: {
+            Event.DONE: EngageTwitterRound,
+            Event.NO_MAJORITY: EngageTwitterRound,
+            Event.ROUND_TIMEOUT: EngageTwitterRound,
+            Event.ERROR: EngageTwitterRound,
+        },
+        FailedMechResponseRound: {
+            Event.DONE: EngageTwitterRound,
+            Event.NO_MAJORITY: EngageTwitterRound,
+            Event.ROUND_TIMEOUT: EngageTwitterRound,
+            Event.ERROR: EngageTwitterRound,
+        },
         FinishedToResetRound: {},
         FinishedToSettlementRound: {},
+        FinishedForMechRequestRound: {},
+        FinishedForMechResponseRound: {},
     }
-    final_states: Set[AppState] = {FinishedToResetRound, FinishedToSettlementRound}
-    event_to_timeout: EventToTimeout = {}
+    final_states: Set[AppState] = {
+        FinishedToResetRound,
+        FinishedToSettlementRound,
+        FinishedForMechRequestRound,
+        FinishedForMechResponseRound,
+    }
+    event_to_timeout: EventToTimeout = {Event.ROUND_TIMEOUT: 30}
     cross_period_persisted_keys: FrozenSet[str] = frozenset(["persona"])
     db_pre_conditions: Dict[AppState, Set[str]] = {
         LoadDatabaseRound: set(),
@@ -648,8 +834,13 @@ class MemeooorrAbciApp(AbciApp[Event]):
         ActionPreparationRound: set(),
         PostTxDecisionMakingRound: set(),
         TransactionLoopCheckRound: set(),
+        PostMechResponseRound: set(),
+        FailedMechRequestRound: set(),
+        FailedMechResponseRound: set(),
     }
     db_post_conditions: Dict[AppState, Set[str]] = {
         FinishedToResetRound: set(),
+        FinishedForMechRequestRound: set(),
+        FinishedForMechResponseRound: set(),
         FinishedToSettlementRound: {"most_voted_tx_hash"},
     }
