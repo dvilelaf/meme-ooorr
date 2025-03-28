@@ -7,7 +7,7 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeigpcuvsyzzujap342no35q6npgt7pwjxexkrt3bvzeo7cmeteqluq
-  behaviours.py: bafybeicrzb5sviwqlffqxg7c4ryhx5lee2pibbzlwotdyjlvmz2e5p742i
+  behaviours.py: bafybeig7nhzphu2lb2cy2buvypvg7kerumzcme5j44hwzjvobeefcytjme
   dialogues.py: bafybeigt7f5iqzpjfclatbrir7qqgckavm765lwfygaxmnqru24ak3ihme
   fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
   handlers.py: bafybeiftlwbfj6bvaw2j2h56v6aufghegrbzmsdi7pz66wu3ondffyrtiu
@@ -19,7 +19,7 @@ fingerprint:
   tool_output.py: bafybeigv6l2xq6v5lb4g5bknsmppsqp6zsasgqlzldrbowfg6noejp6qfq
 fingerprint_ignore_patterns: []
 connections:
-- dvilela/genai:0.1.0:bafybeigkfirinabss4y7y2b7d7ayu5oi47aid6ilq6wkr62cntbqqedx2m
+- dvilela/genai:0.1.0:bafybeidh7f3mq6awlpcyzzreb7vcxeonrnbqmzslnpvyqvq6cugqldpqgm
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
 contracts: []
 protocols:

@@ -23,7 +23,7 @@ protocols:
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeiezhbsm2ctlw7frt53jxpdq6d5cq2xaruzsedg66nqmi4prrglame
-- dvilela/memeooorr_abci:0.1.0:bafybeigdf4xruv3ossbmaw4kq3yqdpt3ukhrt3ouscs2fdrkqud6cbuewa
+- dvilela/memeooorr_abci:0.1.0:bafybeie6decrmnbzcukf3wmc4hcsozloocavmvaondxdepjn3py7dzrajy
 behaviours:
   main:
     args: {}
