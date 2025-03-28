@@ -48,6 +48,14 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
 from packages.valory.skills.abstract_round_abci.models import Requests
 
 
+TOOLS = {
+    "engage_twitter": {
+        "description": "Searches for other agents' tweets and engages with them by responding, retweeting, liking or quoting",
+        "event": Event.ENGAGE_TWITTER.value,
+    },
+}
+
+
 class DecisionMakingBaseBehaviour(
     BaseBehaviour, ABC
 ):  # pylint: disable=too-many-ancestors,too-many-public-methods
@@ -84,23 +92,33 @@ class DecisionMakingBaseBehaviour(
         response = yield from self.wait_for_message(timeout=timeout)
         return response
 
-    def _call_genai(self, **kwargs: Any) -> Generator[None, None, Optional[str]]:
+    def _call_genai(
+        self,
+        method: str,
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> Generator[None, None, Optional[str]]:
         """Send a request message from the skill context."""
+
+        payload_data: Dict[str, Any] = {
+            "method": method,
+            "kwargs": kwargs or {},
+        }
 
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         srr_message, srr_dialogue = srr_dialogues.create(
             counterparty=str(GENAI_CONNECTION_PUBLIC_ID),
             performative=SrrMessage.Performative.REQUEST,
-            payload=json.dumps(**kwargs),
+            payload=json.dumps(payload_data),
         )
         srr_message = cast(SrrMessage, srr_message)
         srr_dialogue = cast(SrrDialogue, srr_dialogue)
         response = yield from self._do_connection_request(srr_message, srr_dialogue)  # type: ignore
 
         response_json = json.loads(response.payload)  # type: ignore
+        response_error = response.error
 
-        if "error" in response_json:
-            self.context.logger.error(response_json["error"])
+        if response_error:
+            self.context.logger.error(response_json)
             return None
 
         return response_json["response"]  # type: ignore
@@ -117,19 +135,18 @@ class DecisionMakingBehaviour(
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            event, system_event = yield from self.get_next_event()
+            event = yield from self.get_next_event()
 
             payload = DecisionMakingPayload(
                 sender=self.context.agent_address,
-                event=event.value,
-                system_event=system_event,
+                event=event,
             )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
-    def get_next_event(self) -> Generator[None, None, Event]:
+    def get_next_event(self) -> Generator[None, None, str]:
         """Get the next event."""
 
         tool_output = self.synchronized_data.tool_output
@@ -138,17 +155,26 @@ class DecisionMakingBehaviour(
 
         # If tool output is null, this is the first time we are running the decision making
         if tool_output is None:
-            event = yield from self.call_llm(self.params.system_prompt)
+            event = yield from self._call_genai(
+                method="start_chat",
+                model_name="gemini-2.0-flash",
+                tools=TOOLS,
+                system_prompt=self.params.system_prompt,
+            )
             return event
 
         # If the tool is done, we call the LLM
         if tool_output.status == ToolOutput.Status.DONE:
-            event = yield from self.call_llm(tool_output.data)
+            event = yield from self._call_genai(
+                method="send_message", message=tool_output.data
+            )
             return event
 
         # If the tool has failed, we call the LLM
         if tool_output.status == ToolOutput.Status.FAILED:
-            event = yield from self.call_llm(tool_output.data)
+            event = yield from self._call_genai(
+                method="send_message", message=tool_output.data
+            )
             return event
 
         # If the tool is in progress, we return the current event

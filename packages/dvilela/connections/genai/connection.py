@@ -25,7 +25,7 @@ import json
 import pickle  # nosec
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Any, Callable, Dict, Optional, Tuple, cast
 
 import google.generativeai as genai  # type: ignore
 from aea.configurations.base import PublicId
@@ -43,6 +43,41 @@ from packages.valory.protocols.srr.message import SrrMessage
 PUBLIC_ID = PublicId.from_str("dvilela/genai:0.1.0")
 
 DEFAULT_TEMPERATURE = 2.0
+
+DUMMY_FUNCTION_TEMPLATE = '''
+def {function_name}():
+    """{function_description}"""
+    return
+'''
+
+
+def create_function(function_name: str, function_description: str) -> Callable:
+    """Dynamically creates dummy functions"""
+    code = DUMMY_FUNCTION_TEMPLATE.format(
+        function_name=function_name, function_description=function_description
+    )
+    namespace = {}
+    exec(code, namespace)
+    return namespace[function_name]
+
+
+def build_tools(tools):
+    """Build tool list"""
+    tools = [
+        create_function(tool_name, tool_data["description"])
+        for tool_name, tool_data in tools.items()
+    ]
+    return tools
+
+
+def extract_function_name(response) -> Optional[str]:
+    """Extracts the function name from the Gemini response"""
+    for part in response.parts:
+        fn = part.function_call
+        if not fn:
+            continue
+        return fn.name
+    return None
 
 
 class SrrDialogues(BaseSrrDialogues):
@@ -220,7 +255,7 @@ class GenaiConnection(BaseSyncConnection):
 
             response, error = method(**payload.get("kwargs", {}))
 
-            self.logger.info(f"LLM response: {response.text}")
+            self.logger.info(f"LLM response: {response}")
             self.last_call = datetime.now(timezone.utc)
         except Exception as e:
             return {"error": f"Exception while calling Genai:\n{e}"}, True
@@ -269,17 +304,12 @@ class GenaiConnection(BaseSyncConnection):
 
         return {"response": response.text}, False
 
-    def start_chat(self, model_name, tool_dict) -> Tuple[Dict, bool]:
+    def start_chat(self, model_name, tools, system_prompt) -> Tuple[Dict, bool]:
         """Start a chat"""
-
-        # Recreate callable functions from tool_dict
-        tools = [
-            getattr(importlib.import_module(module_name), function_name)
-            for module_name, function_name in tool_dict.items()
-        ]
-        self.model = genai.GenerativeModel(model_name=model_name, tools=tools)
+        tool_list = build_tools(tools)
+        self.model = genai.GenerativeModel(model_name=model_name, tools=tool_list)
         self.chat = self.model.start_chat()
-        return None, False
+        return self.send_message(system_prompt)
 
     def send_message(self, message) -> Tuple[Dict, bool]:
         """Send a message to the chat"""
@@ -287,7 +317,7 @@ class GenaiConnection(BaseSyncConnection):
         while True:
             try:
                 response = self.chat.send_message(message)
-                return {"response": response}, False
+                return {"response": extract_function_name(response)}, False
             except ResourceExhausted:
                 print("Hit rate limit. Retrying...")
                 time.sleep(10)
