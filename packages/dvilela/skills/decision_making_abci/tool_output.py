@@ -38,6 +38,7 @@ class ToolOutput:
     class Request(Enum):
         """Request"""
 
+        NONE = "none"
         SETTLE = "settle"
         MECH = "mech"
 
@@ -45,7 +46,7 @@ class ToolOutput:
     status: Status
     request: Request
     reentry_point: Optional[str]
-    data: Optional[str]
+    message: Optional[str]
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to a dictionary."""
@@ -54,7 +55,7 @@ class ToolOutput:
             "status": self.status.value,
             "request": self.request.value,
             "reentry_point": self.reentry_point,
-            "data": self.data,
+            "message": self.message,
         }
 
     @classmethod
@@ -65,9 +66,9 @@ class ToolOutput:
             status=cls.Status(data["status"]),
             request=cls.Request(data["request"]),
             reentry_point=data["reentry_point"],
-            data=data["data"],
+            message=data["message"],
         )
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
-        return f"ToolOutput(tool_name={self.tool_name}, status={self.status}, request={self.request}, reentry_point={self.reentry_point}, data={self.data})"
+        return f"ToolOutput(tool_name={self.tool_name}, status={self.status}, request={self.request}, reentry_point={self.reentry_point}, message={self.message})"

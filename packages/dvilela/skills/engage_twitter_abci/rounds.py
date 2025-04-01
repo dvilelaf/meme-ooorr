@@ -32,7 +32,9 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
     EventToTimeout,
+    get_name
 )
+from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
 
 
 class Event(Enum):
@@ -51,6 +53,14 @@ class SynchronizedData(BaseSynchronizedData):
     This data is replicated by the tendermint application.
     """
 
+    @property
+    def tool_output(self) -> Optional[ToolOutput]:
+        """Get the tool output."""
+        tool_output = self.db.get("tool_output", None)
+        if not tool_output:
+            return None
+        return ToolOutput.from_dict(self.db.get("tool_output"))
+
 
 class EventRoundBase(CollectSameUntilThresholdRound):
     """EventRoundBase"""
@@ -63,7 +73,25 @@ class EventRoundBase(CollectSameUntilThresholdRound):
         """Process the end of the block."""
         if self.threshold_reached:
             event = Event(self.most_voted_payload)
-            return self.synchronized_data, event
+            synchronized_data = self.synchronized_data
+
+            if event == Event.DONE:
+
+                tool_output = ToolOutput.from_dict({
+                    "tool_name": "engage_twitter",
+                    "status": ToolOutput.Status.DONE,
+                    "request": ToolOutput.Request.NONE,
+                    "reentry_point": None,
+                    "message": "Engage Twitter has finished succesfully",
+                })
+                synchronized_data = self.synchronized_data.update(
+                    synchronized_data_class=SynchronizedData,
+                    **{
+                        get_name(SynchronizedData.tool_output): tool_output.to_dict(),
+                    },
+                )
+
+            return synchronized_data, event
 
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants

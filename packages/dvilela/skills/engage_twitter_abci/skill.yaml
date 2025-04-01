@@ -14,7 +14,7 @@ fingerprint:
   models.py: bafybeibmed24jno4eg6eh43wgd6q6uk7s5rxqewfrnbf4n6xv3m2uhftte
   payloads.py: bafybeidchykhmmyvrfcus7jfwg4ttlajq7fidxx73bjktt6keyzokzw6hi
   prompts.py: bafybeigtpr6w5etqbz2i2ifcorcknppedhsaonzbt4gxz7gmo2cuo6xtcu
-  rounds.py: bafybeiexssdm7oc2lawhtrzsqmvjxtfm5no7eerqargeb524t4njgvg2de
+  rounds.py: bafybeifd7qslontpi6fyuxusg6l3uiqnbdh4uifb3zeq2y7pbq3eoprj3a
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -23,7 +23,8 @@ protocols:
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeiezhbsm2ctlw7frt53jxpdq6d5cq2xaruzsedg66nqmi4prrglame
-- dvilela/memeooorr_abci:0.1.0:bafybeie6decrmnbzcukf3wmc4hcsozloocavmvaondxdepjn3py7dzrajy
+- dvilela/memeooorr_abci:0.1.0:bafybeigmqave5cvvbb46jw27w5ecxml6cday27ccuzd5dgisdlxrauxxeq
+- dvilela/decision_making_abci:0.1.0:bafybeigcdcgmxok3aq2g35vgwj4nyhfbujsonjtvsobvezdmfzfkv4fmxa
 behaviours:
   main:
     args: {}

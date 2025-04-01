@@ -19,10 +19,8 @@
 
 """This package contains the rounds of DecisionMakingAbciApp."""
 
-import pickle
-from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, FrozenSet, Optional, Set, Tuple
+from typing import Dict, FrozenSet, Optional, Set, Tuple
 
 from packages.dvilela.skills.decision_making_abci.payloads import DecisionMakingPayload
 from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
@@ -36,6 +34,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     DegenerateRound,
     DeserializedCollection,
     EventToTimeout,
+    get_name
 )
 
 
@@ -47,38 +46,6 @@ class Event(Enum):
     ROUND_TIMEOUT = "round_timeout"
     SETTLE = "settle"
     ENGAGE_TWITTER = "engage_twitter"
-
-
-@dataclass(frozen=True)
-class SystemEvent:
-    """SystemEvent"""
-
-    tool_event: Event
-    tool_arguments: Optional[Dict[str, Any]]
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to a dictionary."""
-        return {
-            "tool_event": self.tool_event,
-            "tool_arguments": self.tool_arguments.value,
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SystemEvent":
-        """Create an instance from a dictionary."""
-        return cls(
-            tool_event=data["tool_event"],
-            tool_arguments=data["tool_arguments"],
-        )
-
-    def __repr__(self) -> str:
-        """Return a string representation of the object."""
-        return f"SystemEvent(tool_event={self.tool_event}, tool_arguments={self.tool_arguments}"
-
-
-def build_llm_response_schema() -> dict:
-    """Build a schema for the llm response"""
-    return {"class": pickle.dumps(SystemEvent).hex(), "is_list": False}
 
 
 class SynchronizedData(BaseSynchronizedData):
@@ -118,7 +85,26 @@ class DecisionMakingRound(CollectSameUntilThresholdRound):
         """Process the end of the block."""
         if self.threshold_reached:
             event = Event(self.most_voted_payload)
-            return self.synchronized_data, event
+            synchronized_data = self.synchronized_data
+
+            # If we are going to reset, we need to write the tool output of the "reset tool".
+            # Since we dont want to modify reset_and_pause_abci, we do it here before transitioning.
+            if event == Event.DONE:
+                tool_output = ToolOutput.from_dict({
+                    "tool_name": "done",
+                    "status": ToolOutput.Status.DONE,
+                    "request": ToolOutput.Request.NONE,
+                    "reentry_point": None,
+                    "message": "Sleep was succesful",
+                })
+                synchronized_data = self.synchronized_data.update(
+                    synchronized_data_class=SynchronizedData,
+                    **{
+                        get_name(SynchronizedData.tool_output): tool_output.to_dict(),
+                    },
+                )
+
+            return synchronized_data, event
 
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
@@ -164,7 +150,7 @@ class DecisionMakingAbciApp(AbciApp[Event]):
         FinishedToEngageTwitterRound,
     }
     event_to_timeout: EventToTimeout = {}
-    cross_period_persisted_keys: FrozenSet[str] = set()
+    cross_period_persisted_keys: FrozenSet[str] = {"tool_output"}
     db_pre_conditions: Dict[AppState, Set[str]] = {
         DecisionMakingRound: set(),
     }

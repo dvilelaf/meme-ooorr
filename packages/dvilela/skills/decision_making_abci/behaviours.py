@@ -35,7 +35,6 @@ from packages.dvilela.skills.decision_making_abci.rounds import (
     DecisionMakingRound,
     Event,
     SynchronizedData,
-    SystemEvent,
 )
 from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
 from packages.valory.protocols.srr.dialogues import SrrDialogue, SrrDialogues
@@ -49,10 +48,14 @@ from packages.valory.skills.abstract_round_abci.models import Requests
 
 
 TOOLS = {
-    "engage_twitter": {
-        "description": "Searches for other agents' tweets and engages with them by responding, retweeting, liking or quoting",
-        "event": Event.ENGAGE_TWITTER.value,
+    "done": {
+        "description": "Waits for some time before running again. Equivalent to the sleep function.",
+        "event": Event.DONE.value,
     },
+    # "engage_twitter": {
+    #     "description": "Searches for other agents' tweets and engages with them by responding, retweeting, liking or quoting",
+    #     "event": Event.ENGAGE_TWITTER.value,
+    # },
 }
 
 
@@ -166,7 +169,7 @@ class DecisionMakingBehaviour(
         # If the tool is done, we call the LLM
         if tool_output.status == ToolOutput.Status.DONE:
             event = yield from self._call_genai(
-                method="send_message", message=tool_output.data
+                method="send_message", message=tool_output.message
             )
             return event
 
