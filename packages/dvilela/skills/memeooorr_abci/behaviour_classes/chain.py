@@ -374,7 +374,7 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
             chain=self.get_chain_id()
         )
 
-        self.context.logger.debug(f"service_staking_state: {service_staking_state}")
+        self.context.logger.info(f"service_staking_state: {service_staking_state}")
 
         if service_staking_state != StakingState.STAKED:
             self.context.logger.info("Service is not staked")
@@ -419,11 +419,11 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
             self.context.logger.error(f"Error fetching service info {service_info}")
             return None
 
-        self.context.logger.debug(f"service_info: {service_info}")
+        self.context.logger.info(f"service_info: {service_info}")
 
         # Use requests count (position [1]) instead of multisig nonces (position [0])
         mech_request_count_on_last_checkpoint = service_info[2][1]
-        self.context.logger.debug(f"{mech_request_count_on_last_checkpoint=}")
+        self.context.logger.info(f"{mech_request_count_on_last_checkpoint=}")
 
         # Get last checkpoint timestamp
         last_ts_checkpoint = yield from self._get_ts_checkpoint(
@@ -432,7 +432,7 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
         if last_ts_checkpoint is None:
             self.context.logger.error("Could not get the last checkpoint timestamp")
             return None
-        self.context.logger.debug(f"{last_ts_checkpoint=}")
+        self.context.logger.info(f"{last_ts_checkpoint=}")
 
         # Get liveness period and ratio
         liveness_period = yield from self._get_liveness_period(
@@ -441,25 +441,25 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
         if liveness_period is None:
             self.context.logger.error("Could not get the liveness period")
             return None
-        self.context.logger.debug(f"{liveness_period=}")
+        self.context.logger.info(f"{liveness_period=}")
 
         liveness_ratio = yield from self._get_liveness_ratio(chain=self.get_chain_id())
         if liveness_ratio is None:
             self.context.logger.error("Could not get the liveness ratio")
             return None
-        self.context.logger.debug(f"{liveness_ratio=}")
+        self.context.logger.info(f"{liveness_ratio=}")
 
         # Calculate requests since last checkpoint
         mech_requests_since_last_cp = (
             mech_request_count - mech_request_count_on_last_checkpoint
         )
-        self.context.logger.debug(f"{mech_requests_since_last_cp=}")
+        self.context.logger.info(f"{mech_requests_since_last_cp=}")
 
         # Calculate current timestamp from round sequence
         current_timestamp = int(
             self.round_sequence.last_round_transition_timestamp.timestamp()
         )
-        self.context.logger.debug(f"{current_timestamp=}")
+        self.context.logger.info(f"{current_timestamp=}")
 
         # Calculate required requests
         required_mech_requests = (
@@ -470,7 +470,7 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
             )
             + REQUIRED_REQUESTS_SAFETY_MARGIN
         )
-        self.context.logger.debug(f"{required_mech_requests=}")
+        self.context.logger.info(f"{required_mech_requests=}")
 
         self.context.logger.info(
             f"Mech requests since last checkpoint: {mech_requests_since_last_cp} vs required: {required_mech_requests}"
