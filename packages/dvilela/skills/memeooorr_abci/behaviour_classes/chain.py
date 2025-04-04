@@ -363,7 +363,11 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
 
         return StakingState(service_staking_state)
 
-    def _is_staking_kpi_met(self) -> Generator[None, None, Optional[bool]]:  # pylint: disable=too-many-return-statements
+    def _is_staking_kpi_met(
+        self,
+    ) -> Generator[
+        None, None, Optional[bool]
+    ]:  # pylint: disable=too-many-return-statements
         """Return whether the staking KPI has been met (only for staked services)."""
         # Check if service is staked
         service_staking_state = yield from self._get_service_staking_state(
