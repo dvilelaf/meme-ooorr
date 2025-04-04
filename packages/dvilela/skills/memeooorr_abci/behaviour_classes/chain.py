@@ -461,6 +461,16 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
         )
         self.context.logger.info(f"{current_timestamp=}")
 
+        self.context.logger.info(
+            f"Calculating required_mech_requests with params: "
+            f"liveness_period={liveness_period}, "
+            f"current_timestamp={current_timestamp}, "
+            f"last_ts_checkpoint={last_ts_checkpoint}, "
+            f"liveness_ratio={liveness_ratio}, "
+            f"LIVENESS_RATIO_SCALE_FACTOR={LIVENESS_RATIO_SCALE_FACTOR}, "
+            f"REQUIRED_REQUESTS_SAFETY_MARGIN={REQUIRED_REQUESTS_SAFETY_MARGIN}"
+        )
+
         # Calculate required requests
         required_mech_requests = (
             math.ceil(
