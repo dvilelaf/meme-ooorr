@@ -28,7 +28,6 @@ from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
 )
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     ALTERNATIVE_MODEL_TOKEN_PROMPT,
-    ENFORCE_ACTION_COMMAND,
     TOKEN_DECISION_PROMPT,
     build_token_action_schema,
 )
@@ -151,16 +150,12 @@ class ActionDecisionBehaviour(
             ]
         )
 
-        is_staking_kpi_met = self.synchronized_data.is_staking_kpi_met
-        extra_command = ENFORCE_ACTION_COMMAND if is_staking_kpi_met is False else ""
-
         prompt_data = {
             "meme_coins": meme_coins_str,
             "latest_tweet": latest_tweet,
             "tweet_responses": tweet_responses,
             "balance": safe_native_balance,
             "ticker": self.get_native_ticker(),
-            "extra_command": extra_command,
         }
 
         llm_response = yield from self._call_genai(

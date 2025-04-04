@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeigzenkeo4r5335uccxzcabeqlv7pa46smnnpcnsikabbd35kzsttq
+agent: dvilela/memeooorr:0.1.0:bafybeig5hoddeugofit6lk342tazu7hx4agh7kd5gdczzz6lummpgdzp2y
 number_of_agents: 1
 deployment:
   agent:
@@ -103,6 +103,11 @@ extra:
         min_summon_amount_celo: ${MIN_SUMMON_AMOUNT_CELO:float:10.0}
         max_summon_amount_celo: ${MAX_SUMMON_AMOUNT_CELO:float:20.0}
         max_heart_amount_celo: ${MAX_HEART_AMOUNT_CELO:float:0.2}
+        use_mech_marketplace: ${USE_MECH_MARKETPLACE:bool:false}
+        mech_marketplace_config: ${MECH_MARKETPLACE_CONFIG:dict:{"mech_marketplace_address":"0x0000000000000000000000000000000000000000","priority_mech_address":"0x0000000000000000000000000000000000000000","priority_mech_staking_instance_address":"0x0000000000000000000000000000000000000000","priority_mech_service_id":0,"requester_staking_instance_address":"0x0000000000000000000000000000000000000000","response_timeout":300}}
+        mech_contract_address: ${MECH_CONTRACT_ADDRESS:str:0x}
+        mech_request_price: ${MECH_REQUEST_PRICE:int:null}
+        mech_chain_id: ${MECH_CHAIN_ID:str:gnosis}
         staking_token_contract_address: ${STAKING_TOKEN_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
         activity_checker_contract_address: ${ACTIVITY_CHECKER_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
         alternative_model_for_tweets: ${ALTERNATIVE_MODEL_FOR_TWEETS:dict:{"use":false,"url":"https://api.fireworks.ai/inference/v1/chat/completions","api_key":null,"model":"accounts/sentientfoundation/models/dobby-unhinged-llama-3-3-70b-new","max_tokens":16384,"top_p":1,"top_k":40,"presence_penalty":0,"frequency_penalty":0,"temperature":0.6}}
