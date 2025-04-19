@@ -13,7 +13,7 @@ fingerprint:
   behaviour_classes/db.py: bafybeiazo2bqod46qoq54isns2hkqpwqidv2o36t42ttjqoprj6qhj6nom
   behaviour_classes/llm.py: bafybeidkihjit76ix3kq3nl6wacassc5znaqp2dfhvip6bpq5atrjthzk4
   behaviour_classes/mech.py: bafybeih6o6zs27wreoeu4ol5bbhnp33bj7sibvsn7symo63q77v3kbts4q
-  behaviour_classes/twitter.py: bafybeihsye6vnbouxvjcqgerg4lewpj3oiton4ium3v76inphgt2g7mh3y
+  behaviour_classes/twitter.py: bafybeiatf7zyjzepa2w7hrwx24f2xxvfn4ppnhynlindpnwq2ouorivbay
   behaviours.py: bafybeicsif4jpkuq4a5ijgj63s5zn4mskmakuddgiquqb4vrlz3trqa7fu
   dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
   fsm_specification.yaml: bafybeid7eyay5wtutduxyovq6kuofbigozlnuahjyjrcuszwdhicvcoes4
@@ -21,7 +21,7 @@ fingerprint:
   models.py: bafybeibahq7p7p2dkbyl5capozrwfqdpwjkugpyg6jwwfocoa4mqz6jem4
   payloads.py: bafybeibitehqtl4mydt7e7qdestsrvxdj5klclqu2dackckp5f2sazmlcm
   prompts.py: bafybeicgezsc5zx5nmcft43qphjrdfcajzofbtupff3evnhsbdxtllri3e
-  rounds.py: bafybeigzan5olzybbbgsc6lpge6eqa2dl26wcgbd27o3kyhqbwl5d5puxa
+  rounds.py: bafybeiabbmszs5qvctiimyv4pzymidlhzehrnqdqrxoaunszzkhgo4zyse
   rounds_info.py: bafybeib6a5a7bvwvfiscnbhsc6sejloelyglnu6lwbeeileyxrsgkxcb6a
 fingerprint_ignore_patterns: []
 connections:
@@ -185,11 +185,11 @@ models:
         short_maker: This tool generates a short video based on a given prompt
       multisend_batch_size: 50
       mech_request_price: 100
-      mech_contract_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
+      mech_contract_address: '0x111D7DB1B752AB4D2cC0286983D9bd73a49bac6c'
       mech_chain_id: base
       mech_interaction_sleep_time: 10
       use_acn_for_delivers: false
-      use_mech_marketplace: true
+      use_mech_marketplace: false
       mech_marketplace_config:
         mech_marketplace_address: '0xf24eE42edA0fc9b33B7D41B06Ee8ccD2Ef7C5020'
         priority_mech_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'

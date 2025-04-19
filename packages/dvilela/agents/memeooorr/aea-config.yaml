@@ -44,8 +44,8 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/memeooorr_abci:0.1.0:bafybeifgfv24mw3rewj2ldfml4yqzdk25k4nol5uirimdywcesnbury3yi
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeif2l67jl7cjudddpah2ju53yyqpmxpvyd7ctfqkfalkmuib2kn5sq
+- dvilela/memeooorr_abci:0.1.0:bafybeigjkhyatlk3kkbahnghub2gavshomjab3nsfkmqowrss3vsxfzv5q
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeiezk25aaez5n4fsrnvkd2tj7gjqqiyukrxhkaq35xbhxhtjvug7jq
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 default_ledger: ethereum
 required_ledgers:
@@ -235,10 +235,10 @@ models:
       fireworks_api_key: ${str:null}
       tx_loop_breaker_count: 3
       tools_for_mech: ${dict:{}}
-      mech_contract_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
+      mech_contract_address: '0x111D7DB1B752AB4D2cC0286983D9bd73a49bac6c'
       mech_chain_id: base
       mech_interaction_sleep_time: 10
-      use_mech_marketplace: true
+      use_mech_marketplace: false
       mech_marketplace_config:
         mech_marketplace_address: '0xf24eE42edA0fc9b33B7D41B06Ee8ccD2Ef7C5020'
         priority_mech_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
