@@ -97,7 +97,7 @@ class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
         self.context.logger.info(f"Posting tweet: {tweet}")
 
         # Post the tweet
-        tweet_ids = yield from self._call_twikit(
+        tweet_ids = yield from self._call_tweepy(
             method="post",
             tweets=[{"text": t} for t in tweet],
         )
@@ -134,7 +134,7 @@ class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
             tweet["attachment_url"] = f"https://x.com/{user_name}/status/{tweet_id}"
         else:
             tweet["reply_to"] = tweet_id
-        tweet_ids = yield from self._call_twikit(
+        tweet_ids = yield from self._call_tweepy(
             method="post",
             tweets=[tweet],
         )
@@ -145,7 +145,7 @@ class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
         self.context.logger.info(f"Liking tweet with ID: {tweet_id}")
 
         try:
-            response = yield from self._call_twikit(
+            response = yield from self._call_tweepy(
                 method="like_tweet", tweet_id=tweet_id
             )
             if response is None or not response.get("success", False):
@@ -164,7 +164,7 @@ class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
         self.context.logger.info(f"Retweeting tweet with ID: {tweet_id}")
 
         try:
-            response = yield from self._call_twikit(method="retweet", tweet_id=tweet_id)
+            response = yield from self._call_tweepy(method="retweet", tweet_id=tweet_id)
             if response is None or not response.get("success", False):
                 error_message = response.get("error", "Unknown error occurred.")
                 self.context.logger.error(
@@ -182,9 +182,7 @@ class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
         """Follow user"""
         self.context.logger.info(f"Following user with ID: {user_id}")
         try:
-            response = yield from self._call_twikit(
-                method="follow_user", user_id=user_id
-            )
+            response = yield from self._call_tweepy(method="follow", user_id=user_id)
             if response is None or not response.get("success", False):
                 error_message = response.get("error", "Unknown error occurred.")
                 self.context.logger.error(
@@ -455,9 +453,8 @@ class CollectFeedbackBehaviour(
         if not tweets:
             self.context.logger.error("No tweets yet")
             return []
-        latest_tweet = tweets[-1]
-        query = f"conversation_id:{latest_tweet['tweet_id']}"
-        feedback = yield from self._call_twikit(method="search", query=query, count=100)
+
+        feedback = None  # TODO: get from agent_db
 
         if feedback is None:
             self.context.logger.error(
@@ -654,13 +651,11 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         self, agent_handles: list[str], interacted_tweet_ids: set[int]
     ) -> Generator[None, None, dict]:
         """Collect pending tweets from agent handles that haven't been interacted with."""
-        pending_tweets = {}
+        pending_tweets: Dict = {}
 
         for agent_handle in agent_handles:
-            latest_tweets = yield from self._call_twikit(
-                method="get_user_tweets",
-                twitter_handle=agent_handle,
-            )
+            latest_tweets = None  # TODO: get from agent_db
+            yield  # TODO: remove (linters)
 
             if not latest_tweets:
                 self.context.logger.info(f"Couldn't get any tweets from {agent_handle}")
@@ -1270,21 +1265,9 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
             self.context.logger.error(f"Invalid media path type: {type(media_path)}")
             return False  # Indicate failure
 
-        # Upload the media first
-        media_id = yield from self._call_twikit(
-            method="upload_media",
-            media_path=media_path,  # Pass the extracted string path
-        )
-
-        if not media_id:
-            self.context.logger.error(f"Failed to upload media from path: {media_path}")
-            # Should we try to restore the KV entry here? Probably not needed.
-            return False  # Indicate failure
-
         # Post tweet with the uploaded media ID
-        self.context.logger.info(f"Posting tweet with media_id: {media_id}")
-        tweet_ids = yield from self._call_twikit(
-            method="post", tweets=[{"text": text, "media_ids": [media_id]}]
+        tweet_ids = yield from self._call_tweepy(
+            method="post", tweets=[{"text": text, "image_paths": [media_path]}]
         )
 
         if not tweet_ids:
@@ -1413,10 +1396,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         agent_handles = yield from self.mirrordb_helper.get_active_twitter_handles()
         if agent_handles:
             # Filter out suspended accounts
-            agent_handles = yield from self._call_twikit(
-                method="filter_suspended_users",
-                user_names=agent_handles,
-            )
+            agent_handles = []  # TODO: get from agent_db
 
         else:
             # using subgraph to get memeooorr handles as a fallback
@@ -1425,10 +1405,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
             )
             agent_handles = yield from self.get_memeooorr_handles_from_subgraph()
             # filter out suspended accounts
-            agent_handles = yield from self._call_twikit(
-                method="filter_suspended_users",
-                user_names=agent_handles,
-            )
+            agent_handles = []  # TODO: get from agent_db
 
         return agent_handles
 

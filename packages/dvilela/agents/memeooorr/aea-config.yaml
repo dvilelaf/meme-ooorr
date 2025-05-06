@@ -13,7 +13,7 @@ connections:
 - valory/http_client:0.23.0:bafybeid5ffvg76ejjoese7brj5ji3lx66cu7p2ixfwflpo6rgofkypfd7y
 - valory/ledger:0.19.0:bafybeibdsjmy4w2eyilbqc7yzutopl65qpeyspxwz7mjvirr52twhjlf5y
 - valory/p2p_libp2p_client:0.1.0:bafybeic6ayusdwy4dks75njwk32ac7ur7salgllwf4fdc34ue5z2k5iz4q
-- dvilela/twikit:0.1.0:bafybeignkhvzulhxabtstdcd2kk5krkiczdcedbogdv3xvawitb2fnwicy
+- dvilela/tweepy:0.1.0:bafybeibgydbcabdrbdzhejss6dwkvvh4f5jkq7qhlap7vhi5j3bmo2ohoq
 - dvilela/mirror_db:0.1.0:bafybeifgjuwvqpjafwkdqjt4223i7jdm6ppyijdx2knox4md7tfbhpvmbq
 - dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
@@ -44,8 +44,8 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/memeooorr_abci:0.1.0:bafybeif77n26ovjzea2ozg5b5ar4u2usf6qjdjg442azzo7hjz6dx5lmvm
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeicq6cfabbzwvtpykdkdbsfi6tnuwmeg3zzac3jzk6dqrax2yhob5y
+- dvilela/memeooorr_abci:0.1.0:bafybeifclrn4v4nhq6mjptlguyt4oornpakzu2nrtsuu44sr4bfnij5uxi
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeigptbyvlyfu5zqm4puir2z7i7actrcuovpxeldc44arqnv2lnts5i
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 default_ledger: ethereum
 required_ledgers:
@@ -173,7 +173,7 @@ models:
       multisend_address: ${str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
       init_fallback_gas: 0
       keeper_allowed_retries: 3
-      reset_pause_duration: ${int:30}
+      reset_pause_duration: ${int:3600}
       on_chain_service_id: ${int:null}
       reset_tendermint_after: ${int:2}
       retry_attempts: 400
@@ -258,16 +258,14 @@ type: connection
 config:
   genai_api_key: ${str:null}
 ---
-public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${str:null}
-  twikit_email: ${str:null}
-  twikit_password: ${str:null}
-  twikit_cookies: ${str:null}
-  twikit_disable_tweets: ${bool:false}
-  twikit_skip_connection: ${bool:false}
-  store_path: ${str:null}
+  tweepy_consumer_api_key: ${str:null}
+  tweepy_consumer_api_key_secret: ${str:null}
+  tweepy_bearer_token: ${str:null}
+  tweepy_access_token: ${str:null}
+  tweepy_access_token_secret: ${str:null}
 ---
 public_id: dvilela/mirror_db:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection

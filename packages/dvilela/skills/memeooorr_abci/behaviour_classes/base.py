@@ -50,8 +50,8 @@ from packages.dvilela.connections.kv_store.connection import (
 from packages.dvilela.connections.mirror_db.connection import (
     PUBLIC_ID as MIRRORDB_CONNECTION_PUBLIC_ID,
 )
-from packages.dvilela.connections.twikit.connection import (
-    PUBLIC_ID as TWIKIT_CONNECTION_PUBLIC_ID,
+from packages.dvilela.connections.tweepy.connection import (
+    PUBLIC_ID as TWEEPY_CONNECTION_PUBLIC_ID,
 )
 from packages.dvilela.contracts.meme_factory.contract import MemeFactoryContract
 from packages.dvilela.contracts.service_registry.contract import ServiceRegistryContract
@@ -1264,26 +1264,26 @@ class MirrorDBHelper:  # pylint: disable=too-many-locals
         details: Dict[str, Any] = {}
         try:
             tweet_text = kwargs.get("tweets", [{}])[0].get("text")
-            twikit_response_list = response_json.get("response")
-            twikit_tweet_id = (
-                twikit_response_list[0]
-                if isinstance(twikit_response_list, list)
-                and len(twikit_response_list) > 0
+            tweepy_response_list = response_json.get("response")
+            tweepy_tweet_id = (
+                tweepy_response_list[0]
+                if isinstance(tweepy_response_list, list)
+                and len(tweepy_response_list) > 0
                 else None
             )
 
-            if not tweet_text or not twikit_tweet_id:
+            if not tweet_text or not tweepy_tweet_id:
                 self.context.logger.error(
-                    f"Missing tweet text or ID from Twikit response/kwargs for post: {kwargs}, {response_json}"
+                    f"Missing tweet text or ID from Tweepy response/kwargs for post: {kwargs}, {response_json}"
                 )
                 return None
 
-            details["tweet_id"] = str(twikit_tweet_id)
+            details["tweet_id"] = str(tweepy_tweet_id)
             details["text"] = tweet_text
             return details
         except (IndexError, KeyError, TypeError) as e:
             self.context.logger.error(
-                f"Error processing Twikit 'post' data for MirrorDB attribute: {e}"
+                f"Error processing Tweepy 'post' data for MirrorDB attribute: {e}"
             )
             return None
 
@@ -1314,7 +1314,7 @@ class MirrorDBHelper:  # pylint: disable=too-many-locals
     def _get_interaction_details(
         self, method: str, kwargs: Dict[str, Any], response_json: Dict[str, Any]
     ) -> Optional[Tuple[str, Dict[str, Any]]]:
-        """Determine the interaction action and details based on the Twikit method."""
+        """Determine the interaction action and details based on the Tweepy method."""
         interaction_action: Optional[str] = None
         interaction_details: Optional[Dict[str, Any]] = None
 
@@ -1448,7 +1448,7 @@ class MirrorDBHelper:  # pylint: disable=too-many-locals
         response_json: Dict[str, Any],
         mirror_db_config_data: Dict[str, Any],
     ) -> Generator[None, None, None]:
-        """Record Twikit interaction in MirrorDB."""
+        """Record Tweepy interaction in MirrorDB."""
         # Check if the method is one we need to record
         recordable_methods = {"post", "like_tweet", "retweet", "follow_user"}
         if method not in recordable_methods or mirror_db_config_data is None:
@@ -1810,14 +1810,14 @@ class MemeooorrBaseBehaviour(
         """
         return (yield from self._do_connection_request(message, dialogue, timeout))
 
-    def _call_twikit(  # pylint: disable=too-many-locals,too-many-statements
+    def _call_tweepy(  # pylint: disable=too-many-locals,too-many-statements
         self, method: str, **kwargs: Any
     ) -> Generator[None, None, Any]:
-        """Send a request message to the Twikit connection and handle MirrorDB interactions."""
+        """Send a request message to the Tweepy connection and handle MirrorDB interactions."""
         # Track this API call with our unified tracking function
 
         mirror_db_config_data = (
-            yield from self._handle_mirror_db_interactions_pre_twikit()
+            yield from self._handle_mirror_db_interactions_pre_tweepy()
         )
 
         if mirror_db_config_data is None:
@@ -1825,10 +1825,10 @@ class MemeooorrBaseBehaviour(
                 "MirrorDB config data is None after registration attempt. This is unexpected and indicates a potential issue with the registration process."
             )
 
-        # Create the request message for Twikit
+        # Create the request message for Tweepy
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         srr_message, srr_dialogue = srr_dialogues.create(
-            counterparty=str(TWIKIT_CONNECTION_PUBLIC_ID),
+            counterparty=str(TWEEPY_CONNECTION_PUBLIC_ID),
             performative=SrrMessage.Performative.REQUEST,
             payload=json.dumps({"method": method, "kwargs": kwargs}),
         )
@@ -1839,40 +1839,25 @@ class MemeooorrBaseBehaviour(
         response_json = json.loads(response.payload)  # type: ignore
 
         if "error" in response_json:
-            if (
-                "Twitter account is locked or suspended" in response_json["error"]
-                or "Twitter account is not logged in" in response_json["error"]
-            ):
-                self.context.state.env_var_status["needs_update"] = True
-                self.context.state.env_var_status["env_vars"][
-                    "TWIKIT_USERNAME"
-                ] = response_json["error"]
-                self.context.state.env_var_status["env_vars"][
-                    "TWIKIT_EMAIL"
-                ] = response_json["error"]
-                self.context.state.env_var_status["env_vars"][
-                    "TWIKIT_COOKIES"
-                ] = response_json["error"]
-
             self.context.logger.error(response_json["error"])
             return None
 
         # Handle MirrorDB interaction if applicable
-        yield from self._handle_mirrordb_interaction_post_twikit(
+        yield from self._handle_mirrordb_interaction_post_tweepy(
             method, kwargs, response_json, mirror_db_config_data  # type: ignore
         )
         return response_json.get("response")
 
-    def _handle_mirror_db_interactions_pre_twikit(  # pylint: disable=too-many-return-statements,too-many-statements,too-many-locals
+    def _handle_mirror_db_interactions_pre_tweepy(  # pylint: disable=too-many-return-statements,too-many-statements,too-many-locals
         self,
     ) -> Generator[None, None, Optional[Dict]]:
-        """Handle MirrorDB interactions before calling Twikit (registration check, username update)."""
+        """Handle MirrorDB interactions before calling Tweepy (registration check, username update)."""
 
         # Registration check for mirrorDB using the helper
         mirror_db_config_data = yield from self.mirrordb_helper.mirror_db_registration_check()  # type: ignore
 
         # The rest of this method deals with username updates based on cookies vs stored data
-        # It needs access to Twikit calls, KV store, and MirrorDB calls (via helper)
+        # It needs access to Tweepy calls, KV store, and MirrorDB calls (via helper)
         if not isinstance(mirror_db_config_data, dict):
             self.context.logger.warning(
                 "MirrorDB config data is not a dictionary after check, cannot proceed with username update logic."
@@ -1926,7 +1911,7 @@ class MemeooorrBaseBehaviour(
 
             # Update the stored username attribute (Interface 2.0)
             try:
-                # 1. Get the new username from Twikit
+                # 1. Get the new username from Tweepy
                 new_twitter_user_data = (
                     yield from self.get_twitter_user_data()
                 )  # Re-fetch with current cookies
@@ -1938,7 +1923,7 @@ class MemeooorrBaseBehaviour(
 
                 if not new_twitter_username:
                     self.context.logger.error(
-                        "Failed to get new Twitter username from Twikit. Cannot update attribute."
+                        "Failed to get new Twitter username from Tweepy. Cannot update attribute."
                     )
                 else:
                     self.context.logger.info(
@@ -2076,37 +2061,37 @@ class MemeooorrBaseBehaviour(
 
         return mirror_db_config_data
 
-    def _handle_mirrordb_interaction_post_twikit(
+    def _handle_mirrordb_interaction_post_tweepy(
         self,
         method: str,
         kwargs: Dict[str, Any],
         response_json: Dict[str, Any],
         mirror_db_config_data: Dict[str, Any],
     ) -> Generator[None, None, None]:
-        """Handle MirrorDB interaction after Twikit response by calling the helper."""
+        """Handle MirrorDB interaction after Tweepy response by calling the helper."""
         # Delegate recording to the helper class
         yield from self.mirrordb_helper.record_interaction(
             method, kwargs, response_json, mirror_db_config_data
         )
 
     def _get_twitter_user_data(self) -> Generator[None, None, Dict[str, str]]:
-        """Get the twitter user data using Twikit."""
+        """Get the twitter user data using Tweepy."""
 
-        TWIKIT_USERNAME = self.params.twitter_username
-        if not TWIKIT_USERNAME:
+        TWEEPY_USERNAME = self.params.twitter_username
+        if not TWEEPY_USERNAME:
             # Consider if this should try to fetch from MirrorDB attribute if param is missing
             self.context.logger.error(
-                "TWIKIT_USERNAME environment variable not set in agent parameters"
+                "TWEEPY_USERNAME environment variable not set in agent parameters"
             )
 
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         srr_message, srr_dialogue = srr_dialogues.create(
-            counterparty=str(TWIKIT_CONNECTION_PUBLIC_ID),
+            counterparty=str(TWEEPY_CONNECTION_PUBLIC_ID),
             performative=SrrMessage.Performative.REQUEST,
             payload=json.dumps(
                 {
                     "method": "get_user_by_screen_name",
-                    "kwargs": {"screen_name": TWIKIT_USERNAME},
+                    "kwargs": {"screen_name": TWEEPY_USERNAME},
                 }
             ),
         )
@@ -2137,10 +2122,10 @@ class MemeooorrBaseBehaviour(
         return (yield from self._get_twitter_user_data())
 
     def _get_twitter_user_id_from_cookie(self) -> Generator[None, None, str]:
-        """Get the Twitter user ID from the Twikit connection."""
+        """Get the Twitter user ID from the Tweepy connection."""
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         srr_message, srr_dialogue = srr_dialogues.create(
-            counterparty=str(TWIKIT_CONNECTION_PUBLIC_ID),
+            counterparty=str(TWEEPY_CONNECTION_PUBLIC_ID),
             performative=SrrMessage.Performative.REQUEST,
             payload=json.dumps({"method": "get_twitter_user_id", "kwargs": {}}),
         )
@@ -2160,7 +2145,7 @@ class MemeooorrBaseBehaviour(
 
     def get_twitter_user_id_from_cookie(self) -> Generator[None, None, str]:
         """
-        Public wrapper for getting the Twitter user ID from the Twikit connection.
+        Public wrapper for getting the Twitter user ID from the Tweepy connection.
 
         Returns:
             str: The Twitter user ID.

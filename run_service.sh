@@ -2,7 +2,6 @@
 
 REPO_PATH=$PWD
 MEMEOOORR_DB=$REPO_PATH/memeooorr.db
-TWITTER_COOKIES=$REPO_PATH/twikit_cookies.json
 
 # Remove previous service build
 if test -d memeooorr; then
