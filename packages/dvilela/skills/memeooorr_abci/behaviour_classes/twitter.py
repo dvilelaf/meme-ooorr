@@ -128,7 +128,7 @@ class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-an
     ) -> Generator[None, None, bool]:
         """Like a tweet"""
 
-        self.context.logger.info(f"Liking tweet with ID: {tweet_id}")
+        self.context.logger.info(f"Replying to tweet with ID: {tweet_id}")
         tweet = {"text": text}
         if quote:
             tweet["attachment_url"] = f"https://x.com/{user_name}/status/{tweet_id}"
@@ -463,8 +463,8 @@ class CollectFeedbackBehaviour(
 
         self.set_done()
 
-    def get_feedback(self) -> Generator[None, None, Optional[List]]:
-        """Get the responses"""
+    def get_feedback(self) -> Generator[None, None, Optional[List[Dict[str, Any]]]]:
+        """Get the responses to our agent's tweets from MirrorDB."""
 
         # Search new replies
         tweets = yield from self.get_tweets_from_db()
@@ -472,35 +472,43 @@ class CollectFeedbackBehaviour(
             self.context.logger.error("No tweets yet")
             return []
 
-        feedback = None  # TODO: get from agent_db
-
-        if feedback is None:
-            self.context.logger.error(
-                "Could not retrieve any replies due to an API error"
-            )
-            return None
-
-        if not feedback:
-            self.context.logger.error("No tweets match the query")
-            return []
-
-        self.context.logger.info(f"Retrieved {len(feedback)} replies")
-
-        # Sort tweets by popularity using a weighted sum (views + quotes + retweets)
-        feedback = list(
-            sorted(
-                feedback,
-                key=lambda t: int(t.get("view_count", 0) or 0)
-                + 3 * int(t.get("retweet_count", 0) or 0)
-                + 5 * int(t.get("quote_count", 0) or 0),
-                reverse=True,
-            )
+        self.context.logger.info(
+            "Attempting to get replies to agent's tweets from MirrorDB."
         )
 
-        # Keep only the most relevant tweet to avoid sending too many tokens to the LLM
-        feedback = feedback[:10]
+        all_replies = yield from self.get_replies_to_my_tweets_from_mirrordb(
+            limit=100, skip=0
+        )
 
-        return feedback
+        if (
+            all_replies is None
+        ):  # Should ideally return [] based on current implementation
+            self.context.logger.error(
+                "Failed to retrieve replies from MirrorDB (method returned None)."
+            )
+            return []  # Return empty list on failure to match original behavior pattern
+
+        if not all_replies:
+            self.context.logger.info(
+                "No replies found to my agent's tweets in MirrorDB."
+            )
+            return []
+
+        self.context.logger.info(f"Retrieved {len(all_replies)} replies from MirrorDB.")
+
+        # Sort by 'reply_timestamp' in descending order (most recent first).
+        # Timestamps are ISO strings like "2024-01-15T12:30:45.123Z"
+        try:
+            all_replies.sort(key=lambda r: r.get("reply_timestamp", ""), reverse=True)
+        except Exception as e:  # pylint: disable=broad-except
+            self.context.logger.warning(
+                f"Could not sort replies by timestamp: {e}. Proceeding with unsorted replies."
+            )
+
+        # Keep only the most relevant (e.g., latest 10)
+        feedback_to_return = all_replies[:10]
+
+        return feedback_to_return
 
 
 class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-ancestors
@@ -863,12 +871,18 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         )
 
         # Prepare other tweets data
+        items_for_formatting: List[Tuple[Any, Any]] = []
+        if pending_tweets:
+            items_for_formatting = list(
+                dict(
+                    random.sample(list(pending_tweets.items()), len(pending_tweets))
+                ).items()
+            )
+
         other_tweets = "\n\n".join(
             [
                 f"tweet_id: {t_id}\ntweet_text: {t_data['text']}\nuser_id: {t_data['user_id']}"
-                for t_id, t_data in dict(
-                    random.sample(list(pending_tweets.items()), len(pending_tweets))
-                ).items()
+                for t_id, t_data in items_for_formatting
             ]
         )
 
