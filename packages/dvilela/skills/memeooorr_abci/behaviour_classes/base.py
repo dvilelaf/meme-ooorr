@@ -1356,16 +1356,35 @@ class MirrorDBHelper:  # pylint: disable=too-many-locals
 
     def _get_interaction_attr_def_id(self) -> Generator[None, None, Optional[int]]:
         """Retrieve and validate the twitter_interactions_attr_def_id from KV store."""
-        kv_data = yield from self.behaviour.read_kv(
-            keys=("twitter_interactions_attr_def_id",)
-        )
-        attr_def_id_str = (
-            kv_data.get("twitter_interactions_attr_def_id") if kv_data else None
-        )
+        # Read the main MirrorDB config object first
+        kv_data_full = yield from self.behaviour.read_kv(keys=("mirrod_db_config",))
+
+        if not kv_data_full or "mirrod_db_config" not in kv_data_full:
+            self.context.logger.error(
+                "Missing 'mirrod_db_config' in KV Store. Cannot retrieve interaction attr_def_id."
+            )
+            return None
+
+        mirrod_db_config_str = kv_data_full["mirrod_db_config"]
+        if not mirrod_db_config_str:
+            self.context.logger.error(
+                "'mirrod_db_config' is empty in KV Store. Cannot retrieve interaction attr_def_id."
+            )
+            return None
+
+        try:
+            config_dict = json.loads(mirrod_db_config_str)
+        except json.JSONDecodeError:
+            self.context.logger.error(
+                f"Failed to parse 'mirrod_db_config' JSON: {mirrod_db_config_str}. Cannot retrieve interaction attr_def_id."
+            )
+            return None
+
+        attr_def_id_str = config_dict.get("twitter_interactions_attr_def_id")
 
         if attr_def_id_str is None:
             self.context.logger.error(
-                "Missing twitter_interactions_attr_def_id in KV Store. Cannot record interaction."
+                "Missing 'twitter_interactions_attr_def_id' within 'mirrod_db_config' in KV Store. Cannot record interaction."
             )
             return None
 
@@ -1373,7 +1392,7 @@ class MirrorDBHelper:  # pylint: disable=too-many-locals
             return int(attr_def_id_str)
         except (ValueError, TypeError):
             self.context.logger.error(
-                f"Invalid twitter_interactions_attr_def_id format in KV Store: {attr_def_id_str}. Cannot record interaction."
+                f"Invalid 'twitter_interactions_attr_def_id' format in KV Store: {attr_def_id_str}. Cannot record interaction."
             )
             return None
 

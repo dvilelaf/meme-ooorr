@@ -509,18 +509,42 @@ class TwikitConnection(Connection):
 
     async def like_tweet(self, tweet_id: str) -> Dict:
         """Like a tweet"""
-        response = await self.client.favorite_tweet(tweet_id)
-        return {"success": response.status_code == HTTP_OK}
+        try:
+            await self.client.favorite_tweet(tweet_id)
+            self.logger.info(f"Successfully liked tweet {tweet_id}")
+            return {"success": True}
+        except twikit.errors.TwitterException as e:
+            self.logger.error(f"Twikit API error liking tweet {tweet_id}: {e}")
+            return {"success": False, "error": f"Twikit API error: {e}"}
+        except Exception as e:
+            self.logger.error(f"Unexpected error liking tweet {tweet_id}: {e}")
+            return {"success": False, "error": f"Unexpected error: {e}"}
 
     async def follow_user(self, user_id: str) -> Dict:
         """Follow user"""
-        response = await self.client.follow_user(user_id)
-        return {"success": response.status_code == HTTP_OK}
+        try:
+            await self.client.follow_user(user_id)
+            self.logger.info(f"Successfully followed user {user_id}")
+            return {"success": True}
+        except twikit.errors.TwitterException as e:
+            self.logger.error(f"Twikit API error following user {user_id}: {e}")
+            return {"success": False, "error": f"Twikit API error: {e}"}
+        except Exception as e:
+            self.logger.error(f"Unexpected error following user {user_id}: {e}")
+            return {"success": False, "error": f"Unexpected error: {e}"}
 
     async def retweet(self, tweet_id: str) -> Dict:
         """Retweet"""
-        response = await self.client.retweet(tweet_id)
-        return {"success": response.status_code == HTTP_OK}
+        try:
+            await self.client.retweet(tweet_id)
+            self.logger.info(f"Successfully retweeted tweet {tweet_id}")
+            return {"success": True}
+        except twikit.errors.TwitterException as e:
+            self.logger.error(f"Twikit API error retweeting tweet {tweet_id}: {e}")
+            return {"success": False, "error": f"Twikit API error: {e}"}
+        except Exception as e:
+            self.logger.error(f"Unexpected error retweeting tweet {tweet_id}: {e}")
+            return {"success": False, "error": f"Unexpected error: {e}"}
 
     async def filter_suspended_users(self, user_names: List[str]) -> List[str]:
         """Retweet"""
