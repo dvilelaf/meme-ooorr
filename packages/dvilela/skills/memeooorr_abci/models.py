@@ -20,7 +20,9 @@
 """This module contains the shared state for the abci skill of MemeooorrAbciApp."""
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+from aea.skills.base import SkillContext
 
 from packages.dvilela.skills.memeooorr_abci.rounds import MemeooorrAbciApp
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs
@@ -38,6 +40,12 @@ class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
     abci_app_cls = MemeooorrAbciApp
+
+    def __init__(self, *args: Any, skill_context: SkillContext, **kwargs: Any) -> None:
+        """Init"""
+        super().__init__(*args, skill_context=skill_context, **kwargs)
+        self.twitter_username: Optional[str] = None
+        self.twitter_id: Optional[str] = None
 
 
 Requests = BaseRequests
@@ -118,7 +126,6 @@ class Params(MechParams):  # pylint: disable=too-many-instance-attributes
         )
         self.persona = self._ensure("persona", kwargs, str)
         self.home_chain_id = self._ensure("home_chain_id", kwargs, str)
-        self.twitter_username = self._ensure("twitter_username", kwargs, str)
 
         self.meme_factory_deployment_block_base = self._ensure(
             "meme_factory_deployment_block_base", kwargs, int

@@ -646,11 +646,6 @@ class ActionPreparationBehaviour(ChainBehaviour):  # pylint: disable=too-many-an
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
-
-        # fetching the last summon timestamp from the synchronized data
-        last_summon_timestamp = self.synchronized_data.last_summon_timestamp
-        self.context.logger.info(f"Last summon timestamp: {last_summon_timestamp}")
-
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             tx_hash = yield from self.get_tx_hash()
 
@@ -785,6 +780,10 @@ class ActionPreparationBehaviour(ChainBehaviour):  # pylint: disable=too-many-an
                 {"summoned_tokens": json.dumps(tokens, sort_keys=True)}
             )
             self.context.logger.info("Wrote latest token to db")
+
+            yield from self._write_kv(
+                {"last_summon_timestamp": str(self.get_sync_timestamp())}
+            )
 
     def get_token_nonce(
         self,

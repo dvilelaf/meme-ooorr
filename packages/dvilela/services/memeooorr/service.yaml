@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeifabqfnpbiou2kxebehneqpr3fmm2flzidwb7kzzkivnqvy5asfxy
+agent: dvilela/memeooorr:0.1.0:bafybeiaqx2okzkbzocp7drksamoe6oddvz3dti5dbvkmsevjcqvadbnsu4
 number_of_agents: 1
 deployment:
   agent:
@@ -92,7 +92,6 @@ extra:
         olas_token_address_celo: ${OLAS_TOKEN_ADDRESS_CELO:str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
         persona: ${PERSONA:str:a cat lover that is crazy about all-things cats.}
         home_chain_id: ${HOME_CHAIN_ID:str:BASE}
-        twitter_username: ${TWIKIT_USERNAME:str:null}
         service_registry_address_base: ${SERVICE_REGISTRY_ADDRESS_BASE:str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
         service_registry_address_celo: ${SERVICE_REGISTRY_ADDRESS_CELO:str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
         meme_subgraph_url: ${MEME_SUBGRAPH_URL:str:https://agentsfun-indexer-production.up.railway.app}
@@ -167,16 +166,14 @@ type: connection
 config:
   genai_api_key: ${GENAI_API_KEY:str:null}
 ---
-public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${TWIKIT_USERNAME:str:null}
-  twikit_email: ${TWIKIT_EMAIL:str:null}
-  twikit_password: ${TWIKIT_PASSWORD:str:null}
-  twikit_cookies: ${TWIKIT_COOKIES:str:null}
-  twikit_disable_tweets: ${TWIKIT_DISABLE_TWEETS:bool:false}
-  twikit_skip_connection: ${TWIKIT_SKIP_CONNECTION:bool:false}
-  store_path: ${STORE_PATH:str:null}
+  tweepy_consumer_api_key: ${TWEEPY_CONSUMER_API_KEY:str:null}
+  tweepy_consumer_api_key_secret: ${TWEEPY_CONSUMER_API_KEY_SECRET:str:null}
+  tweepy_bearer_token: ${TWEEPY_BEARER_TOKEN:str:null}
+  tweepy_access_token: ${TWEEPY_ACCESS_TOKEN:str:null}
+  tweepy_access_token_secret: ${TWEEPY_ACCESS_TOKEN_SECRET:str:null}
 ---
 public_id: dvilela/kv_store:0.1.0
 type: connection

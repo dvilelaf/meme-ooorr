@@ -427,3 +427,4 @@ e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-a
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/services/agents_fun/service.yaml:generic-api-key:55
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/agents/agents_fun/aea-config.yaml:generic-api-key:153
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/engage_twitter_abci/skill.yaml:generic-api-key:83
+fe30474b95b7815b4021d4f670b1f4509e19bc48:docs/twitter_dev_account.md:generic-api-key:27

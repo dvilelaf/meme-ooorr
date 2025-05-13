@@ -147,7 +147,7 @@ class ActionDecisionBehaviour(
 
         tweet_responses = "\n\n".join(
             [
-                f"tweet: {t['text']}\nviews: {t['view_count']}\nquotes: {t['quote_count']}\nretweets{t['retweet_count']}"
+                f"tweet: {t['reply_text']}\nagent_id: {t['replying_agent_id']}\ntweet_id: {t['reply_tweet_id']}"
                 for t in self.synchronized_data.feedback
             ]
         )
@@ -156,22 +156,37 @@ class ActionDecisionBehaviour(
         current_persona = yield from self.get_persona()
         current_timestamp = self.get_sync_timestamp()
         summon_cooldown_seconds = self.params.summon_cooldown_seconds
-        last_summon_timestamp = self.synchronized_data.last_summon_timestamp
-        time_since_last_summon = current_timestamp - last_summon_timestamp
+
+        # Read last summon from the db
+        db_data = yield from self._read_kv(keys=("last_summon_timestamp",))
+
+        if db_data is None:
+            self.context.logger.error(
+                "Error while loading last_summon_timestamp from the database"
+            )
+            last_summon_timestamp = current_timestamp
+        else:
+            last_summon_timestamp = (
+                float(json.loads(db_data["last_summon_timestamp"]))
+                if db_data["last_summon_timestamp"]
+                else current_timestamp
+            )
+
+        seconds_since_last_summon = current_timestamp - last_summon_timestamp
 
         # Determine if summon action should be shown based on cooldown
-        is_summon_available = time_since_last_summon >= summon_cooldown_seconds
+        is_summon_available = seconds_since_last_summon >= summon_cooldown_seconds
         summon_token_action_str = (
             SUMMON_TOKEN_ACTION if is_summon_available else ""
         )  # nosec
 
         if is_summon_available:
             self.context.logger.info(
-                f"Summon action is available because time since last summon ({time_since_last_summon}) is >= summon cooldown ({summon_cooldown_seconds})"
+                f"Summon action is available because time since last summon ({seconds_since_last_summon}) is >= summon cooldown ({summon_cooldown_seconds})"
             )
         else:
             self.context.logger.info(
-                f"Summon action is NOT available because time since last summon ({time_since_last_summon}) is < summon cooldown ({summon_cooldown_seconds})"
+                f"Summon action is NOT available because time since last summon ({seconds_since_last_summon}) is < summon cooldown ({summon_cooldown_seconds})"
             )
 
         prompt_data = {

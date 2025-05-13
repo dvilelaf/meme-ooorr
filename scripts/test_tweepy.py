@@ -1,8 +1,8 @@
-#!/bin/bash
-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2024 David Vilela Freire
+#   Copyright 2021-2025 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,20 +18,26 @@
 #
 # ------------------------------------------------------------------------------
 
-REPO_PATH=$PWD
-MEMEOOORR_DB=$REPO_PATH/memeooorr/abci_build/persistent_data/logs/memeooorr.db
+"""Test the Twitter API wrapper."""
 
-BUILD_DIR=$(ls -d memeooorr/abci_build*/)
-poetry run autonomy deploy stop --build-dir "$BUILD_DIR"; cd ..
+import os
 
-# Backup db
-if test -e $MEMEOOORR_DB; then
-  echo "Creating database backup"
-  cp $MEMEOOORR_DB $REPO_PATH
-fi
+import dotenv
 
-# Backup cookies
-if test -e $TWITTER_COOKIES; then
-  echo "Creating cookies backup"
-  cp $TWITTER_COOKIES $REPO_PATH
-fi
+from packages.dvilela.connections.tweepy.tweepy_wrapper import Twitter
+
+
+dotenv.load_dotenv()
+
+twitter = Twitter(
+    consumer_key=os.getenv("TWEEPY_CONSUMER_API_KEY"),
+    consumer_secret=os.getenv("TWEEPY_CONSUMER_API_KEY_SECRET"),
+    access_token=os.getenv("TWEEPY_ACCESS_TOKEN"),
+    access_token_secret=os.getenv("TWEEPY_ACCESS_TOKEN_SECRET"),
+    bearer_token=os.getenv("TWEEPY_BEARER_TOKEN"),
+)
+
+# twitter.post_tweet("Hello world!")
+# twitter.get_user_id("autonolas")
+# twitter.follow_by_username("autonolas")
+print(twitter.get_me())

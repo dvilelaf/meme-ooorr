@@ -213,7 +213,7 @@ TOKEN_DECISION_PROMPT = (  # nosec
     Here's your latest tweet:
     "{latest_tweet}"
 
-    Here's a list of tweets that you received as a response to your latest tweet and some engagement metrics.
+    Here's a list of tweets that you received as a response to your latest tweet.
     You can use this information to update your persona if you think that will improve engagement.
     "{tweet_responses}"
 

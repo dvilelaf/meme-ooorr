@@ -44,6 +44,7 @@ class LoadDatabaseBehaviour(
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             persona = yield from self.load_db()
             yield from self.populate_keys_in_kv()
+            yield from self.init_own_twitter_details()
 
             payload = LoadDatabasePayload(
                 sender=self.context.agent_address,
@@ -69,3 +70,10 @@ class LoadDatabaseBehaviour(
         yield from self._write_kv({"other_tweets_for_tw_mech": ""})
         yield from self._write_kv({"interacted_tweet_ids_for_tw_mech": ""})
         yield from self._write_kv({"pending_tweets_for_tw_mech": ""})
+
+        # Initialize last summon
+        db_data = yield from self._read_kv(keys=("last_summon_timestamp",))
+        if db_data is None or db_data.get("last_summon_timestamp", None) is None:
+            yield from self._write_kv(
+                {"last_summon_timestamp": str(self.get_sync_timestamp())}
+            )

@@ -184,12 +184,6 @@ class SynchronizedData(BaseSynchronizedData):
         """Get the mech for twitter."""
         return bool(self.db.get("mech_for_twitter", False))
 
-    @property
-    def last_summon_timestamp(self) -> float:
-        """Get the timestamp of the last summon action."""
-        # Cast the db result to float to satisfy mypy
-        return cast(float, self.db.get("last_summon_timestamp", 0.0))
-
 
 class EventRoundBase(CollectSameUntilThresholdRound):
     """EventRoundBase"""
@@ -536,17 +530,6 @@ class ActionDecisionRound(CollectSameUntilThresholdRound):
                         },
                     )
 
-                # Store timestamp if the action was summon
-                if payload.action == "summon":
-                    synchronized_data = synchronized_data.update(
-                        synchronized_data_class=SynchronizedData,
-                        **{
-                            get_name(
-                                SynchronizedData.last_summon_timestamp
-                            ): payload.timestamp,
-                        },
-                    )
-
             return synchronized_data, event
 
         if not self.is_majority_possible(
@@ -846,9 +829,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         FinishedForMechResponseRound,
     }
     event_to_timeout: EventToTimeout = {Event.ROUND_TIMEOUT: 30}
-    cross_period_persisted_keys: FrozenSet[str] = frozenset(
-        ["persona", "last_summon_timestamp"]
-    )
+    cross_period_persisted_keys: FrozenSet[str] = frozenset(["persona"])
     db_pre_conditions: Dict[AppState, Set[str]] = {
         LoadDatabaseRound: set(),
         PullMemesRound: set(),

@@ -12,7 +12,7 @@ fingerprint:
   dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
   fsm_specification.yaml: bafybeiahfitqf3u5oiqzxnjq5fgxexqdtuvqpvcd45u6pyzrzjh3qtzue4
   handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
-  models.py: bafybeig4zaatchwdftcb6vo2yuiikwxjqwmjtvwmdri7yyavilh7bztmhm
+  models.py: bafybeicmk5ys4r6kyqvmambfdgx3pqtdvv73potei5j7i5pfgamuvqft7e
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -23,8 +23,8 @@ skills:
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/termination_abci:0.1.0:bafybeianygjbwmt4xrq77pfl3yzcokbjfzxmuru6j2k7a3boqc2qfb7shi
-- dvilela/memeooorr_abci:0.1.0:bafybeigejbpy32ii35jsaakasnnfo3wvt6jmgyevghqpktbpr4qwednd5q
-- valory/mech_interact_abci:0.1.0:bafybeic73sfduvn75x4jfsvvpqhoxuwae75g2p4ahuuyalluvblltriqii
+- dvilela/memeooorr_abci:0.1.0:bafybeigwbjmpuapotskrdtwtmfrj3gpap3xdiuaipd2tfexzl6k5365yym
+- valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 behaviours:
   main:
     args: {}
@@ -152,7 +152,6 @@ models:
       olas_token_address_celo: '0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51'
       persona: a cat lover that is crazy about all-things cats.
       home_chain_id: BASE
-      twitter_username: dummy_twitter_name
       service_registry_address_base: '0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE'
       service_registry_address_celo: '0xE3607b00E75f6405248323A9417ff6b39B244b50'
       meme_subgraph_url: https://agentsfun-indexer-production.up.railway.app

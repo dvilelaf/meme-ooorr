@@ -13,7 +13,7 @@ connections:
 - valory/http_client:0.23.0:bafybeid5ffvg76ejjoese7brj5ji3lx66cu7p2ixfwflpo6rgofkypfd7y
 - valory/ledger:0.19.0:bafybeibdsjmy4w2eyilbqc7yzutopl65qpeyspxwz7mjvirr52twhjlf5y
 - valory/p2p_libp2p_client:0.1.0:bafybeic6ayusdwy4dks75njwk32ac7ur7salgllwf4fdc34ue5z2k5iz4q
-- dvilela/twikit:0.1.0:bafybeignkhvzulhxabtstdcd2kk5krkiczdcedbogdv3xvawitb2fnwicy
+- dvilela/tweepy:0.1.0:bafybeihgbrcyip3s426cot23t6ezpo6ltf5naonoyn354k526buluqsfoe
 - dvilela/mirror_db:0.1.0:bafybeifgjuwvqpjafwkdqjt4223i7jdm6ppyijdx2knox4md7tfbhpvmbq
 - dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
@@ -44,9 +44,9 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/memeooorr_abci:0.1.0:bafybeigejbpy32ii35jsaakasnnfo3wvt6jmgyevghqpktbpr4qwednd5q
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeih2e3z7tzqgs6hgrfns4y3dvz226pnklenlssvloyik6lgtuwt5i4
-- valory/mech_interact_abci:0.1.0:bafybeic73sfduvn75x4jfsvvpqhoxuwae75g2p4ahuuyalluvblltriqii
+- dvilela/memeooorr_abci:0.1.0:bafybeigwbjmpuapotskrdtwtmfrj3gpap3xdiuaipd2tfexzl6k5365yym
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeiejwa5ida547cllbyi5ct6346i24ul3itrghe7th2qgwngpo5w6cq
+- valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -173,7 +173,7 @@ models:
       multisend_address: ${str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
       init_fallback_gas: 0
       keeper_allowed_retries: 3
-      reset_pause_duration: ${int:30}
+      reset_pause_duration: ${int:3600}
       on_chain_service_id: ${int:null}
       reset_tendermint_after: ${int:2}
       retry_attempts: 400
@@ -218,7 +218,6 @@ models:
       olas_token_address_celo: ${str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
       persona: ${str:a cat lover that is crazy about all-things cats.}
       home_chain_id: ${str:BASE}
-      twitter_username: ${str:null}
       service_registry_address_base: ${str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
       service_registry_address_celo: ${str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
       meme_subgraph_url: ${str:https://agentsfun-indexer-production.up.railway.app}
@@ -258,16 +257,14 @@ type: connection
 config:
   genai_api_key: ${str:null}
 ---
-public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${str:null}
-  twikit_email: ${str:null}
-  twikit_password: ${str:null}
-  twikit_cookies: ${str:null}
-  twikit_disable_tweets: ${bool:false}
-  twikit_skip_connection: ${bool:false}
-  store_path: ${str:null}
+  tweepy_consumer_api_key: ${str:null}
+  tweepy_consumer_api_key_secret: ${str:null}
+  tweepy_bearer_token: ${str:null}
+  tweepy_access_token: ${str:null}
+  tweepy_access_token_secret: ${str:null}
 ---
 public_id: dvilela/mirror_db:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
