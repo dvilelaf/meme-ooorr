@@ -1415,6 +1415,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
             ]
         )
         self.context.logger.info(tools_info)
+        tools_info = "Currently the mech tools are down , so please do not use them."
         return tools_info
 
     def get_agent_handles(self) -> Generator[None, None, List[str]]:
