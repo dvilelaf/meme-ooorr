@@ -493,7 +493,7 @@ class ActionDecisionRound(CollectSameUntilThresholdRound):
 
         if self.threshold_reached:
             # This needs to be mentioned for static checkers
-            # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.WAIT
+            # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.WAIT , Event.RETRY
             payload = ActionDecisionPayload(
                 *(("dummy_sender",) + self.most_voted_payload_values)
             )
@@ -510,6 +510,7 @@ class ActionDecisionRound(CollectSameUntilThresholdRound):
                     "token_supply": payload.token_supply,
                     "amount": payload.amount,
                     "tweet": payload.tweet,
+                    "timestamp": payload.timestamp,
                 }
 
                 synchronized_data = synchronized_data.update(
@@ -756,6 +757,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         ActionDecisionRound: {
             Event.DONE: ActionPreparationRound,
             Event.WAIT: CallCheckpointRound,
+            Event.RETRY: ActionDecisionRound,
             Event.NO_MAJORITY: ActionDecisionRound,
             Event.ROUND_TIMEOUT: ActionDecisionRound,
         },

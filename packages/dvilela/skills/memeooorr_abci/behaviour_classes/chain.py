@@ -49,6 +49,7 @@ from packages.dvilela.skills.memeooorr_abci.rounds import (
     TransactionLoopCheckRound,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.contracts.mech_marketplace.contract import MechMarketplace
 from packages.valory.contracts.staking_activity_checker.contract import (
     StakingActivityCheckerContract,
 )
@@ -86,7 +87,11 @@ LIVENESS_RATIO_SCALE_FACTOR = 10**18
 
 # A safety margin in case there is a delay between the moment the KPI condition is
 # satisfied, and the moment where the checkpoint is called.
-REQUIRED_REQUESTS_SAFETY_MARGIN = 1
+
+# The REQUIRED_REQUESTS_SAFETY_MARGIN is set to 0 since we don't need additional buffer for mech requests.
+# This differs from the trader implementation where a safety margin was used to account for potential delays.
+# We may revisit this in the future if we need to add a safety margin for similar reasons.
+REQUIRED_REQUESTS_SAFETY_MARGIN = 0
 
 
 class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-ancestors
@@ -331,6 +336,12 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
     def _get_service_staking_state(
         self, chain: str
     ) -> Generator[None, None, Optional[StakingState]]:
+        self.context.logger.info(f"Getting service staking state for chain {chain}")
+        self.context.logger.info(f"service_id: {self.params.on_chain_service_id}")
+        self.context.logger.info(
+            f"staking_token_contract_address: {self.params.staking_token_contract_address}"
+        )
+
         service_id = self.params.on_chain_service_id
         if service_id is None:
             self.context.logger.warning(
@@ -362,41 +373,131 @@ class ChainBehaviour(MemeooorrBaseBehaviour, ABC):  # pylint: disable=too-many-a
 
         return StakingState(service_staking_state)
 
-    def _is_staking_kpi_met(self) -> Generator[None, None, Optional[bool]]:
+    def _is_staking_kpi_met(  # pylint: disable=too-many-return-statements
+        self,
+    ) -> Generator[
+        None, None, Optional[bool]
+    ]:  # pylint: disable=too-many-return-statements
         """Return whether the staking KPI has been met (only for staked services)."""
+        # Check if service is staked
         service_staking_state = yield from self._get_service_staking_state(
             chain=self.get_chain_id()
         )
+
+        self.context.logger.info(f"service_staking_state: {service_staking_state}")
+
         if service_staking_state != StakingState.STAKED:
             self.context.logger.info("Service is not staked")
-            return None
+            return False
 
-        min_num_of_safe_tx_required = (
-            yield from self._calculate_min_num_of_safe_tx_required(
-                chain=self.get_chain_id()
-            )
-        )
-        if min_num_of_safe_tx_required is None:
-            self.context.logger.error(
-                "Error calculating min number of safe tx required."
-            )
-            return None
-
-        multisig_nonces_since_last_cp = (
-            yield from self._get_multisig_nonces_since_last_cp(
-                chain=self.get_chain_id(),
-                multisig=self.synchronized_data.safe_contract_address,
-            )
-        )
-        if multisig_nonces_since_last_cp is None:
-            self.context.logger.info(
-                "Could not get the multisig nonces since last checkpoint"
-            )
-            return None
         self.context.logger.info(
-            f"Multisig nonces since last checkpoint: {multisig_nonces_since_last_cp} vs minimum req: {min_num_of_safe_tx_required}"
+            f"Getting mech marketplace request count for {self.synchronized_data.safe_contract_address} from {self.params.mech_marketplace_config.mech_marketplace_address}"
         )
-        return multisig_nonces_since_last_cp >= min_num_of_safe_tx_required
+        # Get mech marketplace request count for this safe address
+        response_msg = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=self.params.mech_marketplace_config.mech_marketplace_address,
+            contract_id=str(MechMarketplace.contract_id),
+            contract_callable="get_request_count",
+            chain_id=self.get_chain_id(),
+            address=self.synchronized_data.safe_contract_address,
+        )
+
+        if response_msg.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Could not get the mech marketplace request count: {response_msg}"
+            )
+            return None
+
+        # Assuming the contract API framework returns the count under the key "requests_count"
+        # Adjust the key if necessary based on actual framework behavior for view functions.
+
+        mech_request_count = cast(
+            int, response_msg.state.body.get("requests_count", None)
+        )
+
+        if mech_request_count is None:
+            self.context.logger.error(
+                f"Could not parse mech marketplace request count from response: {response_msg.state.body}"
+            )
+            return None
+        self.context.logger.info(f"{mech_request_count=}")
+
+        # Get service info and previous mech request count
+        service_info = yield from self._get_service_info(chain=self.get_chain_id())
+        if service_info is None or len(service_info) == 0 or len(service_info[2]) == 0:
+            self.context.logger.error(f"Error fetching service info {service_info}")
+            return None
+
+        self.context.logger.info(f"service_info: {service_info}")
+
+        # Use requests count (position [1]) instead of multisig nonces (position [0])
+        mech_request_count_on_last_checkpoint = service_info[2][1]
+        self.context.logger.info(f"{mech_request_count_on_last_checkpoint=}")
+
+        # Get last checkpoint timestamp
+        last_ts_checkpoint = yield from self._get_ts_checkpoint(
+            chain=self.get_chain_id()
+        )
+        if last_ts_checkpoint is None:
+            self.context.logger.error("Could not get the last checkpoint timestamp")
+            return None
+        self.context.logger.info(f"{last_ts_checkpoint=}")
+
+        # Get liveness period and ratio
+        liveness_period = yield from self._get_liveness_period(
+            chain=self.get_chain_id()
+        )
+        if liveness_period is None:
+            self.context.logger.error("Could not get the liveness period")
+            return None
+        self.context.logger.info(f"{liveness_period=}")
+
+        liveness_ratio = yield from self._get_liveness_ratio(chain=self.get_chain_id())
+        if liveness_ratio is None:
+            self.context.logger.error("Could not get the liveness ratio")
+            return None
+        self.context.logger.info(f"{liveness_ratio=}")
+
+        # Calculate requests since last checkpoint
+        mech_requests_since_last_cp = (
+            mech_request_count - mech_request_count_on_last_checkpoint
+        )
+        self.context.logger.info(f"{mech_requests_since_last_cp=}")
+
+        # Calculate current timestamp from round sequence
+        current_timestamp = int(
+            self.round_sequence.last_round_transition_timestamp.timestamp()
+        )
+        self.context.logger.info(f"{current_timestamp=}")
+
+        self.context.logger.info(
+            f"Calculating required_mech_requests with params: "
+            f"liveness_period={liveness_period}, "
+            f"current_timestamp={current_timestamp}, "
+            f"last_ts_checkpoint={last_ts_checkpoint}, "
+            f"liveness_ratio={liveness_ratio}, "
+            f"LIVENESS_RATIO_SCALE_FACTOR={LIVENESS_RATIO_SCALE_FACTOR}, "
+            f"REQUIRED_REQUESTS_SAFETY_MARGIN={REQUIRED_REQUESTS_SAFETY_MARGIN}"
+        )
+
+        # Calculate required requests
+        required_mech_requests = (
+            math.ceil(
+                max(liveness_period, (current_timestamp - last_ts_checkpoint))
+                * liveness_ratio
+                / LIVENESS_RATIO_SCALE_FACTOR
+            )
+            + REQUIRED_REQUESTS_SAFETY_MARGIN
+        )
+        self.context.logger.info(f"{required_mech_requests=}")
+
+        self.context.logger.info(
+            f"Mech requests since last checkpoint: {mech_requests_since_last_cp} vs required: {required_mech_requests}"
+        )
+
+        # Return whether KPI is met
+        return mech_requests_since_last_cp >= required_mech_requests
 
     def _get_service_info(
         self, chain: str
@@ -545,7 +646,6 @@ class ActionPreparationBehaviour(ChainBehaviour):  # pylint: disable=too-many-an
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
-
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             tx_hash = yield from self.get_tx_hash()
 
@@ -680,6 +780,10 @@ class ActionPreparationBehaviour(ChainBehaviour):  # pylint: disable=too-many-an
                 {"summoned_tokens": json.dumps(tokens, sort_keys=True)}
             )
             self.context.logger.info("Wrote latest token to db")
+
+            yield from self._write_kv(
+                {"last_summon_timestamp": str(self.get_sync_timestamp())}
+            )
 
     def get_token_nonce(
         self,

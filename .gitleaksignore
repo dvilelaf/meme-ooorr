@@ -396,9 +396,6 @@ cf5ef5cfdb24d6311f60e4b81b5923a244bcd283:packages/dvilela/services/memeooorr/ser
 cf5ef5cfdb24d6311f60e4b81b5923a244bcd283:packages/dvilela/agents/memeooorr/aea-config.yaml:generic-api-key:148
 d4500652a594cda88bf4f9b1d3a302e4529fbffe:scripts/test_prompts.py:generic-api-key:103
 d4500652a594cda88bf4f9b1d3a302e4529fbffe:scripts/test_prompts.py:generic-api-key:113
-38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha4.json:generic-api-key:15
-38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha4.json:generic-api-key:16
-38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha4.json:generic-api-key:18
 38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha2.json:generic-api-key:15
 38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha2.json:generic-api-key:16
 38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha2.json:generic-api-key:18
@@ -413,6 +410,9 @@ d030aafcb60e8c55f6078f1d817e85ef9d1b6e13:scripts/deployment/globals_base_mainnet
 d030aafcb60e8c55f6078f1d817e85ef9d1b6e13:scripts/deployment/globals_base_mainnet_meme_beta.json:generic-api-key:41
 d030aafcb60e8c55f6078f1d817e85ef9d1b6e13:scripts/deployment/globals_base_mainnet_meme_beta2.json:generic-api-key:41
 d030aafcb60e8c55f6078f1d817e85ef9d1b6e13:scripts/deployment/globals_base_mainnet_meme_beta3.json:generic-api-key:41
+38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha4.json:generic-api-key:15
+38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha4.json:generic-api-key:16
+38af5261ad0f9fba9609804edd6c2936e954ec54:scripts/deployment/globals_base_mainnet_meme_alpha4.json:generic-api-key:18
 cfbb54a04c37080455365581e2179746cad4e0d0:packages/dvilela/contracts/service_staking_token/contract.yaml:generic-api-key:10
 cfbb54a04c37080455365581e2179746cad4e0d0:packages/dvilela/contracts/staking_token/contract.yaml:generic-api-key:10
 5b1e955c02635645f359b99d2fa0dfe2a5160b59:packages/valory/contracts/staking_token/contract.yaml:generic-api-key:10
@@ -427,3 +427,4 @@ e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-a
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/services/agents_fun/service.yaml:generic-api-key:55
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/agents/agents_fun/aea-config.yaml:generic-api-key:153
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/engage_twitter_abci/skill.yaml:generic-api-key:83
+fe30474b95b7815b4021d4f670b1f4509e19bc48:docs/twitter_dev_account.md:generic-api-key:27

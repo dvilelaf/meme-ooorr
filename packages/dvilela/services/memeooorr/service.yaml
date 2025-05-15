@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeiaxz3npflbqoxmaqhhzkghr5xk3nrw3g4ma2gpapkopx72ah7mkom
+agent: dvilela/memeooorr:0.1.0:bafybeiaqx2okzkbzocp7drksamoe6oddvz3dti5dbvkmsevjcqvadbnsu4
 number_of_agents: 1
 deployment:
   agent:
@@ -92,7 +92,6 @@ extra:
         olas_token_address_celo: ${OLAS_TOKEN_ADDRESS_CELO:str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
         persona: ${PERSONA:str:a cat lover that is crazy about all-things cats.}
         home_chain_id: ${HOME_CHAIN_ID:str:BASE}
-        twitter_username: ${TWIKIT_USERNAME:str:null}
         service_registry_address_base: ${SERVICE_REGISTRY_ADDRESS_BASE:str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
         service_registry_address_celo: ${SERVICE_REGISTRY_ADDRESS_CELO:str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
         meme_subgraph_url: ${MEME_SUBGRAPH_URL:str:https://agentsfun-indexer-production.up.railway.app}
@@ -103,6 +102,11 @@ extra:
         min_summon_amount_celo: ${MIN_SUMMON_AMOUNT_CELO:float:10.0}
         max_summon_amount_celo: ${MAX_SUMMON_AMOUNT_CELO:float:20.0}
         max_heart_amount_celo: ${MAX_HEART_AMOUNT_CELO:float:0.2}
+        use_mech_marketplace: ${USE_MECH_MARKETPLACE:bool:false}
+        mech_marketplace_config: ${MECH_MARKETPLACE_CONFIG:dict:{"mech_marketplace_address":"0x0000000000000000000000000000000000000000","priority_mech_address":"0x0000000000000000000000000000000000000000","response_timeout":300}}
+        mech_contract_address: ${MECH_CONTRACT_ADDRESS:str:0x}
+        mech_request_price: ${MECH_REQUEST_PRICE:int:100}
+        mech_chain_id: ${MECH_CHAIN_ID:str:gnosis}
         staking_token_contract_address: ${STAKING_TOKEN_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
         activity_checker_contract_address: ${ACTIVITY_CHECKER_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
         alternative_model_for_tweets: ${ALTERNATIVE_MODEL_FOR_TWEETS:dict:{"use":false,"url":"https://api.fireworks.ai/inference/v1/chat/completions","api_key":null,"model":"accounts/sentientfoundation/models/dobby-unhinged-llama-3-3-70b-new","max_tokens":16384,"top_p":1,"top_k":40,"presence_penalty":0,"frequency_penalty":0,"temperature":0.6}}
@@ -110,6 +114,7 @@ extra:
         tx_loop_breaker_count: 3
         tools_for_mech: ${dict:{}}
         use_acn_for_delivers: false
+        summon_cooldown_seconds: ${SUMMON_COOLDOWN_SECONDS:int:2592000}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
@@ -161,16 +166,14 @@ type: connection
 config:
   genai_api_key: ${GENAI_API_KEY:str:null}
 ---
-public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${TWIKIT_USERNAME:str:null}
-  twikit_email: ${TWIKIT_EMAIL:str:null}
-  twikit_password: ${TWIKIT_PASSWORD:str:null}
-  twikit_cookies: ${TWIKIT_COOKIES:str:null}
-  twikit_disable_tweets: ${TWIKIT_DISABLE_TWEETS:bool:false}
-  twikit_skip_connection: ${TWIKIT_SKIP_CONNECTION:bool:false}
-  store_path: ${STORE_PATH:str:null}
+  tweepy_consumer_api_key: ${TWEEPY_CONSUMER_API_KEY:str:null}
+  tweepy_consumer_api_key_secret: ${TWEEPY_CONSUMER_API_KEY_SECRET:str:null}
+  tweepy_bearer_token: ${TWEEPY_BEARER_TOKEN:str:null}
+  tweepy_access_token: ${TWEEPY_ACCESS_TOKEN:str:null}
+  tweepy_access_token_secret: ${TWEEPY_ACCESS_TOKEN_SECRET:str:null}
 ---
 public_id: dvilela/kv_store:0.1.0
 type: connection

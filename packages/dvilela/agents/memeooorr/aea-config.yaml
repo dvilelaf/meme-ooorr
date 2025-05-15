@@ -9,23 +9,23 @@ fingerprint:
 fingerprint_ignore_patterns: []
 connections:
 - valory/ipfs:0.1.0:bafybeiamz23olgtow4wqf7zpsfnfzf7pxiognrxl2mhn5kvqutlwhgukxa
-- valory/abci:0.1.0:bafybeigy6k2d4i4p2vsgz5fcq4vhfq2dd3qewrarvkzbkdlu46mgr7uvz4
+- valory/abci:0.1.0:bafybeic6gfe4lw2pxfwt56tadzhtbdioghpawlrsdfykakam4okhvlxqmu
 - valory/http_client:0.23.0:bafybeid5ffvg76ejjoese7brj5ji3lx66cu7p2ixfwflpo6rgofkypfd7y
 - valory/ledger:0.19.0:bafybeibdsjmy4w2eyilbqc7yzutopl65qpeyspxwz7mjvirr52twhjlf5y
 - valory/p2p_libp2p_client:0.1.0:bafybeic6ayusdwy4dks75njwk32ac7ur7salgllwf4fdc34ue5z2k5iz4q
-- dvilela/twikit:0.1.0:bafybeifvuk57umzfj7epjjpaw7s27wyc4gewpjp6zrszdyfijcmbjmarju
-- dvilela/mirror_db:0.1.0:bafybeifhl7e5odr53pbz2bog3tysyyfnimrz2acksgnal4yza4faxam6pa
+- dvilela/tweepy:0.1.0:bafybeihgbrcyip3s426cot23t6ezpo6ltf5naonoyn354k526buluqsfoe
+- dvilela/mirror_db:0.1.0:bafybeifgjuwvqpjafwkdqjt4223i7jdm6ppyijdx2knox4md7tfbhpvmbq
 - dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
 - dvilela/genai:0.1.0:bafybeiarmdiqymzuqnc4abut77r4ziqwigpmvmwkeiahz2jh6vwr54dsuy
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeicint4o6qwf4z2a6hykufxrm6qmtblydzt34lbhxr2mxma454blo4
-- valory/gnosis_safe_proxy_factory:0.1.0:bafybeifxmvucumhcatd5ckz6ugvfwnmjtorhu6e2wdi6onstylw3mradq4
+- valory/gnosis_safe:0.1.0:bafybeidhegkiibxroyvzvsyuh5t3qpq3egj24u2yg2xryf2kir4f36on3u
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeidjgnk2jephgtwlxlxokto5rfde4u5kreh4wx5lv3fengidogynsi
 - valory/multisend:0.1.0:bafybeig5byt5urg2d2bsecufxe5ql7f4mezg3mekfleeh32nmuusx66p4y
-- dvilela/meme_factory:0.1.0:bafybeibu6j4s4uiwkbtd7qgf4co4dkbiei44ke6gwr4r24skhaufmo3xyq
-- dvilela/service_registry:0.1.0:bafybeia4y7jmxbbr6xrthjwjp2vnwluunmdhefsxpkbt6mu4y7uzna7obe
-- valory/staking_token:0.1.0:bafybeic2m4oisdcnydyb3ra3r2xgh5ann3gargn2cfsl6o6viehhdxe7ri
-- valory/staking_activity_checker:0.1.0:bafybeifcghzfjqx6o2iytyrjjadjqembh6cq3eezfcp7wes3xr7xppmhu4
+- dvilela/meme_factory:0.1.0:bafybeifa5h2a3t2ysi24c2zvfyyazjjxjicmveoszcyjbbamoqh7pmk6cu
+- dvilela/service_registry:0.1.0:bafybeih2dhp3dr5ijsbmo6rwfotpbbccejkb3cgutghgadncjqhfryklpu
+- valory/staking_token:0.1.0:bafybeigvcnjzhrwcbzdhiddc2vj7lmyroatnyhkgpkhwrduhuajuekjic4
+- valory/staking_activity_checker:0.1.0:bafybeievwpysmimhhjfgetswigoivnkdluj2n6dh342r2iesiqdw3dpvru
 protocols:
 - open_aea/signing:1.0.0:bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm
 - valory/abci:0.1.0:bafybeiatodhboj6a3p35x4f4b342lzk6ckxpud23awnqbxwjeon3k5y36u
@@ -38,15 +38,15 @@ protocols:
 - valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 skills:
-- valory/abstract_abci:0.1.0:bafybeihligouknh2v2o2xwugm7yfiypllokbahnxgsh36mgdascvchjmpe
-- valory/abstract_round_abci:0.1.0:bafybeiezhbsm2ctlw7frt53jxpdq6d5cq2xaruzsedg66nqmi4prrglame
-- valory/termination_abci:0.1.0:bafybeif7lxvscvrsbr6f74ymbb5t3apnfwjxzvwmtixyy7hclpx2pqa3oa
-- valory/transaction_settlement_abci:0.1.0:bafybeidfhgtyvsltd6naqrifycbobb7nlqk2gtnjvtolbli3okqovdm2su
-- valory/registration_abci:0.1.0:bafybeigrxf2uhudr4ode6p77jikrjzfemfttqhoqez366qugqdckbb6wzi
-- valory/reset_pause_abci:0.1.0:bafybeid5tsasmon5gennzigr3ffkctz3womegogkhqcatdb6g7l7llwfu4
-- dvilela/memeooorr_abci:0.1.0:bafybeigmqave5cvvbb46jw27w5ecxml6cday27ccuzd5dgisdlxrauxxeq
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeifhgjrxs5x7giwgbsvgedil6ipup6t7enqjcoxndj7sfp5bz4rfeu
-- valory/mech_interact_abci:0.1.0:bafybeihh5vcanzy2cyrfewb5rx4v2toij65n5jtga7ktleu4rmuk57jr7m
+- valory/abstract_abci:0.1.0:bafybeigyae3cvcfts547w56w6oqoq4z5nq4ypmftoftf4jgtlbndzu45lu
+- valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
+- valory/termination_abci:0.1.0:bafybeianygjbwmt4xrq77pfl3yzcokbjfzxmuru6j2k7a3boqc2qfb7shi
+- valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
+- valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
+- valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
+- dvilela/memeooorr_abci:0.1.0:bafybeigwbjmpuapotskrdtwtmfrj3gpap3xdiuaipd2tfexzl6k5365yym
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeiejwa5ida547cllbyi5ct6346i24ul3itrghe7th2qgwngpo5w6cq
+- valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -170,10 +170,10 @@ models:
       keeper_timeout: 30.0
       max_attempts: 10
       max_healthcheck: 120
-      multisend_address: ${MULTISEND_ADDRESS:str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
+      multisend_address: ${str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
       init_fallback_gas: 0
       keeper_allowed_retries: 3
-      reset_pause_duration: ${int:30}
+      reset_pause_duration: ${int:3600}
       on_chain_service_id: ${int:null}
       reset_tendermint_after: ${int:2}
       retry_attempts: 400
@@ -218,7 +218,6 @@ models:
       olas_token_address_celo: ${str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
       persona: ${str:a cat lover that is crazy about all-things cats.}
       home_chain_id: ${str:BASE}
-      twitter_username: ${str:null}
       service_registry_address_base: ${str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
       service_registry_address_celo: ${str:0xE3607b00E75f6405248323A9417ff6b39B244b50}
       meme_subgraph_url: ${str:https://agentsfun-indexer-production.up.railway.app}
@@ -235,12 +234,16 @@ models:
       fireworks_api_key: ${str:null}
       tx_loop_breaker_count: 3
       tools_for_mech: ${dict:{}}
-      mech_request_price: null
-      mech_contract_address: ${str:0x111D7DB1B752AB4D2cC0286983D9bd73a49bac6c}
+      mech_contract_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
       mech_chain_id: base
       mech_interaction_sleep_time: 10
-      use_mech_marketplace: false
+      use_mech_marketplace: true
+      mech_marketplace_config:
+        mech_marketplace_address: '0xf24eE42edA0fc9b33B7D41B06Ee8ccD2Ef7C5020'
+        priority_mech_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
+        response_timeout: 300
       use_acn_for_delivers: false
+      summon_cooldown_seconds: ${int:2592000}
 ---
 public_id: valory/http_server:0.22.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
@@ -254,16 +257,14 @@ type: connection
 config:
   genai_api_key: ${str:null}
 ---
-public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${str:null}
-  twikit_email: ${str:null}
-  twikit_password: ${str:null}
-  twikit_cookies: ${str:null}
-  twikit_disable_tweets: ${bool:false}
-  twikit_skip_connection: ${bool:false}
-  store_path: ${str:null}
+  tweepy_consumer_api_key: ${str:null}
+  tweepy_consumer_api_key_secret: ${str:null}
+  tweepy_bearer_token: ${str:null}
+  tweepy_access_token: ${str:null}
+  tweepy_access_token_secret: ${str:null}
 ---
 public_id: dvilela/mirror_db:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection

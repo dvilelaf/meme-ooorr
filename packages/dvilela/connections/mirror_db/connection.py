@@ -24,7 +24,7 @@ import asyncio
 import json
 import ssl
 from functools import wraps
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, Optional, Union, cast
 
 import aiohttp
 import certifi
@@ -42,6 +42,40 @@ from packages.valory.protocols.srr.message import SrrMessage
 
 PUBLIC_ID = PublicId.from_str("dvilela/mirror_db:0.1.0")
 
+# Default headers for JSON requests
+DEFAULT_HEADERS = {"Content-Type": "application/json", "accept": "application/json"}
+
+
+async def _handle_retryable_exception(  # type: ignore
+    exc: Union[aiohttp.ClientResponseError, aiohttp.ClientConnectionError],
+    attempt: int,
+    max_retries: int,
+    delay: Union[int, float],
+    logger: Any,
+) -> bool:
+    """Handle exceptions to determine if a retry should occur."""
+    is_rate_limit = isinstance(exc, aiohttp.ClientResponseError) and exc.status == 429
+    is_connection_error = isinstance(exc, aiohttp.ClientConnectionError)
+
+    if not (is_rate_limit or is_connection_error):
+        # Not a retryable error type we handle here
+        return False
+
+    if attempt < max_retries - 1:
+        error_type = (
+            "Rate limit exceeded" if is_rate_limit else f"Connection error: {exc}"
+        )
+        logger.warning(f"{error_type}. Retrying in {delay} seconds...")
+        await asyncio.sleep(delay)
+        return True  # Indicate retry should proceed
+
+    # Max retries reached for a retryable error
+    error_context = "rate limiting" if is_rate_limit else "connection error"
+    logger.error(
+        f"Max retries ({max_retries}) reached for {error_context}. Could not complete the request."
+    )
+    return False  # Indicate retry should stop, exception will be raised
+
 
 def retry_with_exponential_backoff(max_retries=5, initial_delay=1, backoff_factor=2):  # type: ignore
     """Retry a function with exponential backoff."""
@@ -49,23 +83,38 @@ def retry_with_exponential_backoff(max_retries=5, initial_delay=1, backoff_facto
     def decorator(func):  # type: ignore
         @wraps(func)
         async def wrapper(*args, **kwargs):  # type: ignore
-            delay = initial_delay
+            connection_instance = args[0]
+            current_delay = initial_delay
+
             for attempt in range(max_retries):
                 try:
                     return await func(*args, **kwargs)
+                except (
+                    aiohttp.ClientResponseError,
+                    aiohttp.ClientConnectionError,
+                ) as e:
+                    should_continue = await _handle_retryable_exception(
+                        e,
+                        attempt,
+                        max_retries,
+                        current_delay,
+                        connection_instance.logger,
+                    )
+                    if not should_continue:
+                        raise e  # Re-raise the exception if not retrying
+                    current_delay *= backoff_factor
                 except Exception as e:
-                    if "rate limit exceeded" in str(e).lower():
-                        if attempt < max_retries - 1:
-                            print(f"Retrying in {delay} seconds due to rate limit...")
-                            await asyncio.sleep(delay)
-                            delay *= backoff_factor
-                        else:
-                            print(
-                                "Max retries reached. Could not complete the request."
-                            )
-                            raise
-                    else:
-                        raise
+                    connection_instance.logger.error(
+                        f"An unexpected error occurred during attempt {attempt + 1}: {e}"
+                    )
+                    raise  # Re-raise unexpected errors immediately
+
+            # This part should ideally not be reached if exceptions are raised correctly on final attempt
+            # Adding a fallback raise for safety, though _handle_retryable_exception should lead to a raise earlier.
+            connection_instance.logger.error(
+                "Function call failed after maximum retries."
+            )
+            raise Exception("Function call failed after maximum retries.")
 
         return wrapper
 
@@ -106,30 +155,23 @@ class MirrorDBConnection(Connection):
 
     connection_id = PUBLIC_ID
 
+    # List of allowed methods that can be called via the SRR protocol
+    _ALLOWED_METHODS = {
+        "create_",
+        "read_",
+        "update_",
+        "delete_",
+    }
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the connection."""
         super().__init__(*args, **kwargs)
         self.base_url = self.configuration.config.get("mirror_db_base_url")
-        self.api_key: Optional[str] = None
-        self.agent_id: Optional[str] = None
-        self.twitter_user_id: Optional[str] = None
         self.session: Optional[aiohttp.ClientSession] = None
         self.dialogues = SrrDialogues(connection_id=PUBLIC_ID)
         self._response_envelopes: Optional[asyncio.Queue] = None
         self.task_to_request: Dict[asyncio.Future, Envelope] = {}
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
-
-    async def update_api_key(self, api_key: str) -> None:
-        """Update the API key."""
-        self.api_key = api_key
-
-    async def update_agent_id(self, agent_id: str) -> None:
-        """Update the agent ID."""
-        self.agent_id = agent_id
-
-    async def update_twitter_user_id(self, twitter_user_id: str) -> None:
-        """Update the Twitter user ID."""
-        self.twitter_user_id = twitter_user_id
 
     @property
     def response_envelopes(self) -> asyncio.Queue:
@@ -189,9 +231,19 @@ class MirrorDBConnection(Connection):
         self, srr_message: SrrMessage, dialogue: Optional[BaseDialogue], error: str
     ) -> SrrMessage:
         """Prepare error message"""
+        self.logger.error(f"Preparing error response: {error}")
+        # Use dialogue directly if BaseDialogue, otherwise find based on message if needed
+        if not isinstance(dialogue, BaseDialogue):
+            dialogue = self.dialogues.get_dialogue(srr_message)
+            if dialogue is None:
+                self.logger.error(
+                    f"Cannot reply: dialogue not found for message {srr_message}"
+                )
+                raise ValueError(f"Dialogue not found for message {srr_message}")
+
         response_message = cast(
             SrrMessage,
-            dialogue.reply(  # type: ignore
+            dialogue.reply(  # No longer Optional
                 performative=SrrMessage.Performative.RESPONSE,
                 target_message=srr_message,
                 payload=json.dumps({"error": error}),
@@ -203,38 +255,29 @@ class MirrorDBConnection(Connection):
     def _handle_done_task(self, task: asyncio.Future) -> None:
         """Process a done receiving task."""
         request = self.task_to_request.pop(task)
-        response_message: Optional[Message] = task.result()
+        response_message: Optional[Message] = None
+        try:
+            response_message = task.result()
+        except Exception as e:
+            self.logger.error(f"Task failed with exception: {e}")
 
-        response_envelope = None
-        if response_message is not None:
-            response_envelope = Envelope(
-                to=request.sender,
-                sender=request.to,
-                message=response_message,
-                context=request.context,
-            )
+        if response_message is None:
+            self.logger.warning(f"No response message generated for request: {request}")
+            return
 
+        response_envelope = Envelope(
+            to=request.sender,
+            sender=request.to,
+            message=response_message,
+            context=request.context,
+        )
         self.response_envelopes.put_nowait(response_envelope)
 
-    _ALLOWED_METHODS = {
-        "create_agent",
-        "read_agent",
-        "create_twitter_account",
-        "get_twitter_account",
-        "create_tweet",
-        "read_tweet",
-        "create_interaction",
-        "get_latest_tweets",
-        "get_active_twitter_handles",
-        "update_twitter_user_id",
-        "update_agent_id",
-        "update_api_key",
-    }
-
+    # New _get_response using getattr pattern
     async def _get_response(
         self, srr_message: SrrMessage, dialogue: Optional[BaseDialogue]
     ) -> SrrMessage:
-        """Get response from the backend service."""
+        """Get response from the backend service by dispatching to internal methods."""
         if srr_message.performative != SrrMessage.Performative.REQUEST:
             return self.prepare_error_message(
                 srr_message,
@@ -242,41 +285,57 @@ class MirrorDBConnection(Connection):
                 f"Performative `{srr_message.performative.value}` is not supported.",
             )
 
-        payload = json.loads(srr_message.payload)
-        method_name = payload.get("method")
-
-        if method_name not in self._ALLOWED_METHODS:
-            return self.prepare_error_message(
-                srr_message,
-                dialogue,
-                f"Method {method_name} is not allowed or present.",
-            )
-
-        method = getattr(self, method_name, None)
-
-        if method is None:
-            return self.prepare_error_message(
-                srr_message,
-                dialogue,
-                f"Method {method_name} is not available.",
-            )
-
         try:
-            response = await method(**payload.get("kwargs", {}))
+            payload = json.loads(srr_message.payload)
+            method_name = payload.get("method")
+            kwargs = payload.get("kwargs", {})
+
+            if method_name not in self._ALLOWED_METHODS:
+                return self.prepare_error_message(
+                    srr_message,
+                    dialogue,
+                    f"Method {method_name} is not allowed or not provided.",
+                )
+
+            method_to_call = getattr(self, method_name, None)
+
+            if method_to_call is None or not callable(method_to_call):
+                return self.prepare_error_message(
+                    srr_message,
+                    dialogue,
+                    f"Internal connection error: Method {method_name} not found or not callable.",
+                )
+
+            endpoint = kwargs.get("endpoint")
+            if endpoint is None:
+                if method_name in ["create_", "read_", "update_", "delete_"]:
+                    return self.prepare_error_message(
+                        srr_message, dialogue, "Missing endpoint in request kwargs."
+                    )
+
+            response_data = await method_to_call(**kwargs)
+
             response_message = cast(
                 SrrMessage,
                 dialogue.reply(  # type: ignore
                     performative=SrrMessage.Performative.RESPONSE,
                     target_message=srr_message,
-                    payload=json.dumps({"response": response}),
+                    payload=json.dumps({"response": response_data}),
                     error=False,
                 ),
             )
             return response_message
 
-        except Exception as e:
+        except json.JSONDecodeError as e:
             return self.prepare_error_message(
-                srr_message, dialogue, f"Exception while calling backend service:\n{e}"
+                srr_message, dialogue, f"Invalid JSON payload received: {e}"
+            )
+        except Exception as e:
+            self.logger.error(
+                f"Exception while calling backend service via method {method_name}: {e}"
+            )
+            return self.prepare_error_message(
+                srr_message, dialogue, f"Exception processing request: {e}"
             )
 
     async def _raise_for_response(
@@ -289,116 +348,64 @@ class MirrorDBConnection(Connection):
         detail = error_content.get("detail", error_content)
         raise Exception(f"Error {action}: {detail} (HTTP {response.status})")
 
-    @retry_with_exponential_backoff()
-    async def create_agent(self, agent_data: Dict) -> Dict:
-        """Create an agent and a Twitter account."""
-        async with self.session.post(  # type: ignore
-            f"{self.base_url}/api/agents/",
-            json=agent_data,
-            headers={"access-token": f"{self.api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "creating agent")
-            agent_response = await response.json()
+    # --- Internal API call methods ---
 
-        agent_id = agent_response.get("agent_id")
-        if agent_id is None:
-            raise ValueError("Failed to create agent, no agent_id returned.")
-        return agent_response
-
-    @retry_with_exponential_backoff()
-    async def read_agent(self, agent_id: str) -> Dict:
-        """Read an agent."""
-        async with self.session.get(  # type: ignore
-            f"{self.base_url}/api/agents/{agent_id}",
-            headers={"access-token": f"{self.api_key}"},
+    @retry_with_exponential_backoff()  # Apply retry here
+    async def create_(
+        self, endpoint: str, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
+        """Create a resource."""
+        if self.session is None:
+            raise ValueError(
+                "Session not initialized. Ensure connection is established."
+            )
+        url = f"{self.base_url}{endpoint}"
+        self.logger.debug(f"Creating resource at {url} with data {data}")
+        async with self.session.post(
+            url, json=data, headers=DEFAULT_HEADERS
         ) as response:
-            await self._raise_for_response(response, "reading agent")
+            await self._raise_for_response(response, "create")
             return await response.json()
 
     @retry_with_exponential_backoff()
-    async def create_twitter_account(self, agent_id: str, account_data: Dict) -> Dict:
-        """Create a Twitter account if not already present."""
-        api_key = account_data.get("api_key", self.api_key)
-
-        async with self.session.post(  # type: ignore
-            f"{self.base_url}/api/agents/{agent_id}/twitter_accounts/",
-            json=account_data,
-            headers={"access-token": f"{api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "creating twitter account")
+    async def read_(self, endpoint: str, **kwargs: Any) -> Dict[str, Any]:
+        """Read a resource."""
+        if self.session is None:
+            raise ValueError(
+                "Session not initialized. Ensure connection is established."
+            )
+        url = f"{self.base_url}{endpoint}"
+        self.logger.debug(f"Reading resource at {url}")
+        async with self.session.get(url, headers=DEFAULT_HEADERS) as response:
+            await self._raise_for_response(response, "read")
             return await response.json()
 
     @retry_with_exponential_backoff()
-    async def get_twitter_account(self, twitter_user_id: str) -> Dict:
-        """Get a Twitter account."""
-        async with self.session.get(  # type: ignore
-            f"{self.base_url}/api/twitter_accounts/{twitter_user_id}",
-            headers={"access-token": f"{self.api_key}"},
+    async def update_(
+        self, endpoint: str, data: Dict[str, Any], **kwargs: Any
+    ) -> Dict[str, Any]:
+        """Update a resource."""
+        if self.session is None:
+            raise ValueError(
+                "Session not initialized. Ensure connection is established."
+            )
+        url = f"{self.base_url}{endpoint}"
+        self.logger.debug(f"Updating resource at {url} with data {data}")
+        async with self.session.put(
+            url, json=data, headers=DEFAULT_HEADERS
         ) as response:
-            await self._raise_for_response(response, "getting twitter account")
+            await self._raise_for_response(response, "update")
             return await response.json()
 
     @retry_with_exponential_backoff()
-    async def create_tweet(
-        self, agent_id: int, twitter_user_id: str, tweet_data: Dict
-    ) -> Dict:
-        """Create a tweet."""
-        tweet_id = tweet_data.get("tweet_id")
-        if tweet_id is None:
-            raise ValueError("Failed to create tweet, no tweet_id provided.")
-
-        async with self.session.post(  # type: ignore
-            f"{self.base_url}/api/agents/{agent_id}/accounts/{twitter_user_id}/tweets/",
-            json=tweet_data,
-            headers={"access-token": f"{self.api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "creating tweet")
-            return await response.json()
-
-    @retry_with_exponential_backoff()
-    async def read_tweet(self, tweet_id: str) -> Dict:
-        """Read a tweet."""
-        async with self.session.get(  # type: ignore
-            f"{self.base_url}/api/tweets/{tweet_id}",
-            headers={"access-token": f"{self.api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "reading tweet")
-            return await response.json()
-
-    @retry_with_exponential_backoff()
-    async def create_interaction(
-        self, agent_id: int, twitter_user_id: str, interaction_data: Dict
-    ) -> Dict:
-        """Create an interaction."""
-        async with self.session.post(  # type: ignore
-            f"{self.base_url}/api/agents/{agent_id}/accounts/{twitter_user_id}/interactions/",
-            json=interaction_data,
-            headers={"access-token": f"{self.api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "creating interaction")
-            return await response.json()
-
-    @retry_with_exponential_backoff()
-    async def get_latest_tweets(self, agent_id: int) -> List[Dict]:
-        """Get the latest tweets for a given agent."""
-        async with self.session.get(  # type: ignore
-            f"{self.base_url}/api/agents/{agent_id}/twitter_accounts/tweets/",
-            headers={"access-token": f"{self.api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "getting latest tweets")
-            return await response.json()
-
-    @retry_with_exponential_backoff()
-    async def get_active_twitter_handles(self) -> List[str]:
-        """
-        Retrieves a list of active X (Twitter) handles.
-
-        This function directly calls the
-        /api/active_usernames/ endpoint and returns the list of usernames.
-        """
-        async with self.session.get(  # type: ignore
-            f"{self.base_url}/api/active_usernames/",
-            headers={"access-token": f"{self.api_key}"},
-        ) as response:
-            await self._raise_for_response(response, "getting active X handles")
+    async def delete_(self, endpoint: str, **kwargs: Any) -> Dict[str, Any]:
+        """Delete a resource."""
+        if self.session is None:
+            raise ValueError(
+                "Session not initialized. Ensure connection is established."
+            )
+        url = f"{self.base_url}{endpoint}"
+        self.logger.debug(f"Deleting resource at {url}")
+        async with self.session.delete(url, headers=DEFAULT_HEADERS) as response:
+            await self._raise_for_response(response, "delete")
             return await response.json()

@@ -66,7 +66,7 @@ jobs:
       - name: Check dependencies
         run: tox -e check-dependencies
       - name: Check doc links
-        run: tomte check-doc-links --url-skips https://soft-sly-slug.base-mainnet.quiknode.pro/f13d998d9d68685faeee903499e15b4b386a8b1c/
+        run: tomte check-doc-links --url-skips https://soft-sly-slug.base-mainnet.quiknode.pro/f13d998d9d68685faeee903499e15b4b386a8b1c/ --url-skips https://developer.x.com/en/portal/dashboard
       - name: Check doc IPFS hashes
         run: tox -e check-doc-hashes
 

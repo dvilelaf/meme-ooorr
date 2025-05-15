@@ -28,7 +28,7 @@ from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
 )
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     ALTERNATIVE_MODEL_TOKEN_PROMPT,
-    ENFORCE_ACTION_COMMAND,
+    SUMMON_TOKEN_ACTION,
     TOKEN_DECISION_PROMPT,
     build_token_action_schema,
 )
@@ -67,7 +67,6 @@ class ActionDecisionBehaviour(
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
-
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             (
                 event,
@@ -80,6 +79,7 @@ class ActionDecisionBehaviour(
                 amount,
                 tweet,
                 new_persona,
+                current_timestamp,
             ) = yield from self.get_event()
 
             payload = ActionDecisionPayload(
@@ -94,6 +94,7 @@ class ActionDecisionBehaviour(
                 amount=amount,
                 tweet=tweet,
                 new_persona=new_persona,
+                timestamp=current_timestamp,
             )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -118,10 +119,10 @@ class ActionDecisionBehaviour(
             Optional[float],
             Optional[str],
             Optional[str],
+            float,
         ],
     ]:
         """Get the next event"""
-
         # Filter out tokens with no available actions and
         # randomly sort to avoid the LLM to always selecting the first ones
         meme_coins = self.synchronized_data.meme_coins
@@ -146,13 +147,47 @@ class ActionDecisionBehaviour(
 
         tweet_responses = "\n\n".join(
             [
-                f"tweet: {t['text']}\nviews: {t['view_count']}\nquotes: {t['quote_count']}\nretweets{t['retweet_count']}"
+                f"tweet: {t['reply_text']}\nagent_id: {t['replying_agent_id']}\ntweet_id: {t['reply_tweet_id']}"
                 for t in self.synchronized_data.feedback
             ]
         )
 
-        is_staking_kpi_met = self.synchronized_data.is_staking_kpi_met
-        extra_command = ENFORCE_ACTION_COMMAND if is_staking_kpi_met is False else ""
+        # Get last summon timestamp and current persona
+        current_persona = yield from self.get_persona()
+        current_timestamp = self.get_sync_timestamp()
+        summon_cooldown_seconds = self.params.summon_cooldown_seconds
+
+        # Read last summon from the db
+        db_data = yield from self._read_kv(keys=("last_summon_timestamp",))
+
+        if db_data is None:
+            self.context.logger.error(
+                "Error while loading last_summon_timestamp from the database"
+            )
+            last_summon_timestamp = current_timestamp
+        else:
+            last_summon_timestamp = (
+                float(json.loads(db_data["last_summon_timestamp"]))
+                if db_data["last_summon_timestamp"]
+                else current_timestamp
+            )
+
+        seconds_since_last_summon = current_timestamp - last_summon_timestamp
+
+        # Determine if summon action should be shown based on cooldown
+        is_summon_available = seconds_since_last_summon >= summon_cooldown_seconds
+        summon_token_action_str = (
+            SUMMON_TOKEN_ACTION if is_summon_available else ""
+        )  # nosec
+
+        if is_summon_available:
+            self.context.logger.info(
+                f"Summon action is available because time since last summon ({seconds_since_last_summon}) is >= summon cooldown ({summon_cooldown_seconds})"
+            )
+        else:
+            self.context.logger.info(
+                f"Summon action is NOT available because time since last summon ({seconds_since_last_summon}) is < summon cooldown ({summon_cooldown_seconds})"
+            )
 
         prompt_data = {
             "meme_coins": meme_coins_str,
@@ -160,7 +195,11 @@ class ActionDecisionBehaviour(
             "tweet_responses": tweet_responses,
             "balance": safe_native_balance,
             "ticker": self.get_native_ticker(),
-            "extra_command": extra_command,
+            "current_persona": current_persona,
+            "summon_token_action": summon_token_action_str,
+            "summon_cooldown_seconds": summon_cooldown_seconds,
+            "last_summon_timestamp": last_summon_timestamp,
+            "current_timestamp": current_timestamp,
         }
 
         llm_response = yield from self._call_genai(
@@ -186,21 +225,28 @@ class ActionDecisionBehaviour(
                 None,
                 None,
                 None,
+                current_timestamp,
             )
 
         try:
             response = json.loads(llm_response)
             action_name = response.get("action_name", "none")
+
+            # Continue processing with the original response
             action = response.get(action_name, {})
             new_persona = response.get("new_persona", None)
             tweet = response.get("action_tweet", None)
 
             # Optionally, replace the tweet with one generated by the alternative LLM
+            # Use the previously determined summon_token_action_str
             current_persona = yield from self.get_persona()
             new_tweet = yield from self.replace_tweet_with_alternative_model(
                 prompt=ALTERNATIVE_MODEL_TOKEN_PROMPT.format(
-                    persona=current_persona, meme_coins=meme_coins_str, action=action
-                )
+                    persona=current_persona,
+                    meme_coins=meme_coins_str,
+                    action=action,
+                    summon_token_action=summon_token_action_str,  # Reuse the string
+                ),
             )
             tweet = new_tweet or tweet
 
@@ -233,6 +279,7 @@ class ActionDecisionBehaviour(
                     None,
                     None,
                     None,
+                    current_timestamp,
                 )
 
             if action_name in ["heart", "unleash"] and token_nonce not in valid_nonces:
@@ -250,6 +297,7 @@ class ActionDecisionBehaviour(
                     None,
                     None,
                     None,
+                    current_timestamp,
                 )
 
             available_actions = []
@@ -273,9 +321,9 @@ class ActionDecisionBehaviour(
                     None,
                     None,
                     None,
+                    current_timestamp,
                 )
 
-            # Fix amounts
             if action_name == "summon":
                 chain_id = self.get_chain_id()
 
@@ -319,6 +367,7 @@ class ActionDecisionBehaviour(
                 amount,
                 tweet,
                 new_persona,
+                current_timestamp,
             )
 
         # The response is not a valid json
@@ -335,4 +384,5 @@ class ActionDecisionBehaviour(
                 None,
                 None,
                 None,
+                current_timestamp,
             )

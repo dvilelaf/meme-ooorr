@@ -33,12 +33,12 @@ TENDERLY_ADMIN_RPC = os.getenv("TENDERLY_ADMIN_RPC")
 
 FUND_REQUIREMENTS = {
     "wallets": {
-        "agent_memeooorr": "0x87BF6ba00CeB28daB75bF1AcD32AB00F16841892",
-        "safe_memeooorr": "0xAFfa43df44289672164E37CF415596315344C277",
+        "agent_memeooorr": "0xe14489c8FeBb17CecD938B85755fF28Af4B34c29",
+        "safe_memeooorr": "0xe72470228557De3C75D40D1eE114d5b2729C0015",
     },
     "funds": {
-        "native": 10,  # in ETH
-        "0x54330d28ca3357F294334BDC454a032e7f353416": 100,  # Olas on Base
+        "native": 10000,  # in ETH
+        "0x54330d28ca3357F294334BDC454a032e7f353416": 100000,  # Olas on Base
     },
 }
 

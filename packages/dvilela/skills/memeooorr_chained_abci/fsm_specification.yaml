@@ -65,6 +65,7 @@ states:
 transition_func:
     (ActionDecisionRound, DONE): ActionPreparationRound
     (ActionDecisionRound, NO_MAJORITY): ActionDecisionRound
+    (ActionDecisionRound, RETRY): ActionDecisionRound
     (ActionDecisionRound, ROUND_TIMEOUT): ActionDecisionRound
     (ActionDecisionRound, WAIT): CallCheckpointRound
     (ActionPreparationRound, DONE): ActionTweetRound

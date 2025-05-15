@@ -18,11 +18,11 @@
   "stakingTokenAddress":"0xEB5638eefE289691EcE01943f768EDBF96258a80",
   "stakingFactoryAddress":"0x1cEe30D08943EB58EFF84DD1AB44a6ee6FEff63a",
   "memeFactoryAddress":"0x82A9c823332518c32a0c0eDC050Ef00934Cf04D4",
-  "livenessRatio":"11574074074074",
-  "memeActivityCheckerAddress":"0x008F52AF7009e262967caa7Cb79468F92AFEADF9",
+  "livenessRatio":"34722222222222",
+  "memeActivityCheckerAddress":"0x026AB1c5ea14E61f67d245685D9561c0c2Cb39Ba",
   "stakingParams":
     {
-      "metadataHash":"0x9c01b40bb3d4bfcc6cc70257cca31107c87a3fadc6e80645aea7ae2cc22de203",
+      "metadataHash":"0xa4281ec71a254c8dd08d624ff09609dc3235a0e63b05c1e410eb7e1f3d07e57d",
       "maxNumServices":"100",
       "rewardsPerSecond":"4398148148152",
       "minStakingDeposit":"50000000000000000000",
@@ -36,7 +36,7 @@
       "configHash":"0x0000000000000000000000000000000000000000000000000000000000000000",
       "proxyHash":"0xb89c1b3bdf2cf8827818646bce9a8f6e372885f8c55e5c07acbd307cb133b000",
       "serviceRegistry":"0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE",
-      "activityChecker":"0x008F52AF7009e262967caa7Cb79468F92AFEADF9"
+      "activityChecker":"0x026AB1c5ea14E61f67d245685D9561c0c2Cb39Ba"
     },
-  "stakingTokenInstanceAddress":"0x6011E09e7c095e76980b22498d69dF18EB62BeD8"
+  "stakingTokenInstanceAddress":"0xc653622FD75026a020995a1d8c8651316cBBc4dA"
 }

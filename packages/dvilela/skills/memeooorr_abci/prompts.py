@@ -25,6 +25,9 @@ import typing
 from dataclasses import dataclass
 
 
+ENFORCE_ACTION_COMMAND = "Please use tools, as you are required to meet some action KPIs and you have not met them yet."
+
+
 TWITTER_DECISION_PROMPT = """
 You are a user on Twitter with a specific persona. You create tweets and also analyze tweets from other users and decide whether to interact with them or not.
 
@@ -56,6 +59,8 @@ Here are some tweets from other users:
 
 You need to decide if you want to use tools or not , if not then what actions on Twitter you want to perform.
 You must choose **either** a Twitter action **or** a Tool action, but not both.
+
+{extra_command}
 
 Your task is to decide what actions to do, if any. Some recommenadations:
 - Do not invent or assume any details. Use only the information provided. as we do not want to spread misinformation.
@@ -111,6 +116,7 @@ class ToolActionName(enum.Enum):
     """ToolActionName"""
 
     STABLE_DIFFUSION = "stabilityai-stable-diffusion-v1-6"
+    SHORT_MAKER = "short_maker"
 
 
 @dataclass(frozen=True)
@@ -154,7 +160,7 @@ def build_decision_schema() -> dict:
     return {"class": pickle.dumps(Decision).hex(), "is_list": False}
 
 
-ENFORCE_ACTION_COMMAND = "Please take some action, as you are required to meet some action KPIs and you have not met them yet."
+SUMMON_TOKEN_ACTION = """* summon: create a new token based on your persona"""  # nosec
 
 
 TOKEN_DECISION_PROMPT = (  # nosec
@@ -182,7 +188,7 @@ TOKEN_DECISION_PROMPT = (  # nosec
 
     The complete list of token actions is:
 
-    * summon: create a new token based on your persona
+    {summon_token_action}
     * heart: contribute funds to the token, to later be able to collect the token
     * unleash: activate the inactive token, and collect the token if you hearted before
     * collect: collect your token if you have previously contributed
@@ -199,10 +205,7 @@ TOKEN_DECISION_PROMPT = (  # nosec
     * Execute one action from the available actions for one of the already existing tokens.
     * Do nothing
 
-
     ONLY if you are not summoning, action priority should be "collect" > "unleash" > "purge" > "heart".
-
-    {extra_command}
 
     Here's the list of existing  memecoins:
     {meme_coins}
@@ -210,7 +213,7 @@ TOKEN_DECISION_PROMPT = (  # nosec
     Here's your latest tweet:
     "{latest_tweet}"
 
-    Here's a list of tweets that you received as a response to your latest tweet and some engagement metrics.
+    Here's a list of tweets that you received as a response to your latest tweet.
     You can use this information to update your persona if you think that will improve engagement.
     "{tweet_responses}"
 
@@ -248,7 +251,7 @@ ALTERNATIVE_MODEL_TOKEN_PROMPT = (  # nosec
 
     The complete list of token actions is:
 
-    * summon: create a new token based on your persona
+    {summon_token_action}
     * heart: contribute funds to the token, to later be able to collect the token
     * unleash: activate the inactive token, and collect the token if you hearted before
     * collect: collect your token if you have previously contributed

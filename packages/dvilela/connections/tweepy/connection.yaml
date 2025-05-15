@@ -1,0 +1,30 @@
+name: tweepy
+author: dvilela
+version: 0.1.0
+type: connection
+description: A connection that provides a wrapper around the Tweepy library.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeicrwqrdownfmeyvvzu45fllxouiwvtynrzs5fhbpt3wndyyhn66eu
+  connection.py: bafybeifcg6nbpyxffhaiamnkmit5nvw2aar6lymnytj2hlf6y5ye7hkmo4
+  readme.md: bafybeib5oflnp3gymrottersu6qrnitjmaifl2gvbvjq7kbmsdbihhzfaa
+  tweepy_wrapper.py: bafybeicg6isplhtcfow2ooy6rcrakzudn27tcevhzxa73onn6x5kpr47rq
+fingerprint_ignore_patterns: []
+connections: []
+protocols:
+- valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
+class_name: TweepyConnection
+config:
+  tweepy_consumer_api_key: null
+  tweepy_consumer_api_key_secret: null
+  tweepy_bearer_token: null
+  tweepy_access_token: null
+  tweepy_access_token_secret: null
+excluded_protocols: []
+restricted_to_protocols: []
+dependencies:
+  tweepy:
+    version: ==4.15.0
+is_abstract: false
+cert_requests: []

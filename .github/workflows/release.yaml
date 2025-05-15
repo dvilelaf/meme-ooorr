@@ -9,7 +9,7 @@ on:
 jobs:
   publish-packages:
     name: Push Packages
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -45,6 +45,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
             fetch-depth: 0
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
       - name: Set up tag and vars
         uses: addnab/docker-run-action@v3
         with:
@@ -73,40 +75,20 @@ jobs:
         name: Build Images
         with:
             image: valory/open-autonomy-user:latest
-            options: -v ${{ github.workspace }}:/work
+            options: -v ${{ github.workspace }}:/work -e DOCKER_USER -e DOCKER_PASSWORD
             shell: bash
             run: |
               echo "Building Docker Images"
               cd /work
-              pip install --upgrade poetry
-              poetry install
               source env.sh || exit 1
               echo "Building images for $AUTHOR for service $SERVICE"
               autonomy init --reset --author $AUTHOR --ipfs --remote
               autonomy fetch $AUTHOR/$SERVICE --service --local || exit 1
               cd $SERVICE || exit 1
-              autonomy build-image || exit 1
-              autonomy build-image --version $VERSION || exit 1
-
-      - name: Docker login
-        run: |
-            echo  $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
-      - name: Docker Push
-        run: |
-          source env.sh
-
-          echo "Re-tagging $AUTHOR/oar-$AGENT:$VERSION -> $DOCKER_USER/oar-$AGENT:$VERSION"
-          docker tag $AUTHOR/oar-$AGENT:$VERSION $DOCKER_USER/oar-$AGENT:$VERSION
-
-          echo "Pushing $DOCKER_USER/oar-$AGENT:$VERSION"
-          docker push $DOCKER_USER/oar-$AGENT:$VERSION
-
-          echo "Re-tagging $AUTHOR/oar-$AGENT:$DEFAULT_IMAGE_TAG -> $DOCKER_USER/oar-$AGENT:$DEFAULT_IMAGE_TAG"
-          docker tag $AUTHOR/oar-$AGENT:$DEFAULT_IMAGE_TAG $DOCKER_USER/oar-$AGENT:$DEFAULT_IMAGE_TAG
-
-          echo "Pushing $DOCKER_USER/oar-$AGENT:$DEFAULT_IMAGE_TAG"
-          docker push $DOCKER_USER/oar-$AGENT:$DEFAULT_IMAGE_TAG
-
+              echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin || exit 1
+              docker buildx create --name multiarch-builder --driver docker-container --bootstrap --use
+              autonomy build-image --builder multiarch-builder --platform linux/amd64,linux/arm64,linux/arm/v7 --pre-install-command "apt install gcc libxml2-dev libxslt-dev -y" --push || exit 1
+              autonomy build-image --builder multiarch-builder --platform linux/amd64,linux/arm64,linux/arm/v7 --pre-install-command "apt install gcc libxml2-dev libxslt-dev -y" --push --version $VERSION || exit 1
 
   build-macos-pyinstaller:
     runs-on: ${{ matrix.os }}
@@ -142,7 +124,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-           poetry run pyinstaller --collect-data eth_account --collect-all aea --collect-all autonomy --collect-all operate --collect-all aea_ledger_ethereum --collect-all aea_ledger_cosmos --collect-all aea_ledger_ethereum_flashbots --hidden-import aea_ledger_ethereum --hidden-import aea_ledger_cosmos --hidden-import aea_ledger_ethereum_flashbots --hidden-import grpc --hidden-import openapi_core --collect-all google.protobuf --collect-all openapi_core --collect-all openapi_spec_validator --collect-all asn1crypto --hidden-import py_ecc --hidden-import pytz --collect-all twikit --collect-all twitter_text_parser --collect-all textblob --onefile pyinstaller/memeooorr_bin.py --name memeooorr_bin_${{env.OS_ARCH}}
+           poetry run pyinstaller --collect-data eth_account --collect-all aea --collect-all autonomy --collect-all operate --collect-all aea_ledger_ethereum --collect-all aea_ledger_cosmos --collect-all aea_ledger_ethereum_flashbots --hidden-import aea_ledger_ethereum --hidden-import aea_ledger_cosmos --hidden-import aea_ledger_ethereum_flashbots --hidden-import grpc --hidden-import openapi_core --collect-all google.protobuf --collect-all openapi_core --collect-all openapi_spec_validator --collect-all asn1crypto --hidden-import py_ecc --hidden-import pytz --collect-all tweepy --collect-all twitter_text_parser --collect-all textblob --onefile pyinstaller/memeooorr_bin.py --name memeooorr_bin_${{env.OS_ARCH}}
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:

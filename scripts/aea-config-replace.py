@@ -43,18 +43,16 @@ PATH_TO_VAR = {
     "models/params/args/minimum_gas_balance": "MINIMUM_GAS_BALANCE",
     "models/params/args/min_feedback_replies": "MIN_FEEDBACK_REPLIES",
     "models/params/args/setup/safe_contract_address": "SAFE_CONTRACT_ADDRESS",
-    "models/params/args/twitter_username": "TWIKIT_USERNAME",
     "models/params/args/persona": "PERSONA",
     "models/params/args/skip_engagement": "SKIP_ENGAGEMENT",
     "models/params/args/staking_token_contract_address": "STAKING_TOKEN_CONTRACT_ADDRESS",
     "models/params/args/activity_checker_contract_address": "ACTIVITY_CHECKER_CONTRACT_ADDRESS",
-    # Twikit connection
-    "config/twikit_username": "TWIKIT_USERNAME",
-    "config/twikit_email": "TWIKIT_EMAIL",
-    "config/twikit_password": "TWIKIT_PASSWORD",
-    "config/twikit_cookies": "TWIKIT_COOKIES",
-    "config/twikit_disable_tweets": "TWIKIT_DISABLE_TWEETS",
-    "config/twikit_skip_connection": "TWIKIT_SKIP_CONNECTION",
+    # Tweepy connection
+    "config/tweepy_consumer_api_key": "TWEEPY_CONSUMER_API_KEY",
+    "config/tweepy_consumer_api_key_secret": "TWEEPY_CONSUMER_API_KEY_SECRET",
+    "config/tweepy_bearer_token": "TWEEPY_BEARER_TOKEN",
+    "config/tweepy_access_token": "TWEEPY_ACCESS_TOKEN",
+    "config/tweepy_access_token_secret": "TWEEPY_ACCESS_TOKEN_SECRET",
     # Genai connection
     "config/genai_api_key": "GENAI_API_KEY",
     # Store
@@ -64,6 +62,8 @@ PATH_TO_VAR = {
     # Fireworks API
     "models/params/args/alternative_model_for_tweets": "ALTERNATIVE_MODEL_FOR_TWEETS",
     "models/params/args/fireworks_api_key": "FIREWORKS_API_KEY",
+    # Cooldown
+    "models/params/args/summon_cooldown_seconds": "SUMMON_COOLDOWN_SECONDS",
 }
 
 CONFIG_REGEX = r"\${.*?:(.*)}"

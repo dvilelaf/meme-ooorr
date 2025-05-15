@@ -30,8 +30,8 @@ import requests
 MEMEOOORR_DESCRIPTION_PATTERN = r"^Memeooorr @(\w+)$"
 
 TOKENS_QUERY = """
-query Tokens {
-  memeTokens {
+query Tokens($limit: Int, $after: String) {
+  memeTokens(limit: $limit, after: $after, orderBy: "summonTime", orderDirection: "asc") {
     items {
       blockNumber
       chain
@@ -71,6 +71,29 @@ query getPackages($package_type: String!) {
 }
 """
 
+INTROSPECTION_QUERY = """
+{
+  __schema {
+    queryType {
+      fields {
+        name
+        args {
+          name
+          type {
+            name
+            kind
+            ofType {
+              name
+              kind
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
 HTTP_OK = 200
 
 
@@ -79,7 +102,7 @@ def get_meme_coins_from_subgraph():
 
     url = "https://agentsfun-indexer-production.up.railway.app"
 
-    query = {"query": TOKENS_QUERY}
+    query = {"query": TOKENS_QUERY, "variables": {"limit": 1000, "after": None}}
 
     headers = {"Content-Type": "application/json"}
 
@@ -159,6 +182,19 @@ def get_memeooorr_handles_from_subgraph():
         handles.append(handle)
     return handles
 
+
+def introspect_subgraph():
+    """Introspect the subgraph to get the schema"""
+    url = "https://agentsfun-indexer-production.up.railway.app"
+    response = requests.post(url, json={"query": INTROSPECTION_QUERY})
+    fields = response.json()["data"]["__schema"]["queryType"]["fields"]
+
+    for f in fields:
+        if f["name"] == "memeTokens":
+            print(f)
+
+
+# introspect_subgraph()
 
 meme_coin_data = get_meme_coins_from_subgraph()
 
