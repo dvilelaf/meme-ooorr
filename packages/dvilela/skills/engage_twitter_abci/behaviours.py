@@ -38,9 +38,6 @@ from packages.dvilela.skills.engage_twitter_abci.rounds import (
     EngageTwitterRound,
     Event,
 )
-from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
-    MemeooorrBaseBehaviour,
-)
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -58,7 +55,7 @@ def is_tweet_valid(tweet: str) -> bool:
     return parse_tweet(tweet).asdict()["weightedLength"] <= MAX_TWEET_CHARS
 
 
-class BaseTweetBehaviour(MemeooorrBaseBehaviour):  # pylint: disable=too-many-ancestors
+class BaseTweetBehaviour(BaseBehaviour):  # pylint: disable=too-many-ancestors
     """BaseTweetBehaviour"""
 
     matching_round: Type[AbstractRound] = None  # type: ignore

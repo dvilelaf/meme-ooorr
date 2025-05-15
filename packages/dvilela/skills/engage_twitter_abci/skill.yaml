@@ -7,11 +7,11 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeidorrnxjv4n4ngovxnu4mzod46kyrdncfmli4hapqeqnzp7imq7hm
-  behaviours.py: bafybeigjuqcamlqucgwlwaqnixh43zvfc3e4at2qpfmhb477zbdsesxkxi
+  behaviours.py: bafybeiedgsue3f74wqtl4ynnqr4qgbp6cg4nctq2xlkjrrrngjpo5766t4
   dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
   fsm_specification.yaml: bafybeif7ywyws7xm3dtf3ijxozhwerjebo6ejlx42ujtpehizlqfgtci4i
   handlers.py: bafybeift2ajkdjzixtlgrypww3sin7kcycgpywriz2ohdyvepjlkogxxce
-  models.py: bafybeibmed24jno4eg6eh43wgd6q6uk7s5rxqewfrnbf4n6xv3m2uhftte
+  models.py: bafybeiccu7hr4lix2nsq25467middgbxerzgve3wxuqotl6rbd6v6kyn3u
   payloads.py: bafybeidchykhmmyvrfcus7jfwg4ttlajq7fidxx73bjktt6keyzokzw6hi
   prompts.py: bafybeigtpr6w5etqbz2i2ifcorcknppedhsaonzbt4gxz7gmo2cuo6xtcu
   rounds.py: bafybeiazrjuww3h22izedmzcpoapfvz3to6qkebvao2kecry46rmlw25fu
@@ -23,7 +23,6 @@ protocols:
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
-- dvilela/memeooorr_abci:0.1.0:bafybeies4lmdl3b5e5vg5kvijcul7lhf676k4ynvtvhjttgbhuimvtovcm
 - dvilela/decision_making_abci:0.1.0:bafybeicfzacwboeipo3tyiauu2gctsy734immemp3pvfd6ey3fc2yhdaqq
 behaviours:
   main:

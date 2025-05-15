@@ -17,12 +17,12 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the shared state for the abci skill of MemeooorrAbciApp."""
+"""This module contains the shared state for the abci skill of EngageTwitterAbciApp."""
 
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from packages.dvilela.skills.memeooorr_abci.rounds import MemeooorrAbciApp
+from packages.dvilela.skills.engage_twitter_abci.rounds import EngageTwitterAbciApp
 from packages.valory.skills.abstract_round_abci.models import BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -36,7 +36,7 @@ from packages.valory.skills.abstract_round_abci.models import (
 class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
-    abci_app_cls = MemeooorrAbciApp
+    abci_app_cls = EngageTwitterAbciApp
 
 
 Requests = BaseRequests

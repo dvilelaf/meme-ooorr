@@ -12,12 +12,12 @@
         "skill/dvilela/memeooorr_abci/0.1.0": "bafybeies4lmdl3b5e5vg5kvijcul7lhf676k4ynvtvhjttgbhuimvtovcm",
         "skill/dvilela/memeooorr_chained_abci/0.1.0": "bafybeie4au6j656dyxnxrbmvqbxmi3keetyx4hg723ygzf5lkg6lxsvwyq",
         "skill/dvilela/decision_making_abci/0.1.0": "bafybeicfzacwboeipo3tyiauu2gctsy734immemp3pvfd6ey3fc2yhdaqq",
-        "skill/dvilela/engage_twitter_abci/0.1.0": "bafybeiandqnfkxclbgsekah76kkzn3foeuscew74enitgbn6cxspewylnq",
-        "skill/dvilela/agents_fun_abci/0.1.0": "bafybeicevgcyydkuu2gjox4lpemys462aeyca2ofszei5bdok4ttocsige",
+        "skill/dvilela/engage_twitter_abci/0.1.0": "bafybeieattk7uggtcdd6r4tpabqpxberotu75vtsyzmg43rg4t6yzddvrq",
+        "skill/dvilela/agents_fun_abci/0.1.0": "bafybeigvo3ue5iz7txoa6oru6wwy5yg2nncgdwmbjys6l4lqbfrzycvnvy",
         "agent/dvilela/memeooorr/0.1.0": "bafybeihg4fbsy63egceogbzsw3phka5k4ax77tr37tmobfebwasg37cz5m",
-        "agent/dvilela/agents_fun/0.1.0": "bafybeihubtpdiidzyq4jsspea52z6cx6hrceorknw6gteekieaahgtiowe",
+        "agent/dvilela/agents_fun/0.1.0": "bafybeigvlaupu6ey57fl2dta3mza3lr3k37horwv2dwfjqqwiubohpg4sm",
         "service/dvilela/memeooorr/0.1.0": "bafybeid77rpzdgcmn3tdeu4tpsynqbvy3spiazhb3qpgmdk76kxoyq2iqi",
-        "service/dvilela/agents_fun/0.1.0": "bafybeiemd5ubylts4g54zgxjfqtwlwlc5jio4jn3rrpu4alfxttvfv7nze"
+        "service/dvilela/agents_fun/0.1.0": "bafybeid2htwbvzjzwbr4a7czbyc535mspeenzgxuyetcmydl3mc5qlxpp4"
     },
     "third_party": {
         "protocol/open_aea/signing/1.0.0": "bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm",
