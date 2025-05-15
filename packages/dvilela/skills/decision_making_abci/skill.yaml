@@ -14,7 +14,7 @@ fingerprint:
   models.py: bafybeicxevvj65o6bvsff2deqfwvbqib2dj47wqc2kbdrvygj2y3kfihwm
   payloads.py: bafybeianvp7rqfjcbt5ajftrzkzu2xzteeinip7sf4w5xuvdpbyd5rwsiq
   prompts.py: bafybeib5fqvkpzwzjyae3lgdrudiqw4avra4e2sfchsa4onecbjytljnh4
-  rounds.py: bafybeigjwo2rysd7mgjrxw2ynx7fmqlpwc2cr44viuomnwahnurlladmue
+  rounds.py: bafybeicqsbtgr6ujbhnx2z2j4y3xbcpyqzyyvtliv7twbw72fpqsxl5s2a
   rounds_info.py: bafybeiepdyp3r4a7f535w5yxizauvedaine7hfbqeaj5gnx5y5bi4z6fzu
   tool_output.py: bafybeibrgz2onqdl2iqer7g5edwu6lxa2zh5udfib6ezne36xkjrsahkvi
 fingerprint_ignore_patterns: []
@@ -27,7 +27,7 @@ protocols:
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 - valory/http:1.0.0:bafybeih4azmfwtamdbkhztkm4xitep3gx6tfdnoz6tvllmaqnhu3klejfa
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeiezhbsm2ctlw7frt53jxpdq6d5cq2xaruzsedg66nqmi4prrglame
+- valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
 behaviours:
   main:
     args: {}
