@@ -34,7 +34,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     DegenerateRound,
     DeserializedCollection,
     EventToTimeout,
-    get_name
+    get_name,
 )
 
 
@@ -90,13 +90,15 @@ class DecisionMakingRound(CollectSameUntilThresholdRound):
             # If we are going to reset, we need to write the tool output of the "reset tool".
             # Since we dont want to modify reset_and_pause_abci, we do it here before transitioning.
             if event == Event.DONE:
-                tool_output = ToolOutput.from_dict({
-                    "tool_name": "done",
-                    "status": ToolOutput.Status.DONE,
-                    "request": ToolOutput.Request.NONE,
-                    "reentry_point": None,
-                    "message": "Sleep was succesful",
-                })
+                tool_output = ToolOutput.from_dict(
+                    {
+                        "tool_name": "done",
+                        "status": ToolOutput.Status.DONE,
+                        "request": ToolOutput.Request.NONE,
+                        "reentry_point": None,
+                        "message": "Sleep was succesful",
+                    }
+                )
                 synchronized_data = self.synchronized_data.update(
                     synchronized_data_class=SynchronizedData,
                     **{

@@ -143,6 +143,7 @@ bump-packages:
 .PHONY: run-agent
 run-agent:
 	bash run_agent.sh 2>&1 | tee agent_log.log
+
 .PHONY: gitleaks-ignore
 gitleaks-ignore:
 	python scripts/gitleaks_ignore.py

@@ -22,6 +22,7 @@
 from enum import Enum
 from typing import Dict, FrozenSet, Optional, Set, Tuple
 
+from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
 from packages.dvilela.skills.engage_twitter_abci.payloads import EngageTwitterPayload
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -32,9 +33,8 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
     EventToTimeout,
-    get_name
+    get_name,
 )
-from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
 
 
 class Event(Enum):
@@ -76,14 +76,15 @@ class EventRoundBase(CollectSameUntilThresholdRound):
             synchronized_data = self.synchronized_data
 
             if event == Event.DONE:
-
-                tool_output = ToolOutput.from_dict({
-                    "tool_name": "engage_twitter",
-                    "status": ToolOutput.Status.DONE,
-                    "request": ToolOutput.Request.NONE,
-                    "reentry_point": None,
-                    "message": "Engage Twitter has finished succesfully",
-                })
+                tool_output = ToolOutput.from_dict(
+                    {
+                        "tool_name": "engage_twitter",
+                        "status": ToolOutput.Status.DONE,
+                        "request": ToolOutput.Request.NONE,
+                        "reentry_point": None,
+                        "message": "Engage Twitter has finished succesfully",
+                    }
+                )
                 synchronized_data = self.synchronized_data.update(
                     synchronized_data_class=SynchronizedData,
                     **{
