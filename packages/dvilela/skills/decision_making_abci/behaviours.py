@@ -19,15 +19,12 @@
 
 """This package contains round behaviours of DecisionMakingAbciApp."""
 
-import json
 from abc import ABC
 from typing import Any, Dict, Generator, Optional, Set, Tuple, Type, cast
 
 from aea.protocols.base import Message
 
-from packages.dvilela.connections.genai.connection import (
-    PUBLIC_ID as GENAI_CONNECTION_PUBLIC_ID,
-)
+
 from packages.dvilela.skills.decision_making_abci.models import Params, SharedState
 from packages.dvilela.skills.decision_making_abci.rounds import (
     DecisionMakingAbciApp,
@@ -37,14 +34,15 @@ from packages.dvilela.skills.decision_making_abci.rounds import (
     SynchronizedData,
 )
 from packages.dvilela.skills.decision_making_abci.tool_output import ToolOutput
-from packages.valory.protocols.srr.dialogues import SrrDialogue, SrrDialogues
-from packages.valory.protocols.srr.message import SrrMessage
+
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
 )
 from packages.valory.skills.abstract_round_abci.models import Requests
+
+# from packages.dvilela.skills.base_abci.behaviours import BaseSkillBehaviour
 
 
 TOOLS = {
@@ -94,37 +92,6 @@ class DecisionMakingBaseBehaviour(
         ] = self.get_callback_request()
         response = yield from self.wait_for_message(timeout=timeout)
         return response
-
-    def _call_genai(
-        self,
-        method: str,
-        **kwargs: Optional[Dict[str, Any]],
-    ) -> Generator[None, None, Optional[str]]:
-        """Send a request message from the skill context."""
-
-        payload_data: Dict[str, Any] = {
-            "method": method,
-            "kwargs": kwargs or {},
-        }
-
-        srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
-        srr_message, srr_dialogue = srr_dialogues.create(
-            counterparty=str(GENAI_CONNECTION_PUBLIC_ID),
-            performative=SrrMessage.Performative.REQUEST,
-            payload=json.dumps(payload_data),
-        )
-        srr_message = cast(SrrMessage, srr_message)
-        srr_dialogue = cast(SrrDialogue, srr_dialogue)
-        response = yield from self._do_connection_request(srr_message, srr_dialogue)  # type: ignore
-
-        response_json = json.loads(response.payload)  # type: ignore
-        response_error = response.error
-
-        if response_error:
-            self.context.logger.error(response_json)
-            return None
-
-        return response_json["response"]  # type: ignore
 
 
 class DecisionMakingBehaviour(

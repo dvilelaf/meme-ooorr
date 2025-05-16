@@ -1,37 +1,32 @@
-name: decision_making_abci
+name: base_abci
 author: dvilela
 version: 0.1.0
 type: skill
-description: A decision maker skill.
+description: A skill to deal with all the connections
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeigpcuvsyzzujap342no35q6npgt7pwjxexkrt3bvzeo7cmeteqluq
-  behaviours.py: bafybeibbaf5x4fovpgrg4py5wyadg5nvji4uq4eoqpjmubejopbuifrlqi
-  dialogues.py: bafybeigt7f5iqzpjfclatbrir7qqgckavm765lwfygaxmnqru24ak3ihme
+  behaviours.py: bafybeigab3e3nhxez2pk4wnrosdk6zo7zcgamp7zejalvbc4sutf5zbnue
+  dialogues.py: bafybeiejwxr56hmsijysd4553vg5ofubg2f3oveeblrqszsyzqixfyjjcy
   fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
-  handlers.py: bafybeiftlwbfj6bvaw2j2h56v6aufghegrbzmsdi7pz66wu3ondffyrtiu
-  models.py: bafybeicxevvj65o6bvsff2deqfwvbqib2dj47wqc2kbdrvygj2y3kfihwm
-  payloads.py: bafybeianvp7rqfjcbt5ajftrzkzu2xzteeinip7sf4w5xuvdpbyd5rwsiq
-  prompts.py: bafybeib5fqvkpzwzjyae3lgdrudiqw4avra4e2sfchsa4onecbjytljnh4
-  rounds.py: bafybeicqsbtgr6ujbhnx2z2j4y3xbcpyqzyyvtliv7twbw72fpqsxl5s2a
-  rounds_info.py: bafybeiepdyp3r4a7f535w5yxizauvedaine7hfbqeaj5gnx5y5bi4z6fzu
-  tool_output.py: bafybeibrgz2onqdl2iqer7g5edwu6lxa2zh5udfib6ezne36xkjrsahkvi
+  handlers.py: bafybeidxfuxkdstuliyetfx7ph26wnfrfgc4gfu2icn2d3eflllhwde2ye
+  models.py: bafybeid5kjo3chffxvbvkf4f4mwj6b22fok3huhly3inydzpjsh3if27gq
+  payloads.py: bafybeidiwhj3n3m6iehwursigccspxwntnb5yfbqdmgilyttm6vs77p43e
+  rounds.py: bafybeidf5pomkn4mco7pzzg2vucmsurphr2up4u4nx7nppxhvingihl63i
 fingerprint_ignore_patterns: []
 connections:
-- valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
+- dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu
+- dvilela/genai:0.1.0:bafybeiarmdiqymzuqnc4abut77r4ziqwigpmvmwkeiahz2jh6vwr54dsuy
 contracts: []
 protocols:
 - valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
-- valory/http:1.0.0:bafybeih4azmfwtamdbkhztkm4xitep3gx6tfdnoz6tvllmaqnhu3klejfa
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
-- dvilela/base_abci:0.1.0:bafybeiavmhraxkmoafrlyxe7ntmi2iep2sqjaarf5gxhmlhlcsaejo7qiq
 behaviours:
   main:
     args: {}
-    class_name: DecisionMakingRoundBehaviour
+    class_name: BaseSkillBehaviour
 handlers:
   abci:
     args: {}
@@ -112,30 +107,7 @@ models:
       on_chain_service_id: null
       request_retry_delay: 1.0
       request_timeout: 10.0
-      reset_pause_duration: 10
-      reset_tendermint_after: 2
-      retry_attempts: 400
-      retry_timeout: 3
-      round_timeout_seconds: 30.0
-      service_id: agents_fun
-      service_registry_address: null
-      setup:
-        all_participants:
-        - '0x0000000000000000000000000000000000000000'
-        consensus_threshold: null
-        safe_contract_address: '0x0000000000000000000000000000000000000000'
-      share_tm_config_on_startup: false
-      sleep_time: 1
-      tendermint_check_sleep_delay: 3
-      tendermint_com_url: http://localhost:8080
-      tendermint_max_retries: 5
-      tendermint_p2p_url: localhost:26656
-      tendermint_url: http://localhost:26657
-      tx_timeout: 10.0
-      ipfs_address: https://gateway.autonolas.tech/ipfs/
-      validate_timeout: 1205
-      default_chain_id: ethereum
-      service_endpoint: memeooorr.dummy.com/
+      skip_engagement: false
     class_name: Params
   requests:
     args: {}

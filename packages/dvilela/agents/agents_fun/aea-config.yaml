@@ -13,11 +13,11 @@ connections:
 - valory/http_client:0.23.0:bafybeid5ffvg76ejjoese7brj5ji3lx66cu7p2ixfwflpo6rgofkypfd7y
 - valory/ledger:0.19.0:bafybeibdsjmy4w2eyilbqc7yzutopl65qpeyspxwz7mjvirr52twhjlf5y
 - valory/p2p_libp2p_client:0.1.0:bafybeic6ayusdwy4dks75njwk32ac7ur7salgllwf4fdc34ue5z2k5iz4q
-- dvilela/twikit:0.1.0:bafybeie7on3y3yzdwivz5wnsp64xq3ak3mn2hcgpw74q4hcop2tw7pur4e
 - dvilela/mirror_db:0.1.0:bafybeifgjuwvqpjafwkdqjt4223i7jdm6ppyijdx2knox4md7tfbhpvmbq
 - dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
 - dvilela/genai:0.1.0:bafybeiarmdiqymzuqnc4abut77r4ziqwigpmvmwkeiahz2jh6vwr54dsuy
+- dvilela/tweepy:0.1.0:bafybeihgbrcyip3s426cot23t6ezpo6ltf5naonoyn354k526buluqsfoe
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeidhegkiibxroyvzvsyuh5t3qpq3egj24u2yg2xryf2kir4f36on3u
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeidjgnk2jephgtwlxlxokto5rfde4u5kreh4wx5lv3fengidogynsi
@@ -44,10 +44,11 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/decision_making_abci:0.1.0:bafybeicfzacwboeipo3tyiauu2gctsy734immemp3pvfd6ey3fc2yhdaqq
-- dvilela/engage_twitter_abci:0.1.0:bafybeieattk7uggtcdd6r4tpabqpxberotu75vtsyzmg43rg4t6yzddvrq
-- dvilela/agents_fun_abci:0.1.0:bafybeigvo3ue5iz7txoa6oru6wwy5yg2nncgdwmbjys6l4lqbfrzycvnvy
+- dvilela/decision_making_abci:0.1.0:bafybeiehhgawtif4xgan2t2bphulnbkwbdtzqngwl3j5aqan2d2h5u3fcq
+- dvilela/engage_twitter_abci:0.1.0:bafybeiei5pbl623u34lowsxzv32bgsf67aw5rft5aphsr2cbpqhs6hnvs4
+- dvilela/agents_fun_abci:0.1.0:bafybeib7larsvip3bj6undqcxejopn6x727w53ow6327tmj2luozygyqle
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
+- dvilela/base_abci:0.1.0:bafybeiavmhraxkmoafrlyxe7ntmi2iep2sqjaarf5gxhmlhlcsaejo7qiq
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -249,16 +250,14 @@ type: connection
 config:
   genai_api_key: ${str:null}
 ---
-public_id: dvilela/twikit:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
-  twikit_username: ${str:null}
-  twikit_email: ${str:null}
-  twikit_password: ${str:null}
-  twikit_cookies: ${str:null}
-  twikit_disable_tweets: ${bool:false}
-  twikit_skip_connection: ${bool:false}
-  store_path: ${str:null}
+  tweepy_consumer_api_key: ${str:null}
+  tweepy_consumer_api_key_secret: ${str:null}
+  tweepy_bearer_token: ${str:null}
+  tweepy_access_token: ${str:null}
+  tweepy_access_token_secret: ${str:null}
 ---
 public_id: dvilela/mirror_db:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection

@@ -27,7 +27,7 @@ from packages.dvilela.skills.agents_fun_abci.composition import (
 from packages.dvilela.skills.decision_making_abci.behaviours import (
     DecisionMakingRoundBehaviour,
 )
-from packages.dvilela.skills.engage_twitter_abci.behaviours import (
+from packages.dvilela.skills.engage_twitter_abci.behaviours.engage_twitter import (
     EngageTwitterRoundBehaviour,
 )
 from packages.valory.skills.abstract_round_abci.behaviours import (
@@ -48,7 +48,7 @@ from packages.valory.skills.termination_abci.behaviours import (
 from packages.valory.skills.transaction_settlement_abci.behaviours import (
     TransactionSettlementRoundBehaviour,
 )
-
+from packages.dvilela.skills.base_abci.behaviours import BaseSkillBehaviour
 
 class AgentsFunChainedConsensusBehaviour(AbstractRoundBehaviour):
     """Class to define the behaviours this AbciApp has."""
@@ -62,5 +62,6 @@ class AgentsFunChainedConsensusBehaviour(AbstractRoundBehaviour):
         *TransactionSettlementRoundBehaviour.behaviours,
         *DecisionMakingRoundBehaviour.behaviours,
         *EngageTwitterRoundBehaviour.behaviours,
+        *BaseSkillBehaviour.behaviours,
     }
     background_behaviours_cls = {BackgroundBehaviour}
