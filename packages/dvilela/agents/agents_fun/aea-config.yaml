@@ -44,9 +44,9 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/decision_making_abci:0.1.0:bafybeiehhgawtif4xgan2t2bphulnbkwbdtzqngwl3j5aqan2d2h5u3fcq
-- dvilela/engage_twitter_abci:0.1.0:bafybeiei5pbl623u34lowsxzv32bgsf67aw5rft5aphsr2cbpqhs6hnvs4
-- dvilela/agents_fun_abci:0.1.0:bafybeib7larsvip3bj6undqcxejopn6x727w53ow6327tmj2luozygyqle
+- dvilela/decision_making_abci:0.1.0:bafybeie65pg7yfky63mheo3pcav3t7mabe6tjnhnicuptixexshlk6ks7u
+- dvilela/engage_twitter_abci:0.1.0:bafybeic2dm2kmbfgwbg75dh37bn6kkphhpohvaajr55wr6wdpn35avzpda
+- dvilela/agents_fun_abci:0.1.0:bafybeibyj7pbuo3eib34rgiqyejpwoggq7jgpy2ffaaflaxwrv5cynfsi4
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 - dvilela/base_abci:0.1.0:bafybeiavmhraxkmoafrlyxe7ntmi2iep2sqjaarf5gxhmlhlcsaejo7qiq
 default_ledger: ethereum

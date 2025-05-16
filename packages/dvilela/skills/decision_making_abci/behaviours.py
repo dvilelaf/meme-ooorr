@@ -42,7 +42,7 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
 )
 from packages.valory.skills.abstract_round_abci.models import Requests
 
-# from packages.dvilela.skills.base_abci.behaviours import BaseSkillBehaviour
+from packages.dvilela.skills.base_abci.behaviours import BaseSkillBehaviour
 
 
 TOOLS = {
@@ -58,7 +58,7 @@ TOOLS = {
 
 
 class DecisionMakingBaseBehaviour(
-    BaseBehaviour, ABC
+    BaseSkillBehaviour, ABC
 ):  # pylint: disable=too-many-ancestors,too-many-public-methods
     """Base behaviour for the memeooorr_abci skill."""
 
