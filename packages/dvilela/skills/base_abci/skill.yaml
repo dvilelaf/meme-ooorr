@@ -6,7 +6,7 @@ description: A skill to deal with all the connections
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  behaviours.py: bafybeigab3e3nhxez2pk4wnrosdk6zo7zcgamp7zejalvbc4sutf5zbnue
+  behaviours.py: bafybeifamnlvsxwgcf7xxytmngqwypc6r5xs5zqf6adl7rdmhhrlo24odm
   dialogues.py: bafybeiejwxr56hmsijysd4553vg5ofubg2f3oveeblrqszsyzqixfyjjcy
   fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
   handlers.py: bafybeidxfuxkdstuliyetfx7ph26wnfrfgc4gfu2icn2d3eflllhwde2ye
@@ -26,7 +26,7 @@ skills:
 behaviours:
   main:
     args: {}
-    class_name: BaseSkillBehaviour
+    class_name: BaseSkillRoundBehaviour
 handlers:
   abci:
     args: {}

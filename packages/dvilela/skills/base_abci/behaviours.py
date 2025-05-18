@@ -1,6 +1,5 @@
 import json
 
-from packages.valory.skills.abstract_round_abci.behaviours import BaseBehaviour
 from packages.dvilela.protocols.kv_store.dialogues import (
     KvStoreDialogue,
     KvStoreDialogues,
@@ -15,6 +14,11 @@ from packages.valory.protocols.srr.message import SrrMessage
 
 from packages.dvilela.connections.genai.connection import (
     PUBLIC_ID as GENAI_CONNECTION_PUBLIC_ID,
+)
+
+from packages.valory.skills.abstract_round_abci.behaviours import (
+    AbstractRoundBehaviour,
+    BaseBehaviour,
 )
 
 from typing import (
@@ -113,6 +117,8 @@ class BaseSkillBehaviour(BaseBehaviour):
         return (yield from self._write_kv(data=data))
 
     ### end of KV local DB realted methods
+
+    ### start of LLM connection related methods
     def _call_genai(
         self,
         method: str,
@@ -145,7 +151,14 @@ class BaseSkillBehaviour(BaseBehaviour):
         return response_json["response"]  # type: ignore
 
 
-### start of LLM connection related methods
-
-
 ### end of LLM connection related methods
+
+
+class BaseSkillRoundBehaviour(AbstractRoundBehaviour):
+    """BaseSkillRoundBehaviour"""
+
+    initial_behaviour_cls = BaseBehaviour
+    abci_app_cls = BaseAbciApp  # type: ignore
+    behaviours: Set[Type[BaseBehaviour]] = [  # type: ignore
+        BaseBehaviour,
+    ]
