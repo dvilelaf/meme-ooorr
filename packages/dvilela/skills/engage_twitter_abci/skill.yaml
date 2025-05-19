@@ -25,8 +25,8 @@ protocols:
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
-- dvilela/decision_making_abci:0.1.0:bafybeihebzm56vxd2puamlqkm3kilv5k6p5c6pf3iw6bbjwm5unnyilntm
-- dvilela/base_abci:0.1.0:bafybeigzdb6clxqo2yt2wqe2yegtxmfzyrpdgp6ozujsnjjqi2jcshyhnm
+- dvilela/decision_making_abci:0.1.0:bafybeigtwhnlqdvdemwat2khmxvrvoqisuuctjblnpuwcakfbmhal6lp4q
+- dvilela/base_abci:0.1.0:bafybeigcmutqtuqmfghstl7lkzg56j2p43do3pyq6xdcsdlgumofxb574u
 behaviours:
   main:
     args: {}

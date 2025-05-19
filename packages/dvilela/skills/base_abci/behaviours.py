@@ -157,8 +157,8 @@ class BaseSkillBehaviour(BaseBehaviour):
 class BaseSkillRoundBehaviour(AbstractRoundBehaviour):
     """BaseSkillRoundBehaviour"""
 
-    initial_behaviour_cls = BaseBehaviour
-    abci_app_cls = BaseAbciApp  # type: ignore
+    initial_behaviour_cls = BaseSkillBehaviour
+    abci_app_cls = BaseSkillAbciApp  # type: ignore
     behaviours: Set[Type[BaseBehaviour]] = [  # type: ignore
-        BaseBehaviour,
+        BaseSkillBehaviour,
     ]

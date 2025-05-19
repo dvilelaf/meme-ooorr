@@ -6,9 +6,9 @@ description: A skill to deal with all the connections
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  behaviours.py: bafybeifamnlvsxwgcf7xxytmngqwypc6r5xs5zqf6adl7rdmhhrlo24odm
+  behaviours.py: bafybeia4j7tcyfesijbsc2uxcbwglduafwpqaflajfkp4jhuvrpj2kptle
   dialogues.py: bafybeiejwxr56hmsijysd4553vg5ofubg2f3oveeblrqszsyzqixfyjjcy
-  fsm_specification.yaml: bafybeihdjwofgsrytiylb7nj2bdv7i4jxlxx6orolggyjhhunoqwe6nxfy
+  fsm_specification.yaml: bafybeihjh7wwct4eb3h5cu6b2apnr6tnc5uyrfeg2lrn635wkljcthdvaa
   handlers.py: bafybeidxfuxkdstuliyetfx7ph26wnfrfgc4gfu2icn2d3eflllhwde2ye
   models.py: bafybeid5kjo3chffxvbvkf4f4mwj6b22fok3huhly3inydzpjsh3if27gq
   payloads.py: bafybeidiwhj3n3m6iehwursigccspxwntnb5yfbqdmgilyttm6vs77p43e
