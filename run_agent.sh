@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cleanup() {
     echo "Terminating tendermint..."
     if kill -0 "$tm_subprocess_pid" 2>/dev/null; then
@@ -31,7 +33,6 @@ autonomy packages lock
 # Fetch the agent
 autonomy fetch --local --agent dvilela/agents_fun
 
-# Replace params with env vars
 source .env
 python scripts/aea-config-replace.py
 
