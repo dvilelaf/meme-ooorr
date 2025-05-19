@@ -6,6 +6,7 @@ description: A skill to deal with all the connections
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
+  __init__.py: bafybeib3pyezpdai74mo5s4m5wv7p75dcbpzsu2ldjbyw52h7g63kgtu2q
   behaviours.py: bafybeia4j7tcyfesijbsc2uxcbwglduafwpqaflajfkp4jhuvrpj2kptle
   dialogues.py: bafybeiejwxr56hmsijysd4553vg5ofubg2f3oveeblrqszsyzqixfyjjcy
   fsm_specification.yaml: bafybeihjh7wwct4eb3h5cu6b2apnr6tnc5uyrfeg2lrn635wkljcthdvaa
@@ -13,6 +14,7 @@ fingerprint:
   models.py: bafybeid5kjo3chffxvbvkf4f4mwj6b22fok3huhly3inydzpjsh3if27gq
   payloads.py: bafybeidiwhj3n3m6iehwursigccspxwntnb5yfbqdmgilyttm6vs77p43e
   rounds.py: bafybeidf5pomkn4mco7pzzg2vucmsurphr2up4u4nx7nppxhvingihl63i
+  rounds_info.py: bafybeiepdyp3r4a7f535w5yxizauvedaine7hfbqeaj5gnx5y5bi4z6fzu
 fingerprint_ignore_patterns: []
 connections:
 - dvilela/kv_store:0.1.0:bafybeiecnl7yc5qx6x4q7467i66ehmfw4qydnnry7tjs7plqeytb6ueyvu

@@ -11,14 +11,14 @@
         "connection/dvilela/tweepy/0.1.0": "bafybeihgbrcyip3s426cot23t6ezpo6ltf5naonoyn354k526buluqsfoe",
         "skill/dvilela/memeooorr_abci/0.1.0": "bafybeies4lmdl3b5e5vg5kvijcul7lhf676k4ynvtvhjttgbhuimvtovcm",
         "skill/dvilela/memeooorr_chained_abci/0.1.0": "bafybeie4au6j656dyxnxrbmvqbxmi3keetyx4hg723ygzf5lkg6lxsvwyq",
-        "skill/dvilela/decision_making_abci/0.1.0": "bafybeigtwhnlqdvdemwat2khmxvrvoqisuuctjblnpuwcakfbmhal6lp4q",
-        "skill/dvilela/engage_twitter_abci/0.1.0": "bafybeig6y6gn24prsxsopwbxeo6lrxlkcpxe4tx2vezdjvlv4cd3e7unlq",
-        "skill/dvilela/agents_fun_abci/0.1.0": "bafybeiavtyx4oj3ponz2su4oeain7rqhnuf7gzy2ev3empa633vajqqmfy",
-        "skill/dvilela/base_abci/0.1.0": "bafybeigcmutqtuqmfghstl7lkzg56j2p43do3pyq6xdcsdlgumofxb574u",
+        "skill/dvilela/decision_making_abci/0.1.0": "bafybeichlvqmkg36j5jqc5u4xp6ur44nz5ovyecclj3ie3eghngtyl24xq",
+        "skill/dvilela/engage_twitter_abci/0.1.0": "bafybeihyvkqngxaktbqyn22ldhtm4czuxy66wpptejjopwt6lvnzmmwbfq",
+        "skill/dvilela/agents_fun_abci/0.1.0": "bafybeicvlx2bgq4spx22pdaat77rl3hdunjed2wiaib7i3vgu6ahr6yesi",
+        "skill/dvilela/base_abci/0.1.0": "bafybeifyxwtn23d5sbfrjht3oxpbxjpvan7nquy2njzvnxfysx2zqa2orq",
         "agent/dvilela/memeooorr/0.1.0": "bafybeihg4fbsy63egceogbzsw3phka5k4ax77tr37tmobfebwasg37cz5m",
-        "agent/dvilela/agents_fun/0.1.0": "bafybeign5jvdw5x3utcz2ui25olkcgtoap6v3adxledpxyot7pujjh3lkq",
+        "agent/dvilela/agents_fun/0.1.0": "bafybeidkqryq2txd6xxb635nmfxqja4eecypkn3izhg4emlqnkqv3cez3m",
         "service/dvilela/memeooorr/0.1.0": "bafybeid77rpzdgcmn3tdeu4tpsynqbvy3spiazhb3qpgmdk76kxoyq2iqi",
-        "service/dvilela/agents_fun/0.1.0": "bafybeiev6bgildwoj53veonk4gaudfkcnmweal2us23xeuectrmso3wmp4"
+        "service/dvilela/agents_fun/0.1.0": "bafybeicdvbsnj62qijdyz2ah6dob3rjweoyw5tkylrkacvzp3mqw6iapyq"
     },
     "third_party": {
         "protocol/open_aea/signing/1.0.0": "bafybeig2d36zxy65vd7fwhs7scotuktydcarm74aprmrb5nioiymr3yixm",
