@@ -8,9 +8,9 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeidorrnxjv4n4ngovxnu4mzod46kyrdncfmli4hapqeqnzp7imq7hm
   behaviour_classes/__init__.py: bafybeicjks4kxsb2r6a4armmaqxyxngwm3pouegq3fycm37rbe7otiwsre
-  behaviour_classes/base.py: bafybeia3qjjdmipe3k2iqpweirixb4fnncpsofqvu2nmzgnzp4tx2hqyei
+  behaviour_classes/base.py: bafybeight42vniskqobxclcnrmk2xynznmzutgw2rs53vjgug4fdf24cru
   behaviour_classes/chain.py: bafybeibaiaz5sysmrwg2vrpwpsnop2733wyerlm3ntgxcpchbsve2rbbmi
-  behaviour_classes/db.py: bafybeigrvacslyjy4th4xshqs76fghq4y2wphe6epbdliqds2tct47jv5y
+  behaviour_classes/db.py: bafybeiftxdcytgujoneieqhlfv5udjcrc4uyreeic662z5lmhwuskimxam
   behaviour_classes/llm.py: bafybeia4psq37osbqrassjozya5xto2lpitnsymirbezqyzjy5wesadhgy
   behaviour_classes/mech.py: bafybeig5r6w7yjg26tj6m2khikqjtkcva6sojef6pdjrfnpmfwdqgfkavm
   behaviour_classes/twitter.py: bafybeid5zb5filbby2arjihc3a3iaiaykweavwla6ka2tauupbgfgtoi64
@@ -18,7 +18,7 @@ fingerprint:
   dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
   fsm_specification.yaml: bafybeicjoerr5nakbcpvk5ygoxqdrassyo6qxym6and6blfebvrhuy7ld4
   handlers.py: bafybeicdbw4ayfuifdgmyezncazjabr333ltieaxq5gbgh5s7nkp5llxyi
-  models.py: bafybeic4ndupiu4nqkezxtfkup6sjhh7gga6kfdxuxawxgy6pet66cfsc4
+  models.py: bafybeidhxnp3vnezsapopaeqgwnvdgw7caabwmhnu4s4up2jhvthezkci4
   payloads.py: bafybeiez63hch4jpzeqd6nxrnvgw4mwbd7fdnru3vmbiw3qpdbr4qfm2uu
   prompts.py: bafybeibbvxgdft353afohrhzttk6rywnmxnyzrp2f5sj4sxnou4uog5acq
   rounds.py: bafybeibcdt7w3jn3mfdurifvn4gfqa3amhg4fufz66kxlh5srjtuxqtame
@@ -47,6 +47,7 @@ skills:
 - valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
+- valory/agent_db_abci:0.1.0:bafybeibvvw6kizqqxz4jqpyuzgrqr4miliufbheof5hhlx55xrvmafyoie
 behaviours:
   main:
     args: {}
@@ -247,6 +248,13 @@ models:
   kv_store_dialogues:
     args: {}
     class_name: KvStoreDialogues
+  agent_db_client:
+    args:
+      base_url: https://afmdb.autonolas.tech
+    class_name: AgentDBClient
+  agents_fun_db:
+    args: {}
+    class_name: AgentsFunDatabase
 dependencies:
   twitter_text_parser:
     version: ==3.0.0

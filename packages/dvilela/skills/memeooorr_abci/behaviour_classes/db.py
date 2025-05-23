@@ -60,8 +60,8 @@ class LoadDatabaseBehaviour(
     def load_db(self) -> Generator[None, None, str]:
         """Load the data"""
         persona = yield from self.get_persona()
-
         self.context.logger.info(f"Loaded from the db\npersona={persona}")
+        yield from self.context.agents_fun_db.load()
         return persona
 
     def populate_keys_in_kv(self) -> Generator[None, None, None]:

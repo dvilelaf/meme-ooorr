@@ -429,3 +429,6 @@ e5259d57fec65a14578fd02437e5c86eedf10b6a:scripts/test_prompts_tools.py:generic-a
 3eb8af0d9d4fd473bdb669742cbaa63de8f24f3a:packages/dvilela/skills/engage_twitter_abci/skill.yaml:generic-api-key:83
 fe30474b95b7815b4021d4f670b1f4509e19bc48:docs/twitter_dev_account.md:generic-api-key:27
 76aa8af6cef136f109d1b0efdb2cd8b285c01152:packages/dvilela/skills/base_abci/skill.yaml:generic-api-key:82
+c5da25e95bdb29a6201260d3d57461e0fde06e1c:packages/valory/skills/agent_db_abci/skill.yaml:generic-api-key:10
+fd52b2f62d6e925104ec8bb519e9a885e933c0df:packages/valory/skills/agent_db_abci/skill.yaml:generic-api-key:10
+7178b7fb5323557e3448592c1ca211e9fb626b93:packages/valory/skills/agent_db_abci/skill.yaml:generic-api-key:75

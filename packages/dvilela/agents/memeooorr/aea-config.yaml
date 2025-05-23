@@ -44,9 +44,10 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/memeooorr_abci:0.1.0:bafybeigglozmuen45dmlr54bafteit2k5gyupw7zy2v3dg2eumeyark7le
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeifzwe67auwsjnc2ukgqo4mdpwquxe4ntx7fkveeut5d3lrbb7bvmm
+- dvilela/memeooorr_abci:0.1.0:bafybeicmqcq7nw3evfbibh7wc2kj6lt4h5lwsjqofilzhhpbjdzqrbixna
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeifjn6lyiarnjdq3lhj6jxyfudfm5airzlnev7bmbdiqewiceaegzq
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
+- valory/agent_db_abci:0.1.0:bafybeibvvw6kizqqxz4jqpyuzgrqr4miliufbheof5hhlx55xrvmafyoie
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -270,3 +271,10 @@ public_id: dvilela/mirror_db:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlg
 type: connection
 config:
   mirror_db_base_url: ${str:https://afmdb.autonolas.tech}
+---
+public_id: valory/agent_db_abci:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+type: skill
+models:
+  agent_db_client:
+    args:
+      base_url: https://afmdb.autonolas.tech

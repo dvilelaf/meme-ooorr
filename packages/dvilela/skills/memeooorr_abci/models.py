@@ -33,6 +33,12 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
+from packages.valory.skills.agent_db_abci.models import (
+    AgentDBClient as BaseAgentDBClient,
+)
+from packages.valory.skills.agent_db_abci.models import (
+    AgentsFunDatabase as BaseAgentsFunDatabase,
+)
 from packages.valory.skills.mech_interact_abci.models import MechParams
 
 
@@ -50,6 +56,8 @@ class SharedState(BaseSharedState):
 
 Requests = BaseRequests
 BenchmarkTool = BaseBenchmarkTool
+AgentDBClient = BaseAgentDBClient
+AgentsFunDatabase = BaseAgentsFunDatabase
 
 
 class RandomnessApi(ApiSpecs):

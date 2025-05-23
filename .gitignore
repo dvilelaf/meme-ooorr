@@ -11,7 +11,8 @@ packages/valory/contracts/*
 !packages/valory/contracts/staking_token
 !packages/valory/contracts/staking_activity_checker
 packages/valory/protocols/
-packages/valory/skills/
+packages/valory/skills/*
+!packages/valory/skills/agent_db_abci
 packages/valory/connections/*
 !packages/valory/connections/twitter
 leak_report

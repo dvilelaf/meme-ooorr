@@ -23,6 +23,12 @@ from typing import Any
 
 from aea.skills.base import SkillContext
 
+from packages.dvilela.skills.memeooorr_abci.models import (
+    AgentDBClient as BaseAgentDBClient,
+)
+from packages.dvilela.skills.memeooorr_abci.models import (
+    AgentsFunDatabase as BaseAgentsFunDatabase,
+)
 from packages.dvilela.skills.memeooorr_abci.models import Params as MemeooorrParams
 from packages.dvilela.skills.memeooorr_abci.models import (
     RandomnessApi as MemeooorrRandomnessApi,
@@ -48,6 +54,8 @@ Requests = BaseRequests
 BenchmarkTool = BaseBenchmarkTool
 RandomnessApi = MemeooorrRandomnessApi
 MechResponseSpecs = BaseMechResponseSpecs
+AgentDBClient = BaseAgentDBClient
+AgentsFunDatabase = BaseAgentsFunDatabase
 
 MARGIN = 5
 MULTIPLIER = 10

@@ -12,7 +12,7 @@ fingerprint:
   dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
   fsm_specification.yaml: bafybeibakfvloqbh5nbotrfo6vi3xrl24kq3ewdle5t4c3vkkosfik2t7y
   handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
-  models.py: bafybeiczr5dvuw2sarjfb6m5n2szt3wkwhoi2ybcgk3vrjk3k4jodkh7im
+  models.py: bafybeihxrsitqz2xexisttdd6fpd5a7kcimwdsjfrf2u6ornmlvsgf4fou
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -23,7 +23,7 @@ skills:
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/termination_abci:0.1.0:bafybeianygjbwmt4xrq77pfl3yzcokbjfzxmuru6j2k7a3boqc2qfb7shi
-- dvilela/memeooorr_abci:0.1.0:bafybeigglozmuen45dmlr54bafteit2k5gyupw7zy2v3dg2eumeyark7le
+- dvilela/memeooorr_abci:0.1.0:bafybeicmqcq7nw3evfbibh7wc2kj6lt4h5lwsjqofilzhhpbjdzqrbixna
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 behaviours:
   main:
@@ -235,5 +235,12 @@ models:
   kv_store_dialogues:
     args: {}
     class_name: KvStoreDialogues
+  agent_db_client:
+    args:
+      base_url: https://afmdb.autonolas.tech
+    class_name: AgentDBClient
+  agents_fun_db:
+    args: {}
+    class_name: AgentsFunDatabase
 dependencies: {}
 is_abstract: false

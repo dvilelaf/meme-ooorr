@@ -83,6 +83,7 @@ fix-abci-app-specs:
 	export PYTHONPATH=${PYTHONPATH}:${PWD}
 	autonomy analyse fsm-specs --update --app-class MemeooorrAbciApp --package packages/dvilela/skills/memeooorr_abci/ || (echo "Failed to check memeooorr_abci abci consistency" && exit 1)
 	autonomy analyse fsm-specs --update --app-class MemeooorrChainedSkillAbciApp --package packages/dvilela/skills/memeooorr_chained_abci/ || (echo "Failed to check memeooorr_chained_abci abci consistency" && exit 1)
+	autonomy analyse fsm-specs --update --app-class AgentDBAbciApp --package packages/valory/skills/agent_db_abci/ || (echo "Failed to check agent_db_abci abci consistency" && exit 1)
 
 .PHONY: tm
 tm:

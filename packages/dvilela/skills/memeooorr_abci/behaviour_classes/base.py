@@ -66,8 +66,8 @@ from packages.valory.protocols.contract_api import ContractApiMessage
 from packages.valory.protocols.ledger_api import LedgerApiMessage
 from packages.valory.protocols.srr.dialogues import SrrDialogue, SrrDialogues
 from packages.valory.protocols.srr.message import SrrMessage
-from packages.valory.skills.abstract_round_abci.behaviours import BaseBehaviour
 from packages.valory.skills.abstract_round_abci.models import Requests
+from packages.valory.skills.agent_db_abci.behaviours import AgentDBBehaviour
 
 
 BASE_CHAIN_ID = "base"
@@ -1605,7 +1605,7 @@ class MirrorDBHelper:  # pylint: disable=too-many-locals
 
 
 class MemeooorrBaseBehaviour(
-    BaseBehaviour, ABC
+    AgentDBBehaviour, ABC
 ):  # pylint: disable=too-many-ancestors,too-many-public-methods
     """Base behaviour for the memeooorr_abci skill.
 
