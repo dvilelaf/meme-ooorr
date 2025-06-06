@@ -12,7 +12,7 @@ fingerprint:
   behaviour_classes/chain.py: bafybeidvsctiti46qcwrcncodttbm6my2axcm3fu4kzybbew6rasy7qhwa
   behaviour_classes/db.py: bafybeiftxdcytgujoneieqhlfv5udjcrc4uyreeic662z5lmhwuskimxam
   behaviour_classes/llm.py: bafybeiaxj6ps53froyqtlogfd3y3z3wbiurhoharuft5xuhkzoxtruukya
-  behaviour_classes/mech.py: bafybeig5r6w7yjg26tj6m2khikqjtkcva6sojef6pdjrfnpmfwdqgfkavm
+  behaviour_classes/mech.py: bafybeiea6ne7e6ztw3zi5agcc7bcp6hmypn77uiqdvv5gtgjvpecm4objm
   behaviour_classes/twitter.py: bafybeihzmzf3odhtlwqp5i2ycaudzl5tth6webifp2w65wcstoql5mvtqq
   behaviours.py: bafybeicsif4jpkuq4a5ijgj63s5zn4mskmakuddgiquqb4vrlz3trqa7fu
   dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
@@ -20,7 +20,7 @@ fingerprint:
   handlers.py: bafybeicdbw4ayfuifdgmyezncazjabr333ltieaxq5gbgh5s7nkp5llxyi
   models.py: bafybeidhxnp3vnezsapopaeqgwnvdgw7caabwmhnu4s4up2jhvthezkci4
   payloads.py: bafybeiez63hch4jpzeqd6nxrnvgw4mwbd7fdnru3vmbiw3qpdbr4qfm2uu
-  prompts.py: bafybeiczfejicuwov6przmmnlub27ace7mampuknq5oguaf2vraqfluuem
+  prompts.py: bafybeifdxpe6ttyxz3yicskmiads7qvcou6533dpuk7dc2sbi7e2prdg3e
   rounds.py: bafybeibcdt7w3jn3mfdurifvn4gfqa3amhg4fufz66kxlh5srjtuxqtame
   rounds_info.py: bafybeib6a5a7bvwvfiscnbhsc6sejloelyglnu6lwbeeileyxrsgkxcb6a
 fingerprint_ignore_patterns: []
@@ -179,8 +179,8 @@ models:
       activity_checker_contract_address: '0x0000000000000000000000000000000000000000'
       tx_loop_breaker_count: 3
       tools_for_mech:
-        stabilityai-stable-diffusion-v1-6: This tool generates an image based on a
-          given prompt using the StabilityAI Stable Diffusion v1.6 model
+        google_image_gen: This tool generates an image based on a given prompt using
+          the StabilityAI Stable Diffusion v1.6 model
         short_maker: This tool generates a short video based on a given prompt
       multisend_batch_size: 50
       mech_request_price: 100

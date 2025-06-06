@@ -85,7 +85,7 @@ class SharedState(BaseSharedState):
         ] = (self.context.params.reset_pause_duration + MARGIN)
 
         MemeooorrChainedSkillAbciApp.event_to_timeout[MemeooorrEvent.ROUND_TIMEOUT] = (
-            self.context.params.round_timeout_seconds * MULTIPLIER
+            self.context.params.round_timeout_seconds * MULTIPLIER * 4
         )
 
         # adding time for the mech interaction

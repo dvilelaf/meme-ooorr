@@ -12,7 +12,7 @@ fingerprint:
   dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
   fsm_specification.yaml: bafybeibakfvloqbh5nbotrfo6vi3xrl24kq3ewdle5t4c3vkkosfik2t7y
   handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
-  models.py: bafybeieba4edhzcxg45wmgdaalvnvnawfc3pmff7faqf4d35flgxxni6qm
+  models.py: bafybeifepxrqynlpnbbimmqefqcnanovcpvlbe7ep67pdkcdctzehblkly
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
@@ -23,7 +23,7 @@ skills:
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/termination_abci:0.1.0:bafybeianygjbwmt4xrq77pfl3yzcokbjfzxmuru6j2k7a3boqc2qfb7shi
-- dvilela/memeooorr_abci:0.1.0:bafybeihcevisgc5wgs63c3xgc22ormlpyvi33xt7c445nrjyzfw42wmpde
+- dvilela/memeooorr_abci:0.1.0:bafybeigh4x5y26h5qikl5kv5uxaqpqe5fyrntnhweyoc7l6k3lsgwqrewy
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 behaviours:
   main:
@@ -166,8 +166,8 @@ models:
       activity_checker_contract_address: '0x0000000000000000000000000000000000000000'
       tx_loop_breaker_count: 3
       tools_for_mech:
-        stabilityai-stable-diffusion-v1-6: This tool generates an image based on a
-          given prompt using the StabilityAI Stable Diffusion v1.6 model
+        google_image_gen: This tool generates an image based on a given prompt using
+          the StabilityAI Stable Diffusion v1.6 model
         short_maker: This tool generates a short video based on a given prompt
       mech_request_price: 100
       mech_contract_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'

@@ -123,7 +123,7 @@ class TwitterActionName(enum.Enum):
 class ToolActionName(enum.Enum):
     """ToolActionName"""
 
-    STABLE_DIFFUSION = "stabilityai-stable-diffusion-v1-6"
+    GOOGLE_IMAGE_GEN = "google_image_gen"
     SHORT_MAKER = "short_maker"
 
 
