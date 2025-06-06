@@ -199,6 +199,20 @@ class SynchronizedData(BaseSynchronizedData):
         """Get the check funds count."""
         return int(self.db.get("check_funds_count", 0))  # type: ignore
 
+    @property
+    def previous_tweet_action(self) -> Optional[List]:
+        """Get the previous tweet action."""
+        previous_tweet_action_str = self.db.get("previous_tweet_action", None)
+        return (
+            json.loads(previous_tweet_action_str) if previous_tweet_action_str else []
+        )
+
+    @property
+    def previous_mech_action(self) -> Optional[List]:
+        """Get the previous mech action."""
+        previous_mech_action_str = self.db.get("previous_mech_action", None)
+        return json.loads(previous_mech_action_str) if previous_mech_action_str else []
+
 
 class EventRoundBase(CollectSameUntilThresholdRound):
     """EventRoundBase"""

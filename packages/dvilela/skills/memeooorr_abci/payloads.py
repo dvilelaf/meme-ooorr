@@ -20,7 +20,7 @@
 """This module contains the transaction payloads of the MemeooorrAbciApp."""
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -61,6 +61,8 @@ class EngageTwitterPayload(BaseTxPayload):
     mech_request: Optional[str]
     tx_submitter: str
     failed_mech: Optional[bool] = False
+    previous_tweet_action: Optional[List] = []
+    previous_mech_action: Optional[List] = []
 
 
 @dataclass(frozen=True)
