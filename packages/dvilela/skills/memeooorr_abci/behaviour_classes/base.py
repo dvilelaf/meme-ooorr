@@ -24,6 +24,7 @@ import re
 from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Tuple, cast
 
 from aea.protocols.base import Message
@@ -62,6 +63,7 @@ MEMEOOORR_DESCRIPTION_PATTERN = r".*Memeooorr @(\w+)$"
 IPFS_ENDPOINT = "https://gateway.autonolas.tech/ipfs/{ipfs_hash}"
 MAX_TWEET_CHARS = 280
 AGENT_TYPE_NAME = "memeooorr"
+LIST_COUNT_TO_KEEP = 20
 
 
 TOKENS_QUERY = """
@@ -1038,3 +1040,42 @@ class MemeooorrBaseBehaviour(
                 f"Could not decode JSON for key {key}, returning default."
             )
             return default_value
+
+    def _store_media_info_list(self, media_info: Dict) -> Generator[None, None, None]:
+        """Store media info in the key-value store"""
+        media_store_list = yield from self._read_media_info_list()
+        media_store_list.append(media_info)
+
+        # Enforce retention policy: keep only the latest 20 media files
+        if len(media_store_list) > LIST_COUNT_TO_KEEP:
+            num_to_remove = len(media_store_list) - LIST_COUNT_TO_KEEP
+            old_media_entries = media_store_list[:num_to_remove]
+
+            for entry in old_media_entries:
+                file_path = entry.get("path")
+                self._cleanup_temp_file(file_path, "old media file")
+
+            media_store_list = media_store_list[num_to_remove:]
+
+        yield from self._write_kv({"media-store-list": json.dumps(media_store_list)})
+
+    def _read_media_info_list(self) -> Generator[None, None, List[Dict]]:
+        """Read media info from the key-value store"""
+        raw_list = yield from self._read_json_from_kv("media-store-list", [])
+
+        if not isinstance(raw_list, list):
+            self.context.logger.error(
+                f"Expected media-store-list to be a list, but found {type(raw_list)}. Returning empty list."
+            )
+            return []
+
+        return raw_list
+
+    def _cleanup_temp_file(self, file_path: Optional[str], reason: str) -> None:
+        """Attempt to remove a temporary file and log the outcome."""
+        if file_path:
+            path = Path(file_path)
+            path.unlink()
+            self.context.logger.info(f"Removed temporary file ({reason}): {file_path}")
+        else:
+            self.context.logger.warning(f"No file to remove ({reason})")

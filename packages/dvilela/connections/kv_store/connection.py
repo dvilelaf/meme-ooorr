@@ -98,7 +98,7 @@ class KvStoreConnection(BaseSyncConnection):
         super().__init__(*args, **kwargs)
         self.dialogues = KvStoreDialogues(connection_id=PUBLIC_ID)
 
-        store_path = Path(self.configuration.config.get("store_path", "/tmp"))  # nosec
+        store_path = Path(self.configuration.config.get("store_path", "/data"))  # nosec
 
         if not store_path.exists():
             store_path.mkdir(parents=True, exist_ok=True)

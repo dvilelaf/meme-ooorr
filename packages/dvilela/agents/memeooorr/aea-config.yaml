@@ -14,7 +14,7 @@ connections:
 - valory/ledger:0.19.0:bafybeibdsjmy4w2eyilbqc7yzutopl65qpeyspxwz7mjvirr52twhjlf5y
 - valory/p2p_libp2p_client:0.1.0:bafybeic6ayusdwy4dks75njwk32ac7ur7salgllwf4fdc34ue5z2k5iz4q
 - dvilela/tweepy:0.1.0:bafybeig5uthh7e3jliec5poawflbtkdhuen5c33hzsejz5wvbweg4bcvva
-- dvilela/kv_store:0.1.0:bafybeidsmswryxifxmkichzwsm2bvongcei2tlz3tcs45rabvm7eu5g5ai
+- dvilela/kv_store:0.1.0:bafybeieufzdojxahh3ejagdbzroqredi5uvkfgjiwsfod7l7whn2octmmi
 - valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
 - dvilela/genai:0.1.0:bafybeihp6t4y7mynitwj3afwet2lr5ittrqmk4hop7ycmgyyx3nqkc5sty
 contracts:
@@ -43,8 +43,8 @@ skills:
 - valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
 - valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
 - valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- dvilela/memeooorr_abci:0.1.0:bafybeicngn7kmubrluce4djvtyw6c4kbgedzbwkjqln4t5fyp7y7amzynm
-- dvilela/memeooorr_chained_abci:0.1.0:bafybeidjvx2pyx5xlqdya6i7t2nfesowxtypqcf4i7naacs72nuy4ugnbu
+- dvilela/memeooorr_abci:0.1.0:bafybeihrp54srw3of5wumcwlrhhyqmwokghqofngjno5bazczvygeksjrq
+- dvilela/memeooorr_chained_abci:0.1.0:bafybeib6vcysse7zqnnxs3yjfoyttui3twtywdzyagcyfslszpdxwtplb4
 - valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
 - valory/agent_db_abci:0.1.0:bafybeidyojmjei4ltywtrrgdwem6makkigf7qm3kl5p65dsfb3xphddihy
 default_ledger: ethereum
@@ -219,6 +219,7 @@ models:
       olas_token_address_base: ${str:0x54330d28ca3357F294334BDC454a032e7f353416}
       olas_token_address_celo: ${str:0xaCFfAe8e57Ec6E394Eb1b41939A8CF7892DbDc51}
       persona: ${str:a cat lover that is crazy about all-things cats.}
+      store_path: ${str:/data}
       home_chain_id: ${str:BASE}
       service_registry_address_base: ${str:0x3C1fF68f5aa342D296d4DEe4Bb1cACCA912D95fE}
       service_registry_address_celo: ${str:0xE3607b00E75f6405248323A9417ff6b39B244b50}

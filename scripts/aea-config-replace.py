@@ -47,6 +47,7 @@ PATH_TO_VAR = {
     "models/params/args/skip_engagement": "SKIP_ENGAGEMENT",
     "models/params/args/staking_token_contract_address": "STAKING_TOKEN_CONTRACT_ADDRESS",
     "models/params/args/activity_checker_contract_address": "ACTIVITY_CHECKER_CONTRACT_ADDRESS",
+    "models/params/args/store_path": "STORE_PATH",
     # Tweepy connection
     "config/tweepy_consumer_api_key": "TWEEPY_CONSUMER_API_KEY",
     "config/tweepy_consumer_api_key_secret": "TWEEPY_CONSUMER_API_KEY_SECRET",
