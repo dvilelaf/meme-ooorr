@@ -33,10 +33,22 @@ import peewee
 import yaml
 from aea.configurations.data_types import PublicId
 from aea.protocols.base import Message
+from aea.protocols.dialogue.base import Dialogue
 
+from packages.dvilela.connections.genai.connection import (
+    PUBLIC_ID as GENAI_CONNECTION_PUBLIC_ID,
+)
 from packages.dvilela.protocols.kv_store.message import KvStoreMessage
-from packages.dvilela.skills.memeooorr_abci.dialogues import HttpDialogue, HttpDialogues
+from packages.dvilela.skills.memeooorr_abci.dialogues import (
+    HttpDialogue,
+    HttpDialogues,
+    SrrDialogues,
+)
 from packages.dvilela.skills.memeooorr_abci.models import SharedState
+from packages.dvilela.skills.memeooorr_abci.prompts import (
+    CHATUI_PROMPT,
+    build_updated_agent_config_schema,
+)
 from packages.dvilela.skills.memeooorr_abci.rounds import SynchronizedData
 from packages.dvilela.skills.memeooorr_abci.rounds_info import ROUNDS_INFO
 from packages.valory.connections.http_server.connection import (
@@ -107,6 +119,34 @@ class SrrHandler(AbstractResponseHandler):
         }
     )
 
+    def handle(self, message: Message) -> None:
+        """
+        React to an SRR message.
+
+        :param message: the SrrMessage instance
+        """
+        self.context.logger.info(f"Received Srr message: {message}")
+        srr_msg = cast(SrrMessage, message)
+
+        if srr_msg.performative not in self.allowed_response_performatives:
+            self.context.logger.warning(
+                f"SRR performative not recognized: {srr_msg.performative}"
+            )
+            self.context.state.in_flight_req = False
+            return
+
+        nonce = srr_msg.dialogue_reference[
+            0
+        ]  # Assuming dialogue_reference is accessible
+        callback, kwargs = self.context.state.req_to_callback.pop(nonce, (None, {}))
+
+        if callback is None:
+            super().handle(message)
+        else:
+            dialogue = self.context.srr_dialogues.update(srr_msg)
+            callback(srr_msg, dialogue, **kwargs)
+            self.context.state.in_flight_req = False
+
 
 class KvStoreHandler(AbstractResponseHandler):
     """A class for handling KeyValue messages."""
@@ -176,21 +216,29 @@ class HttpHandler(BaseHttpHandler):
         self.handler_url_regex = (  # pylint: disable=attribute-defined-outside-init
             rf"{hostname_regex}\/.*"
         )
-        health_url_regex = rf"{hostname_regex}\/healthcheck"
-        agent_details_url_regex = rf"{hostname_regex}\/agent-info"
-        x_activity_url_regex = rf"{hostname_regex}\/x-activity"
-        meme_coins_url_regex = rf"{hostname_regex}\/memecoin-activity"
-        media_url_regex = rf"{hostname_regex}\/media"
-        static_files_regex = rf"{hostname_regex}\/(.*)"
+
+        route_regexes = {
+            "health_url": rf"{hostname_regex}\/healthcheck",
+            "agent_details_url": rf"{hostname_regex}\/agent-info",
+            "x_activity_url": rf"{hostname_regex}\/x-activity",
+            "meme_coins_url": rf"{hostname_regex}\/memecoin-activity",
+            "media_url": rf"{hostname_regex}\/media",
+            "process_prompt_url": rf"{hostname_regex}\/process-prompt",
+            "static_files_url": rf"{hostname_regex}\/(.*)",
+        }
+
         # Routes
         self.routes = {  # pylint: disable=attribute-defined-outside-init
+            (HttpMethod.POST.value,): [
+                (route_regexes["process_prompt_url"], self._handle_post_process_prompt),
+            ],
             (HttpMethod.GET.value, HttpMethod.HEAD.value): [
-                (health_url_regex, self._handle_get_health),
-                (agent_details_url_regex, self._handle_get_agent_details),
-                (x_activity_url_regex, self._handle_get_recent_x_activity),
-                (meme_coins_url_regex, self._handle_get_meme_coins),
-                (media_url_regex, self._handle_get_media),
-                (static_files_regex, self._handle_get_static_file),
+                (route_regexes["health_url"], self._handle_get_health),
+                (route_regexes["agent_details_url"], self._handle_get_agent_details),
+                (route_regexes["x_activity_url"], self._handle_get_recent_x_activity),
+                (route_regexes["meme_coins_url"], self._handle_get_meme_coins),
+                (route_regexes["media_url"], self._handle_get_media),
+                (route_regexes["static_files_url"], self._handle_get_static_file),
             ],
         }
 
@@ -426,6 +474,23 @@ class HttpHandler(BaseHttpHandler):
             )
             return json.loads(default)
 
+    @staticmethod
+    def _get_value_from_db(key: str, default: str = "") -> str:
+        """Get a JSON value from the database."""
+        record = Store.get_or_none(Store.key == key)
+        value = record.value if record and record.value else default
+        return value
+
+    @staticmethod
+    def _set_value_to_db(key: str, value: str) -> None:
+        """Set a value in the database."""
+        record = Store.get_or_none(Store.key == key)
+        if not record:
+            Store.create(key=key, value=value)
+        else:
+            record.value = value
+            record.save()
+
     def _handle_get_agent_details(
         self, http_msg: HttpMessage, http_dialogue: HttpDialogue
     ) -> None:
@@ -599,6 +664,128 @@ class HttpHandler(BaseHttpHandler):
         with open(index_path, "r", encoding="utf-8") as file:
             index_html = file.read()
         self._send_ok_response(http_msg, http_dialogue, index_html, "text/html")
+
+    def _send_message(
+        self,
+        message: Message,
+        dialogue: Dialogue,
+        callback: Callable,
+        callback_kwargs: Optional[Dict] = None,
+    ) -> None:
+        """
+        Send a message and set up a callback for the response.
+
+        :param message: the Message to send
+        :param dialogue: the Dialogue context
+        :param callback: the callback function upon response
+        :param callback_kwargs: optional kwargs for the callback
+        """
+        self.context.outbox.put_message(message=message)
+        nonce = dialogue.dialogue_label.dialogue_reference[0]
+        self.context.state.req_to_callback[nonce] = (callback, callback_kwargs or {})
+        self.context.state.in_flight_req = True
+
+    def _handle_post_process_prompt(
+        self, http_msg: HttpMessage, http_dialogue: HttpDialogue
+    ) -> None:
+        """
+        Handle POST requests to process user prompts.
+
+        :param http_msg: the HttpMessage instance
+        :param http_dialogue: the HttpDialogue instance
+        """
+
+        request_id = http_dialogue.dialogue_label.dialogue_reference[0]
+        self.context.state.request_queue.append(request_id)
+
+        # Parse incoming data
+        data = json.loads(http_msg.body.decode("utf-8"))
+        user_prompt = data.get("prompt", "")
+        self.context.logger.info(f"user_prompt from the user: {user_prompt}")
+
+        if not user_prompt:
+            self._handle_bad_request(http_msg, http_dialogue)
+
+        self.context.logger.info(f"user_prompt from the user: {user_prompt}")
+
+        with self._db_connection_context():
+            with self.db.atomic():
+                current_persona = self._get_value_from_db("persona", "")
+
+        # Format the prompt
+        prompt_template = CHATUI_PROMPT.format(
+            user_prompt=user_prompt,
+            current_persona=current_persona,
+        )
+
+        # Prepare payload data
+        payload_data = {
+            "prompt": prompt_template,
+            "schema": build_updated_agent_config_schema(),
+        }
+
+        self.context.logger.info(f"Payload data: {payload_data}")
+
+        # Create LLM request
+        srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
+        request_srr_message, srr_dialogue = srr_dialogues.create(
+            counterparty=str(GENAI_CONNECTION_PUBLIC_ID),
+            performative=SrrMessage.Performative.REQUEST,
+            payload=json.dumps(payload_data),
+        )
+
+        # Prepare callback args
+        callback_kwargs = {"http_msg": http_msg, "http_dialogue": http_dialogue}
+        self._send_message(
+            request_srr_message,
+            srr_dialogue,
+            self._handle_llm_response,
+            callback_kwargs,
+        )
+
+    def _handle_llm_response(
+        self,
+        llm_response_message: SrrMessage,
+        dialogue: Dialogue,  # pylint: disable=unused-argument
+        http_msg: HttpMessage,
+        http_dialogue: HttpDialogue,
+    ) -> None:
+        """
+        Handle the response from the LLM.
+
+        :param llm_response_message: the SrrMessage with the LLM output
+        :param dialogue: the Dialogue
+        :param http_msg: the original HttpMessage
+        :param http_dialogue: the original HttpDialogue
+        """
+
+        self.context.logger.info(
+            f"LLM response payload: {llm_response_message.payload}"
+        )
+
+        llm_response = json.loads(llm_response_message.payload).get("response", "{}")
+        updated_persona = json.loads(llm_response).get("agent_persona", None)
+
+        if updated_persona:
+            self.context.logger.info(f"Updated persona: {updated_persona}")
+            # Update the persona in the database
+            with self._db_connection_context():
+                with self.db.atomic():
+                    self._set_value_to_db("persona", updated_persona)
+            self._send_ok_response(
+                http_msg,
+                http_dialogue,
+                {
+                    "updated_persona": updated_persona,
+                    "message": "Persona updated successfully",
+                },
+            )
+        else:
+            self._send_ok_response(
+                http_msg,
+                http_dialogue,
+                {"updated_persona": "", "message": "Persona not updated"},
+            )
 
     def _send_ok_response(
         self,

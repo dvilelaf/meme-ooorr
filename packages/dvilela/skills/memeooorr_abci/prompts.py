@@ -358,3 +358,27 @@ class TokenAction:  # pylint: disable=too-many-instance-attributes
 def build_token_action_schema() -> dict:
     """Build a schema for token action response"""
     return {"class": pickle.dumps(TokenAction).hex(), "is_list": False}
+
+
+# TODO: Make this generic, not just for persona
+CHATUI_PROMPT = """
+You are an assistant tasked with refining the persona of an autonomous agent based on user input.
+
+- The agent's current persona is: "{current_persona}"
+
+Carefully review the following user prompt and determine the most appropriate updated persona for the agent. The updated persona should reflect the user's intent and be clearly expressed. If the user prompt does not provide enough information to adjust the persona, or if it is simply a greeting or unrelated, return an empty persona. When updating, aim to enhance or adjust the existing persona rather than completely replacing it, so the agent maintains its core identity.
+
+User prompt: "{user_prompt}"
+"""
+
+
+@dataclass(frozen=True)
+class UpdatedAgentConfig:
+    """UpdatedAgentConfig"""
+
+    agent_persona: str
+
+
+def build_updated_agent_config_schema() -> dict:
+    """Build a schema for token action response"""
+    return {"class": pickle.dumps(UpdatedAgentConfig).hex(), "is_list": False}

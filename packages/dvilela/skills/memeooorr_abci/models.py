@@ -20,7 +20,7 @@
 """This module contains the shared state for the abci skill of MemeooorrAbciApp."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from aea.skills.base import SkillContext
 
@@ -52,6 +52,10 @@ class SharedState(BaseSharedState):
         super().__init__(*args, skill_context=skill_context, **kwargs)
         self.twitter_username: Optional[str] = None
         self.twitter_id: Optional[str] = None
+
+        self.in_flight_req: bool = False
+        self.request_queue: List[Any] = []
+        self.req_to_callback: Dict[str, Tuple[Callable, Dict[str, Any]]] = {}
 
 
 Requests = BaseRequests
