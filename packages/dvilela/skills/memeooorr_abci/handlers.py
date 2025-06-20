@@ -450,6 +450,9 @@ class HttpHandler(BaseHttpHandler):
         self, http_msg: HttpMessage, http_dialogue: HttpDialogue
     ) -> None:
         """Handle a Http request of verb GET."""
+
+        ipfs_gateway_url = self.context.params.ipfs_address
+
         with self._db_connection_context():
             with self.db.atomic():
                 agent_actions = self._get_json_from_db("agent_actions", "{}")
@@ -475,7 +478,7 @@ class HttpHandler(BaseHttpHandler):
             "type": action_type,
             "timestamp": latest_tweet_action.get("timestamp"),
             "text": action_data.get("text"),
-            "media": [action_data.get("media_ipfs_url", None)],
+            "media": [f"{ipfs_gateway_url}/{action_data.get('media_ipfs_hash', None)}"],
         }
 
         self._send_ok_response(http_msg, http_dialogue, activity)
