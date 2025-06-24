@@ -150,3 +150,96 @@ run-agent:
 	bash run_agent.sh 2>&1 | tee $$LOG_FILE'
 
 v := $(shell pip -V | grep virtualenvs)
+
+
+.PHONY: build-agent-runner
+build-agent-runner:
+	poetry lock
+	poetry install
+	poetry run pyinstaller \
+	--collect-data eth_account \
+	--collect-all aea \
+	--collect-all aea_ledger_ethereum \
+	--collect-all aea_ledger_cosmos \
+	--collect-all aea_ledger_ethereum_flashbots \
+	--collect-all asn1crypto \
+	--collect-all autonomy \
+	--collect-all backports.tarfile \
+	--collect-all google.protobuf \
+	--collect-all openapi_core \
+	--collect-all openapi_spec_validator \
+	--collect-all google.generativeai \
+	--collect-all js2py \
+	--collect-all peewee \
+	--collect-all textblob \
+	--collect-all twikit \
+	--collect-all twitter_text \
+	--collect-all twitter_text_parser \
+	--collect-all tweepy \
+	--hidden-import aea_ledger_ethereum \
+	--hidden-import aea_ledger_cosmos \
+	--hidden-import aea_ledger_ethereum_flashbots \
+	--hidden-import grpc \
+	--hidden-import openapi_core \
+	--hidden-import py_ecc \
+	--hidden-import pytz \
+	--hidden-import tweepy \
+	--hidden-import google.generativeai \
+	--hidden-import js2py \
+	--hidden-import peewee \
+	--hidden-import textblob \
+	--hidden-import twikit \
+	--hidden-import twitter_text \
+	--hidden-import twitter_text_parser \
+	--hidden-import tweepy \
+	--onefile pyinstaller/memeooorr_bin.py \
+	--name agent_runner_bin
+	./dist/agent_runner_bin --version
+
+
+.PHONY: build-agent-runner-mac
+build-agent-runner-mac:
+		poetry lock
+	poetry install
+	poetry run pyinstaller \
+	--collect-data eth_account \
+	--collect-all aea \
+	--collect-all aea_ledger_ethereum \
+	--collect-all aea_ledger_cosmos \
+	--collect-all aea_ledger_ethereum_flashbots \
+	--collect-all asn1crypto \
+	--collect-all autonomy \
+	--collect-all backports.tarfile \
+	--collect-all google.protobuf \
+	--collect-all openapi_core \
+	--collect-all openapi_spec_validator \
+	--collect-all google.generativeai \
+	--collect-all js2py \
+	--collect-all peewee \
+	--collect-all textblob \
+	--collect-all twikit \
+	--collect-all twitter_text \
+	--collect-all twitter_text_parser \
+	--collect-all tweepy \
+	--hidden-import aea_ledger_ethereum \
+	--hidden-import aea_ledger_cosmos \
+	--hidden-import aea_ledger_ethereum_flashbots \
+	--hidden-import grpc \
+	--hidden-import openapi_core \
+	--hidden-import py_ecc \
+	--hidden-import pytz \
+	--hidden-import tweepy \
+	--hidden-import google.generativeai \
+	--hidden-import js2py \
+	--hidden-import peewee \
+	--hidden-import textblob \
+	--hidden-import twikit \
+	--hidden-import twitter_text \
+	--hidden-import twitter_text_parser \
+	--hidden-import tweepy \
+	--onefile pyinstaller/memeooorr_bin.py \
+	--codesign-identity "${SIGN_ID}" \
+	--name agent_runner_bin
+	sleep 1
+	./dist/agent_runner_bin --version
+
