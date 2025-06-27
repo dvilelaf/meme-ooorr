@@ -1531,13 +1531,16 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         )  # Call renamed method
 
         if not active_agent_objects:
-            self.context.logger.info(
-                "No active memeooorr handles from agents_fun_db. Now trying subgraph."
-            )
+            # self.context.logger.info(
+            #     "No active memeooorr handles from agents_fun_db. Now trying subgraph."
+            # ) # noqa: E800
 
-            active_agent_objects = (
-                yield from self.get_memeooorr_handles_from_subgraph()
-            )  # This might need to change if it returns strings
+            # active_agent_objects = ( # noqa: E800
+            #     yield from self.get_memeooorr_handles_from_subgraph()
+            # )  # This might need to change if it returns strings
+            self.context.logger.warning(
+                "Disabled loading agents from subgraph for the case where AgentDB was not returning active handles"
+            )
 
         return active_agent_objects
 

@@ -19,11 +19,18 @@
 
 """This module contains classes to interact with AgentDB."""
 
-from packages.valory.skills.agent_db_abci.agent_db_models import AgentType, AgentInstance, AttributeDefinition, AttributeInstance
-from datetime import datetime, timezone
 import json
-from typing import Any, Dict, List, Optional, Callable, cast
+from datetime import datetime, timezone
+from typing import Any, Callable, Dict, List, Optional, cast
+
 from aea.skills.base import Model
+
+from packages.valory.skills.agent_db_abci.agent_db_models import (
+    AgentInstance,
+    AgentType,
+    AttributeDefinition,
+    AttributeInstance,
+)
 
 
 # Docs at:
@@ -89,6 +96,39 @@ class AgentDBClient(Model):
                 eth_address=self.address,
             )
             self.agent_type = agent_type
+
+    def _ensure_agent_type_definition(
+        self, description: Optional[str] = "Placeholder agent description"
+    ):
+        """Fetch or create the agent type definition if it doesn't exist."""
+        self.agent_type = yield from self.get_agent_type_by_type_name(
+            self.agent_type_name
+        )
+
+        if not self.agent_type:
+            self.agent_type = yield from self.create_agent_type(
+                self.agent_type_name, description
+            )
+
+    def _ensure_agent_type_attribute_definition(
+        self, attribute_definitions: List[AttributeDefinition]
+    ):
+        """Fetch or create the agent type attribute definition if it doesn't exist."""
+        existing_attribute_definitions = (
+            yield from self.get_attribute_definitions_by_agent_type(self.agent_type)
+        )
+        for type_attribute_definition in attribute_definitions:
+            if not any(
+                ad.attr_name == type_attribute_definition.attr_name
+                for ad in existing_attribute_definitions
+            ):
+                yield from self.create_attribute_definition(
+                    agent_type=self.agent_type,
+                    attr_name=type_attribute_definition.attr_name,
+                    data_type=type_attribute_definition.data_type,
+                    default_value=type_attribute_definition.default_value,
+                    is_required=type_attribute_definition.is_required,
+                )
 
     def _sign_request(self, endpoint):
         """Generate authentication"""
