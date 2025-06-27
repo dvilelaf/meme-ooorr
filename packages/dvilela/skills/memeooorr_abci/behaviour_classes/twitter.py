@@ -759,7 +759,7 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
         json_response = None
 
         # Try to get the previously stored prompt first
-        stored_prompt = yield from self._read_json_from_kv("last_prompt", None)
+        stored_prompt = yield from self._read_value_from_kv("last_prompt", None)
 
         # Check if we should use a stored prompt or generate a new one
         if stored_prompt and retry_count > 0:
@@ -934,7 +934,8 @@ class EngageTwitterBehaviour(BaseTweetBehaviour):  # pylint: disable=too-many-an
             self.context.logger.info(
                 "It seems like the mech failed to deliver the response forcing agent to create a normal tweet"
             )
-            last_prompt = yield from self._read_json_from_kv("last_prompt", None)
+            last_prompt = yield from self._read_value_from_kv("last_prompt", None)
+
             ENFORCE_ACTION_COMMAND_FAILED_MECH_SUBPROMPT = (
                 ENFORCE_ACTION_COMMAND_FAILED_MECH.format(last_prompt=last_prompt)
             )

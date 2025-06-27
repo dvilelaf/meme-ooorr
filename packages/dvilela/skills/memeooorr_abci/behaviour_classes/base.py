@@ -1049,7 +1049,7 @@ class MemeooorrBaseBehaviour(
     def _read_json_from_kv(
         self, key: str, default_value: Any
     ) -> Generator[None, None, Any]:
-        """Helper to get and parse stored KV data."""
+        """Helper to get and parse stored JSON KV data."""
         data = yield from self._read_kv(keys=(key,))
         if not data or not data.get(key):
             self.context.logger.info(f"No {key} found in KV store, returning default.")
@@ -1061,6 +1061,17 @@ class MemeooorrBaseBehaviour(
                 f"Could not decode JSON for key {key}, returning default."
             )
             return default_value
+
+    def _read_value_from_kv(
+        self, key: str, default_value: Any
+    ) -> Generator[None, None, Any]:
+        """Helper to get and parse stored KV data."""
+        data = yield from self._read_kv(keys=(key,))
+        if not data or not data.get(key):
+            self.context.logger.info(f"No {key} found in KV store, returning default.")
+            return default_value
+
+        return data[key]
 
     def _store_media_info_list(self, media_info: Dict) -> Generator[None, None, None]:
         """Store media info in the key-value store"""
