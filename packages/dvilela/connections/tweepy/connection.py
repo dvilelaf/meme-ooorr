@@ -29,6 +29,7 @@ from aea.connections.base import BaseSyncConnection
 from aea.mail.base import Envelope
 from aea.protocols.base import Address, Message
 from aea.protocols.dialogue.base import Dialogue
+from tweepy.tweet import Tweet
 
 from packages.dvilela.connections.tweepy.tweepy_wrapper import Twitter
 from packages.valory.protocols.srr.dialogues import SrrDialogue
@@ -234,6 +235,7 @@ class TweepyConnection(BaseSyncConnection):
             "follow_by_username",
             "unfollow_by_id",
             "get_me",
+            "get_user_tweets_with_public_metrics",
         ]
 
         if not all(i in payload for i in REQUIRED_PROPERTIES):
@@ -261,7 +263,7 @@ class TweepyConnection(BaseSyncConnection):
 
         try:
             response = method(**payload.get("kwargs", {}))
-            self.logger.info(f"Tweepy response: {response}")
+            self.logger.info(f"Tweepy response: {str(response)[100:]}")
             return response
 
         except Exception as e:
@@ -358,3 +360,29 @@ class TweepyConnection(BaseSyncConnection):
         if account_details is None:
             return {"error": "Failed to retrieve account details."}
         return account_details
+
+    def get_user_tweets_with_public_metrics(
+        self,
+        user_id: str,
+    ) -> Dict:
+        """Get user tweets with public metrics."""
+
+        all_tweets: List[Tweet] = self.twitter.get_all_user_tweets(
+            user_id=user_id,
+            tweet_fields=["public_metrics", "created_at"],
+        )
+
+        return [
+            {
+                "id": tweet.id,
+                "text": tweet.text,
+                "author_id": tweet.author_id,
+                "created_at": tweet.created_at.timestamp(),
+                "like_count": tweet.public_metrics.get("like_count", 0),
+                "retweet_count": tweet.public_metrics.get("retweet_count", 0),
+                "reply_count": tweet.public_metrics.get("reply_count", 0),
+                "quote_count": tweet.public_metrics.get("quote_count", 0),
+                "impression_count": tweet.public_metrics.get("impression_count", 0),
+            }
+            for tweet in all_tweets
+        ]

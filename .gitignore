@@ -12,6 +12,7 @@ packages/valory/contracts/*
 !packages/valory/contracts/staking_activity_checker
 packages/valory/protocols/
 packages/valory/skills/*
+!packages/valory/skills/agent_performance_summary_abci
 !packages/valory/skills/agent_db_abci
 packages/valory/connections/*
 packages/dvilela/connections/genai
@@ -32,6 +33,7 @@ __pycache__/
 .vscode/launch.json
 .vscode/settings.json
 
+data/
 memeooorr.db
 
 TODO.md

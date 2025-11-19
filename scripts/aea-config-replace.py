@@ -76,6 +76,9 @@ PATH_TO_VAR = {
     "models/params/args/use_x402": "USE_X402",
     "config/use_x402": "USE_X402",
     "config/genai_x402_server_base_url": "GENAI_X402_SERVER_BASE_URL",
+    # Agent Performance Summary
+    "models/params/args/is_agent_performance_summary_enabled": "IS_AGENT_PERFORMANCE_SUMMARY_ENABLED",
+    "models/params/args/performance_summary_ttl": "PERFORMANCE_SUMMARY_TTL",
 }
 
 CONFIG_REGEX = r"\${.*?:(.*)}"

@@ -149,4 +149,8 @@ ROUNDS_INFO = {
         "name": "Post Mech response",
         "description": "Handles a post Mech response",
     },
+    "fetch_performance_data_round": {
+        "name": "Fetching agent performance summary",
+        "description": "Fetches the agent performance summary data",
+    },
 }

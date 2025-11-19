@@ -125,6 +125,8 @@ extra:
         x402_payment_requirements: ${X402_PAYMENT_REQUIREMENTS:dict:{"threshold":200000,"top_up":250000}}
         base_ledger_rpc: ${BASE_LEDGER_RPC:str:https://1rpc.io/base}
         lifi_quote_to_amount_url: ${LIFI_QUOTE_TO_AMOUNT_URL:str:https://li.quest/v1/quote/toAmount}
+        is_agent_performance_summary_enabled: ${IS_AGENT_PERFORMANCE_SUMMARY_ENABLED:bool:true}
+        performance_summary_ttl: ${PERFORMANCE_SUMMARY_TTL:int:1800}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

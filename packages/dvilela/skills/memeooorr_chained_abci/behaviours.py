@@ -29,6 +29,9 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
 )
+from packages.valory.skills.agent_performance_summary_abci.behaviours import (
+    AgentPerformanceSummaryRoundBehaviour,
+)
 from packages.valory.skills.mech_interact_abci.behaviours.round_behaviour import (
     MechInteractRoundBehaviour,
 )
@@ -55,6 +58,7 @@ class MemeooorrChainedConsensusBehaviour(AbstractRoundBehaviour):
     abci_app_cls = MemeooorrChainedSkillAbciApp
     behaviours: Set[Type[BaseBehaviour]] = {
         *AgentRegistrationRoundBehaviour.behaviours,
+        *AgentPerformanceSummaryRoundBehaviour.behaviours,
         *ResetPauseABCIConsensusBehaviour.behaviours,
         *MemeooorrRoundBehaviour.behaviours,
         *TerminationAbciBehaviours.behaviours,
