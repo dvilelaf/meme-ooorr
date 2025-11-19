@@ -364,9 +364,12 @@ class TweepyConnection(BaseSyncConnection):
     def get_user_tweets_with_public_metrics(
         self,
         user_id: str,
-    ) -> Dict:
+    ) -> List[Dict]:
         """Get user tweets with public metrics."""
 
+        if self.twitter is None:
+            self.logger.error("Twitter client not initialized.")
+            return []
         all_tweets: List[Tweet] = self.twitter.get_all_user_tweets(
             user_id=user_id,
             tweet_fields=["public_metrics", "created_at"],

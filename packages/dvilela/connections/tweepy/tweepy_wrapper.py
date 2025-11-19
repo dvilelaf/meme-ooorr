@@ -250,7 +250,7 @@ class Twitter:
         user_id: str,
         max_results: int = 100,
         tweet_fields: Optional[List[str]] = None,
-    ) -> Dict:
+    ) -> List:
         """Get a user's tweets."""
         try:
             paginator = tweepy.Paginator(

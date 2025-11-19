@@ -542,7 +542,7 @@ class ActionDecisionRound(CollectSameUntilThresholdRound):
 
         if self.threshold_reached:
             # This needs to be mentioned for static checkers
-            # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.WAIT , Event.RETRY
+            # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.WAIT , Event.RETRY, Event.SKIP
             payload = ActionDecisionPayload(
                 *(("dummy_sender",) + self.most_voted_payload_values)
             )

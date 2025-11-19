@@ -70,6 +70,7 @@ class ActionDecisionBehaviour(
 
     @property
     def params(self) -> Params:
+        """Get the params."""
         return self.context.params
 
     def async_act(self) -> Generator:

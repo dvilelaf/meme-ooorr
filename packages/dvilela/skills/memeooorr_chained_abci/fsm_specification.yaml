@@ -1,10 +1,12 @@
 alphabet_in:
 - ACTION
+- BUY_SUBSCRIPTION
 - CHECK_HISTORY
 - CHECK_LATE_ARRIVING_MESSAGE
 - CHECK_TIMEOUT
 - DONE
 - ERROR
+- FAIL
 - FINALIZATION_FAILED
 - FINALIZE_TIMEOUT
 - INCORRECT_SERIALIZATION
@@ -26,7 +28,8 @@ alphabet_in:
 - VALIDATE_TIMEOUT
 - WAIT
 default_start_state: RegistrationStartupRound
-final_states: []
+final_states:
+- FinishedMechPurchaseSubscriptionRound
 label: MemeooorrChainedSkillAbciApp
 start_states:
 - RegistrationRound
@@ -45,8 +48,11 @@ states:
 - EngageTwitterRound
 - FailedMechRequestRound
 - FailedMechResponseRound
+- FetchPerformanceDataRound
 - FinalizationRound
+- FinishedMechPurchaseSubscriptionRound
 - LoadDatabaseRound
+- MechPurchaseSubscriptionRound
 - MechRequestRound
 - MechResponseRound
 - PostMechResponseRound
@@ -62,15 +68,14 @@ states:
 - SelectKeeperTransactionSubmissionBRound
 - SynchronizeLateMessagesRound
 - TransactionLoopCheckRound
-- FetchPerformanceDataRound
 - ValidateTransactionRound
 transition_func:
     (ActionDecisionRound, DONE): ActionPreparationRound
     (ActionDecisionRound, NO_MAJORITY): ActionDecisionRound
     (ActionDecisionRound, RETRY): ActionDecisionRound
     (ActionDecisionRound, ROUND_TIMEOUT): ActionDecisionRound
-    (ActionDecisionRound, WAIT): CallCheckpointRound
     (ActionDecisionRound, SKIP): CallCheckpointRound
+    (ActionDecisionRound, WAIT): CallCheckpointRound
     (ActionPreparationRound, DONE): ActionTweetRound
     (ActionPreparationRound, ERROR): CallCheckpointRound
     (ActionPreparationRound, NO_MAJORITY): ActionPreparationRound
@@ -125,6 +130,11 @@ transition_func:
     (FailedMechResponseRound, ERROR): EngageTwitterRound
     (FailedMechResponseRound, NO_MAJORITY): EngageTwitterRound
     (FailedMechResponseRound, ROUND_TIMEOUT): EngageTwitterRound
+    (FetchPerformanceDataRound, DONE): LoadDatabaseRound
+    (FetchPerformanceDataRound, FAIL): LoadDatabaseRound
+    (FetchPerformanceDataRound, NONE): FetchPerformanceDataRound
+    (FetchPerformanceDataRound, NO_MAJORITY): FetchPerformanceDataRound
+    (FetchPerformanceDataRound, ROUND_TIMEOUT): LoadDatabaseRound
     (FinalizationRound, CHECK_HISTORY): CheckTransactionHistoryRound
     (FinalizationRound, CHECK_LATE_ARRIVING_MESSAGE): SynchronizeLateMessagesRound
     (FinalizationRound, DONE): ValidateTransactionRound
@@ -134,6 +144,11 @@ transition_func:
     (LoadDatabaseRound, DONE): CheckStakingRound
     (LoadDatabaseRound, NO_MAJORITY): LoadDatabaseRound
     (LoadDatabaseRound, ROUND_TIMEOUT): LoadDatabaseRound
+    (MechPurchaseSubscriptionRound, DONE): FinishedMechPurchaseSubscriptionRound
+    (MechPurchaseSubscriptionRound, NONE): MechPurchaseSubscriptionRound
+    (MechPurchaseSubscriptionRound, NO_MAJORITY): MechPurchaseSubscriptionRound
+    (MechPurchaseSubscriptionRound, ROUND_TIMEOUT): MechPurchaseSubscriptionRound
+    (MechRequestRound, BUY_SUBSCRIPTION): MechPurchaseSubscriptionRound
     (MechRequestRound, DONE): RandomnessTransactionSubmissionRound
     (MechRequestRound, NO_MAJORITY): MechRequestRound
     (MechRequestRound, ROUND_TIMEOUT): MechRequestRound
@@ -151,9 +166,9 @@ transition_func:
     (PostTxDecisionMakingRound, NO_MAJORITY): PostTxDecisionMakingRound
     (PostTxDecisionMakingRound, ROUND_TIMEOUT): PostTxDecisionMakingRound
     (PullMemesRound, DONE): CollectFeedbackRound
-    (PullMemesRound, SKIP): CollectFeedbackRound
     (PullMemesRound, NO_MAJORITY): PullMemesRound
     (PullMemesRound, ROUND_TIMEOUT): PullMemesRound
+    (PullMemesRound, SKIP): CollectFeedbackRound
     (RandomnessTransactionSubmissionRound, DONE): SelectKeeperTransactionSubmissionARound
     (RandomnessTransactionSubmissionRound, NONE): RandomnessTransactionSubmissionRound
     (RandomnessTransactionSubmissionRound, NO_MAJORITY): RandomnessTransactionSubmissionRound
@@ -161,11 +176,6 @@ transition_func:
     (RegistrationRound, DONE): FetchPerformanceDataRound
     (RegistrationRound, NO_MAJORITY): RegistrationRound
     (RegistrationStartupRound, DONE): FetchPerformanceDataRound
-    (FetchPerformanceDataRound, DONE): LoadDatabaseRound
-    (FetchPerformanceDataRound, FAIL): LoadDatabaseRound
-    (FetchPerformanceDataRound, NONE): FetchPerformanceDataRound
-    (FetchPerformanceDataRound, NO_MAJORITY): FetchPerformanceDataRound
-    (FetchPerformanceDataRound, ROUND_TIMEOUT): LoadDatabaseRound
     (ResetAndPauseRound, DONE): CheckStakingRound
     (ResetAndPauseRound, NO_MAJORITY): ResetAndPauseRound
     (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): ResetAndPauseRound

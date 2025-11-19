@@ -39,6 +39,7 @@ from aea.protocols.base import Message
 from aea.protocols.dialogue.base import Dialogue
 from aea_ledger_ethereum.ethereum import EthereumCrypto
 from eth_account import Account
+from eth_account.signers.local import LocalAccount
 from web3 import Web3
 
 from packages.dvilela.connections.genai.connection import (
@@ -140,6 +141,23 @@ def load_fsm_spec() -> Dict:
         encoding="utf-8",
     ) as spec_file:
         return yaml.safe_load(spec_file)
+
+
+def get_password_from_args() -> Optional[str]:
+    """Extract password from command line arguments."""
+    args = sys.argv
+    try:
+        password_index = args.index("--password")
+        if password_index + 1 < len(args):
+            return args[password_index + 1]
+    except ValueError:
+        pass
+
+    for arg in args:
+        if arg.startswith("--password="):
+            return arg.split("=", 1)[1]
+
+    return None
 
 
 class SrrHandler(AbstractResponseHandler):
@@ -339,6 +357,7 @@ class HttpHandler(BaseHttpHandler):
 
     @property
     def params(self) -> Params:
+        """Get the params."""
         return self.context.params
 
     @property
@@ -442,7 +461,7 @@ class HttpHandler(BaseHttpHandler):
         self,
         http_msg: HttpMessage,
         http_dialogue: HttpDialogue,
-        body: Optional[Dict[str, Any]] = {},
+        body: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Handle a Http bad request.
@@ -1092,7 +1111,7 @@ class HttpHandler(BaseHttpHandler):
         self,
         http_msg: HttpMessage,
         http_dialogue: HttpDialogue,
-        body: Optional[Dict[str, Any]] = {},
+        body: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Send a too early response"""
         http_response = http_dialogue.reply(
@@ -1112,7 +1131,7 @@ class HttpHandler(BaseHttpHandler):
         self,
         http_msg: HttpMessage,
         http_dialogue: HttpDialogue,
-        body: Optional[Dict[str, Any]] = {},
+        body: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Send a too many requests response"""
         http_response = http_dialogue.reply(
@@ -1132,7 +1151,7 @@ class HttpHandler(BaseHttpHandler):
         self,
         http_msg: HttpMessage,
         http_dialogue: HttpDialogue,
-        body: Optional[Dict[str, Any]] = {},
+        body: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Send an internal server error response"""
         http_response = http_dialogue.reply(
@@ -1176,14 +1195,14 @@ class HttpHandler(BaseHttpHandler):
             self.funds_status.get_response_body(),
         )
 
-    def _get_eoa_account(self) -> Optional[Account]:
+    def _get_eoa_account(self) -> Optional[LocalAccount]:
         """Get the EOA account, handling both plaintext and encrypted private keys."""
         default_ledger = self.context.default_ledger_id
         eoa_file_path = (
             Path(self.context.data_dir) / f"{default_ledger}_private_key.txt"
         )
 
-        password = self._get_password_from_args()
+        password = get_password_from_args()
         if password is None:
             self.context.logger.error("No password provided for encrypted private key.")
 
@@ -1197,26 +1216,11 @@ class HttpHandler(BaseHttpHandler):
             private_key = crypto.private_key
 
         try:
+            # pylint: disable=no-value-for-parameter
             return Account.from_key(private_key)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Failed to decrypt private key: {e}")
             return None
-
-    def _get_password_from_args(self) -> Optional[str]:
-        """Extract password from command line arguments."""
-        args = sys.argv
-        try:
-            password_index = args.index("--password")
-            if password_index + 1 < len(args):
-                return args[password_index + 1]
-        except ValueError:
-            pass
-
-        for arg in args:
-            if arg.startswith("--password="):
-                return arg.split("=", 1)[1]
-
-        return None
 
     def _get_web3_instance(self, chain: str) -> Optional[Web3]:
         """Get Web3 instance for the specified chain."""
@@ -1232,7 +1236,7 @@ class HttpHandler(BaseHttpHandler):
             # as the HTTPProvider recycles underlying TCP/IP network connections, for better performance.
             # Multiple HTTPProviders with different URLs will work as expected.
             return Web3(Web3.HTTPProvider(rpc_url))
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error creating Web3 instance: {str(e)}")
             return None
 
@@ -1263,12 +1267,12 @@ class HttpHandler(BaseHttpHandler):
                 Web3.to_checksum_address(eoa_address)
             ).call()
             return balance
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error checking USDC balance: {str(e)}")
             return None
 
     def _get_lifi_quote_sync(
-        self, eoa_address: str, chain: str, usdc_address: str, to_amount: str
+        self, eoa_address: str, usdc_address: str, to_amount: str
     ) -> Optional[Dict]:
         """Get LiFi quote synchronously."""
         try:
@@ -1294,12 +1298,12 @@ class HttpHandler(BaseHttpHandler):
                 return response.json()
 
             return None
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error getting LiFi quote: {str(e)}")
             return None
 
     def _sign_and_submit_tx_web3(
-        self, tx_data: Dict, chain: str, eoa_account: Account
+        self, tx_data: Dict, chain: str, eoa_account: LocalAccount
     ) -> Optional[str]:
         """Sign and submit transaction using Web3."""
         try:
@@ -1312,7 +1316,7 @@ class HttpHandler(BaseHttpHandler):
             tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
             return tx_hash.hex()
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error submitting transaction: {str(e)}")
             return None
 
@@ -1330,18 +1334,17 @@ class HttpHandler(BaseHttpHandler):
             )
 
             # Wait for transaction receipt with timeout
-            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)  # type: ignore
 
-            if receipt.status == 1:
+            if receipt.status == 1:  # type: ignore[attr-defined]
                 self.context.logger.info(f"Transaction {tx_hash} successful")
                 return True
-            else:
-                self.context.logger.error(
-                    f"Transaction {tx_hash} failed (status: {receipt.status})"
-                )
-                return False
+            self.context.logger.error(
+                f"Transaction {tx_hash} failed (status: {receipt.status})"  # type: ignore[attr-defined]
+            )
+            return False
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error checking transaction status: {str(e)}")
             return False
 
@@ -1359,7 +1362,7 @@ class HttpHandler(BaseHttpHandler):
 
             return nonce, gas_price
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error getting nonce/gas: {str(e)}")
             return None, None
 
@@ -1392,7 +1395,7 @@ class HttpHandler(BaseHttpHandler):
                 "from": Web3.to_checksum_address(eoa_address),
             }
             # Try to estimate gas using Web3
-            estimated_gas = w3.eth.estimate_gas(tx_data_for_estimation)
+            estimated_gas = w3.eth.estimate_gas(tx_data_for_estimation)  # type: ignore
             # Add 20% buffer to estimated gas
             tx_gas = int(estimated_gas * 1.2)
             self.context.logger.info(
@@ -1400,11 +1403,15 @@ class HttpHandler(BaseHttpHandler):
             )
             return tx_gas
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error in gas estimation: {str(e)}")
             return None
 
-    def _ensure_sufficient_funds_for_x402_payments(self) -> bool:
+    def _ensure_sufficient_funds_for_x402_payments(
+        self,
+    ) -> (
+        bool
+    ):  # pylint: disable=too-many-locals,too-many-statements,too-many-return-statements
         """Ensure agent EOA has at sufficient funds for x402 requests payments"""
         self.context.logger.info("Checking USDC balance for x402 payments...")
         try:
@@ -1444,7 +1451,7 @@ class HttpHandler(BaseHttpHandler):
 
             top_up_usdc_amount = str(top_up)
             quote = self._get_lifi_quote_sync(
-                eoa_address, chain, usdc_address, top_up_usdc_amount
+                eoa_address, usdc_address, top_up_usdc_amount
             )
             if not quote:
                 self.context.logger.error("Failed to get LiFi quote")
@@ -1511,7 +1518,7 @@ class HttpHandler(BaseHttpHandler):
             self.shared_state.sufficient_funds_for_x402_payments = True
             return True
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.context.logger.error(f"Error in _ensure_usdc_balance: {str(e)}")
             self.shared_state.sufficient_funds_for_x402_payments = False
             return False

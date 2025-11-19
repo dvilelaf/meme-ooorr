@@ -7,7 +7,6 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeidorrnxjv4n4ngovxnu4mzod46kyrdncfmli4hapqeqnzp7imq7hm
-  agentsfun-ui-build/README.md: bafybeiebyyjv6tno6vofnakcycovsbvm2zggfpplk4af3ng6vuilpksi7e
   agentsfun-ui-build/assets/agent-agentsfun-logo-Cl82UKSm.png: bafybeia3nla5pruiurpwvzex6bbsgset4k2foerma2iwy5zxmtjidur454
   agentsfun-ui-build/assets/error-DSH8Ua0l.png: bafybeifpj435dufd4wqqlnsq4b57btqxpbqwqky33bhc5n6kkxskoj22nm
   agentsfun-ui-build/assets/index-BgHN1q0w.js: bafybeihcikdbln7x7vwdxwagut5tr4avj7wzd7mitmpsnmu3kgpru2gnpu
@@ -17,34 +16,34 @@ fingerprint:
   agentsfun-ui-build/favicon.ico: bafybeifxjqwpttoghgfbukdabbbex2etjr2x6j274fckatcttdqiduczzm
   agentsfun-ui-build/index.html: bafybeiha3kqus3i3d45npqt4bzpxybkxqlaqev7sid5h34k5cygcm2xsmy
   behaviour_classes/__init__.py: bafybeicjks4kxsb2r6a4armmaqxyxngwm3pouegq3fycm37rbe7otiwsre
-  behaviour_classes/base.py: bafybeiconz7kpssxwghjjuytlpd3hpghtcemelvzdx5la6vbwbz4vcvfxu
-  behaviour_classes/chain.py: bafybeihp6wqa4yqviwrrlkcoi7p62aoz66gie7wdwhnm7usynwk53hvyy4
+  behaviour_classes/base.py: bafybeigi3bcpxaroxvvzzr7xhefg6yg53sp2awjdcdjyjnk6oqmlh5wxk4
+  behaviour_classes/chain.py: bafybeiasfazrwxiq7jujredudsdoj6gvheamrflal2qij32o2dmgm6764a
   behaviour_classes/db.py: bafybeihf7jbo6mfkrqlukmmxx5b6uu4wsagotebnbiqexz4qxzl5lyvuoa
-  behaviour_classes/llm.py: bafybeicazsz5ward3enrhbod2jlcl3gae5nkrbd5npnxkyvtdmah5jumpi
+  behaviour_classes/llm.py: bafybeidvbaz6cl7aff2dhr3xwxvu33ixk5o7pkdasivtjfe2ezn5ft7ira
   behaviour_classes/mech.py: bafybeiaopwxnj3c4xdyqh73fssieofvx2e3qitfpcie5r4lcjznlxkjgbi
   behaviour_classes/twitter.py: bafybeidnjg6oyhx2na3q3ke3fwwm6q5aarwbb6hzvabqjjuuhekald7teu
   behaviours.py: bafybeicsif4jpkuq4a5ijgj63s5zn4mskmakuddgiquqb4vrlz3trqa7fu
   dialogues.py: bafybeiaygigeleloplgrsg2sovv463uvzk3zc2tupgazn4ak2vqcangksu
-  fsm_specification.yaml: bafybeicjoerr5nakbcpvk5ygoxqdrassyo6qxym6and6blfebvrhuy7ld4
-  handlers.py: bafybeidnnwhmapbam2hee34qxmpocrwuwfut2ftz3qilaz327t4xwooloq
-  models.py: bafybeien5myrhv2z6yrhiyltf3wihfqziygvvc6c5qdikbatskwszyqodi
-  payloads.py: bafybeidc7y6bh7sjx33b36ywapoe3q2fr3ejbmwxrzcckcffu2xatu7yb4
-  prompts.py: bafybeiglh3zbxxumjx6glqkhe7uc2ms75xuxwerzmhykk2tqrdqevzakny
-  rounds.py: bafybeihd4bmkejwogtruqznl35xr7jjdk55ceqvs236wq2qngjr2aytmda
-  rounds_info.py: bafybeib6a5a7bvwvfiscnbhsc6sejloelyglnu6lwbeeileyxrsgkxcb6a
+  fsm_specification.yaml: bafybeiawjozalhwzeybvyri6hnimlxvnka3d6eykiu7nnqi54nmqbdqu64
+  handlers.py: bafybeigtdpit2uo6e36eayq5ah7tzihdvkou2dvm4dybasl3ibbozjzdey
+  models.py: bafybeidptygsilab6upr4e3ad5t6vtrbxlrpqrenzv7euxjbcmulfblhly
+  payloads.py: bafybeifrhbfqwrcxx2q5ekeioz7tl4xjkoirqy5s6tdpioa52b63qg7kva
+  prompts.py: bafybeienmm4cftgcwb5mgrq7222kp5rf7xd6e2dxrujlnc6eltbccanfra
+  rounds.py: bafybeiak2gwsjsypglbq2bu6aekdn7qthmasw442pzc3ll4mllegb6kltq
+  rounds_info.py: bafybeihsaghfckxyfrynb2ncqvuocjastmvwzg5wjih4sugfbpykriz26u
 fingerprint_ignore_patterns: []
 connections:
 - dvilela/kv_store:0.1.0:bafybeieufzdojxahh3ejagdbzroqredi5uvkfgjiwsfod7l7whn2octmmi
-- dvilela/tweepy:0.1.0:bafybeicxb4kdudg2eysq2kbopgss23smwoccujfpaar6td6egqkw5ovau4
-- dvilela/genai:0.1.0:bafybeihp6t4y7mynitwj3afwet2lr5ittrqmk4hop7ycmgyyx3nqkc5sty
-- valory/http_server:0.22.0:bafybeic3jpkum7g6qo6x6vdrmvvhj7vqw7ec2op72uc3yfhmnlp5hn3joy
+- dvilela/tweepy:0.1.0:bafybeih7q4o3xuib6l2b76xffh224pc5meqs4xlfxhthvfv7shzbd5cyx4
+- dvilela/genai:0.1.0:bafybeifbm6vgvudeh4stqaf5ur2hwiym3ka7tnrpcavwgrf5oafal3oqwa
+- valory/http_server:0.22.0:bafybeidrrp33iujkplxjs7eylsple4tw3ymqhaapzikjai5movuesuz7f4
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeidhegkiibxroyvzvsyuh5t3qpq3egj24u2yg2xryf2kir4f36on3u
-- dvilela/meme_factory:0.1.0:bafybeifa5h2a3t2ysi24c2zvfyyazjjxjicmveoszcyjbbamoqh7pmk6cu
-- dvilela/service_registry:0.1.0:bafybeih2dhp3dr5ijsbmo6rwfotpbbccejkb3cgutghgadncjqhfryklpu
-- valory/staking_token:0.1.0:bafybeigvcnjzhrwcbzdhiddc2vj7lmyroatnyhkgpkhwrduhuajuekjic4
-- valory/staking_activity_checker:0.1.0:bafybeievwpysmimhhjfgetswigoivnkdluj2n6dh342r2iesiqdw3dpvru
-- valory/mech_marketplace:0.1.0:bafybeiajuyxzp7l3lzxk23jle2bjdxapghc5om6iidcnwg6szfkqpxhb6y
+- valory/gnosis_safe:0.1.0:bafybeihqefvhxbdocjphrcz33txmbgembl35qtcc7nusdvymrh4o3sp5um
+- dvilela/meme_factory:0.1.0:bafybeieoiy3sorrzz3scxa3oi5vqe4rsifyayvwcxuo4zgs7idwjgjvcyu
+- dvilela/service_registry:0.1.0:bafybeigrmck33td75ezv5ner4g544jurromqhb5kl3xjak6xtmb2qrifha
+- valory/staking_token:0.1.0:bafybeidicyr43jzwav63aq6peuo7uwnwl332yhw5kkcmh2cewwh5j4dbrq
+- valory/staking_activity_checker:0.1.0:bafybeiewi4r6pa47kee2kessomudhg7qpu3v4dqmdj2b43oqj557x7atvy
+- valory/mech_marketplace:0.1.0:bafybeiaqye6khcinjf73kyil5jepjet57fb3a2ets7vn2ozdp7iknhtenq
 protocols:
 - valory/srr:0.1.0:bafybeihrixgptxuqpf2s4nujypwlv5aed2nboozq5kl4c26cxw6r7si2x4
 - dvilela/kv_store:0.1.0:bafybeihimf5f37uupxmugvagmaxworgmz7cxuqpikkyzlgldtbq46jbvci
@@ -52,10 +51,11 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeihmqzcbj6t7vxz2aehd5726ofnzsfjs5cwlf42ro4tn6i34cbfrc4
 - valory/contract_api:1.0.0:bafybeid247uig2ekykdumh7ewhp2cdq7rchaeqjj6e7urx35zfpdl5zrn4
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
-- valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
-- valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
-- valory/agent_db_abci:0.1.0:bafybeiftynmtuwshlck6wl4levs4aqnr6oekhvx3nbuiq3xy4akyxigjli
+- valory/abstract_round_abci:0.1.0:bafybeifsuf7sh5vlugnqinbqe2f7vnssuqyxcrzqgotohhwqewyjeibneu
+- valory/transaction_settlement_abci:0.1.0:bafybeiem4qoc2pdpxoingjqp3qnrdjwho67pd6amy7o3xjr5mpdrepctve
+- valory/mech_interact_abci:0.1.0:bafybeicinkpskogfzsdlqak2ky7yux3lftiut4x5t52n2xofj6zbsrkb3m
+- valory/agent_db_abci:0.1.0:bafybeig3chorn4psttuimm6l54slwdtco3jn6qclsf4eneleeqkvhbdma4
+- valory/funds_manager:0.1.0:bafybeibm7l6typw4pmuk64k25jcintjc6srbxzzoojut5bi6xcvfl56myq
 behaviours:
   main:
     args: {}
@@ -282,6 +282,15 @@ dependencies:
     version: '>=0.18.0.post0'
   PyYAML:
     version: '>=3.10,<=6.0.1'
-  requests: {}
+  eth-account:
+    version: '>=0.8.0, <0.9.0'
+  web3:
+    version: <7,>=6.0.0
+  requests:
+    version: '>=2.28.1, <2.31.2'
+  open-aea-ledger-ethereum:
+    version: '>=1.65.0'
+  pydantic:
+    version: ==2.11.9
 is_abstract: true
 customs: []

@@ -7,19 +7,18 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeifrlephtnp4zdqlmovozy25ztjsfyvopm2pinkzyxtc65hmg53b5m
-  behaviours.py: bafybeiebxuvfmi5krrdd2sh46qbzk5e2572iwtf37z3uvmnifc5qbwlxbe
+  behaviours.py: bafybeig5t7z25d53zec7stt2kjklae46mtwxb3zlfwauipkgbzivdhmxym
   dialogues.py: bafybeihqnuqcqbrxzedx5iq5bkjg7r54f2bzcwu4frwtym3o4cggscx36m
   fsm_specification.yaml: bafybeieh2wmnqfkrpfeyvkoojbvd7tbjg36edhnisi6mycdjugymgut3vi
   handlers.py: bafybeic32gqov34qy535ja27cvwid2nqitrzvp3h6eawq5gs5bkbq54u5u
   models.py: bafybeibd62ccunfckdoj6543sjt7hoo3tkm5ab7lkjwzzrshok3spmmoay
   payloads.py: bafybeibrfby2hkt3ljy4qpkshx5shjozxu2jfw4wpzggqvejce4nridyhe
   rounds.py: bafybeifkvdespxwx5m2kvnaiidplx6brotpp3xiay3xahqmlasq7uvxcxe
-  utils.py: bafybeih57iz6z7tnt56sj4ob64ptminodeduj7v33yncznp756y3br4nqm
 fingerprint_ignore_patterns: []
 contracts: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeifsuf7sh5vlugnqinbqe2f7vnssuqyxcrzqgotohhwqewyjeibneu
-- dvilela/memeooorr_abci:0.1.0:bafybeial2bolrhn4ro2zex5c5rlg4lsdo22gti5eutc5cgdznypqxblj2m
+- dvilela/memeooorr_abci:0.1.0:bafybeifqp76gwo4dshgnwzrpa5hwmff77w6eitzf4y24cvohgzqlexkzra
 handlers:
   abci:
     args: {}

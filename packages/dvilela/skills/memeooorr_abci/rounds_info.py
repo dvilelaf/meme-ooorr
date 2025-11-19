@@ -149,6 +149,11 @@ ROUNDS_INFO = {
         "name": "Post Mech response",
         "description": "Handles a post Mech response",
     },
+    "mech_purchase_subscription_round": {
+        "name": "Preparing an NVM purchase subscription tx",
+        "description": "Preparing a transaction to purchase an NVM subscription, in order to interact with an NVM Mech",
+        "transitions": {},
+    },
     "fetch_performance_data_round": {
         "name": "Fetching agent performance summary",
         "description": "Fetches the agent performance summary data",
