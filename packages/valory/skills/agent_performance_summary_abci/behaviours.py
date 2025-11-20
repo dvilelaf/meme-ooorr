@@ -137,7 +137,7 @@ class FetchPerformanceSummaryBehaviour(
             AgentPerformanceMetrics(
                 name="Total Impressions",
                 is_primary=True,
-                description="Total number of tweet impressions overall",
+                description="Total number of times your agent's posts were viewed on X (not unique). A view counts when any part of a post is visible on screen.",
                 value=str(total_impressions) if total_impressions is not None else NA,
             )
         )
@@ -146,7 +146,7 @@ class FetchPerformanceSummaryBehaviour(
             AgentPerformanceMetrics(
                 name="Total Likes",
                 is_primary=False,
-                description="Total number of likes overall",
+                description="Total number of times users tapped the heart icon to like your agent's posts on X.",
                 value=str(total_likes) if total_likes is not None else NA,
             )
         )

@@ -8,13 +8,13 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeidorrnxjv4n4ngovxnu4mzod46kyrdncfmli4hapqeqnzp7imq7hm
   agentsfun-ui-build/assets/agent-agentsfun-logo-Cl82UKSm.png: bafybeia3nla5pruiurpwvzex6bbsgset4k2foerma2iwy5zxmtjidur454
+  agentsfun-ui-build/assets/agentsfun-chat-CQO2MvlO.png: bafybeibm5nhmhfa54gimrsjt7pupvw3bkg2ayr6nul5o5krlj67ivh26oy
   agentsfun-ui-build/assets/error-DSH8Ua0l.png: bafybeifpj435dufd4wqqlnsq4b57btqxpbqwqky33bhc5n6kkxskoj22nm
-  agentsfun-ui-build/assets/index-BgHN1q0w.js: bafybeihcikdbln7x7vwdxwagut5tr4avj7wzd7mitmpsnmu3kgpru2gnpu
+  agentsfun-ui-build/assets/index-CQGd9MCc.js: bafybeiezb6vr3yumgmecfjjo5cjbbpug6tdjxzczfxh22ukkgzv7ppxzoy
   agentsfun-ui-build/assets/media-empty-B-lyiAtK.png: bafybeihuag4bulfk7vvoiycjyycvrmpb5k25nizofy6wa5f5v5a3hv7344
-  agentsfun-ui-build/assets/memecoin-activity-empty-D-dtAKwT.png: bafybeihig5vgaoarjqzcbdoavinqzxkjjlccxnnzfx5275n42kc65gnrzm
   agentsfun-ui-build/assets/x-activity-empty-eVudZvXV.png: bafybeidv76vrjgsi2xdhie76gqwr2p6t42egap4en4ko7wyumavyrrkify
   agentsfun-ui-build/favicon.ico: bafybeifxjqwpttoghgfbukdabbbex2etjr2x6j274fckatcttdqiduczzm
-  agentsfun-ui-build/index.html: bafybeiha3kqus3i3d45npqt4bzpxybkxqlaqev7sid5h34k5cygcm2xsmy
+  agentsfun-ui-build/index.html: bafybeig6afofigmqiefhps5rkiwymnf4xa4bnnte76byx4itcf26t6qw2y
   behaviour_classes/__init__.py: bafybeicjks4kxsb2r6a4armmaqxyxngwm3pouegq3fycm37rbe7otiwsre
   behaviour_classes/base.py: bafybeiegtvonsqvevo4v5vf3bcvbunamhmgpnuzz2sdlfppmzut7wnjmkq
   behaviour_classes/chain.py: bafybeiasfazrwxiq7jujredudsdoj6gvheamrflal2qij32o2dmgm6764a
