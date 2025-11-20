@@ -10,8 +10,8 @@ fingerprint:
   behaviours.py: bafybeig5t7z25d53zec7stt2kjklae46mtwxb3zlfwauipkgbzivdhmxym
   dialogues.py: bafybeihqnuqcqbrxzedx5iq5bkjg7r54f2bzcwu4frwtym3o4cggscx36m
   fsm_specification.yaml: bafybeieh2wmnqfkrpfeyvkoojbvd7tbjg36edhnisi6mycdjugymgut3vi
-  handlers.py: bafybeic32gqov34qy535ja27cvwid2nqitrzvp3h6eawq5gs5bkbq54u5u
-  models.py: bafybeibd62ccunfckdoj6543sjt7hoo3tkm5ab7lkjwzzrshok3spmmoay
+  handlers.py: bafybeiedgxcptl2pydqttyx6hd2vhpjkh7vrlaxf7qgwov3uu64wfvnc64
+  models.py: bafybeida77oribwezrzmpzmw6xwncnr6ludh5zmi522vuuvrmbkawbgef4
   payloads.py: bafybeibrfby2hkt3ljy4qpkshx5shjozxu2jfw4wpzggqvejce4nridyhe
   rounds.py: bafybeifkvdespxwx5m2kvnaiidplx6brotpp3xiay3xahqmlasq7uvxcxe
 fingerprint_ignore_patterns: []
@@ -55,4 +55,5 @@ models:
 dependencies: {}
 is_abstract: true
 connections: []
-protocols: []
+protocols:
+- valory/http:1.0.0:bafybeih4azmfwtamdbkhztkm4xitep3gx6tfdnoz6tvllmaqnhu3klejfa

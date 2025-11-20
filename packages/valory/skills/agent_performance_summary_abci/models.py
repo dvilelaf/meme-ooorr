@@ -69,6 +69,9 @@ class AgentPerformanceSummary:
         ]
         return AgentPerformanceSummary(**data)
 
+    def to_json(self):
+        return json.dumps(asdict(self))
+
 
 class AgentPerformanceSummaryParams(BaseParams):
     """Agent Performance Summary's parameters."""
