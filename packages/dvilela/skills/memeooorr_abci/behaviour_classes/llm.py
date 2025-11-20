@@ -253,6 +253,7 @@ class ActionDecisionBehaviour(
                 )
             new_persona = response.get("new_persona", None)
             if new_persona:
+                self.shared_state.update_agent_behavior(new_persona)  # type: ignore[attr-defined]
                 yield from self._write_kv({"persona": new_persona})
 
             return (
@@ -526,6 +527,7 @@ class ActionDecisionBehaviour(
             self.context.logger.info("The LLM returned a valid response")
             if new_persona:
                 yield from self._write_kv({"persona": new_persona})
+                self.shared_state.update_agent_behavior(new_persona)  # type: ignore[attr-defined]
             return (
                 Event.DONE.value,
                 action_name,

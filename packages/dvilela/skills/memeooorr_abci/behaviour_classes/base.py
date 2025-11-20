@@ -432,13 +432,15 @@ class MemeooorrBaseBehaviour(
 
     def get_persona(self) -> Generator[None, None, str]:
         """Get the agent persona"""
-        return (
-            yield from self._get_configurable_param(
-                param_name="persona",
-                initial_param_name="initial_persona",
-                param_type=str,
-            )
+
+        persona = yield from self._get_configurable_param(
+            param_name="persona",
+            initial_param_name="initial_persona",
+            param_type=str,
         )
+
+        self.shared_state.update_agent_behavior(persona)  # type: ignore[attr-defined]
+        return persona
 
     def get_heart_cooldown_hours(self) -> Generator[None, None, int]:
         """Get the cooldown hours for hearting"""
