@@ -1,0 +1,59 @@
+name: agent_performance_summary_abci
+version: 0.1.0
+description: Agent Performance summary skill for Predict agent
+author: valory
+type: skill
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeifrlephtnp4zdqlmovozy25ztjsfyvopm2pinkzyxtc65hmg53b5m
+  behaviours.py: bafybeidzn5jwtvllwp2nnmgxmr4ftrajhgnvnqulzq4j4ckxkhury5zdye
+  dialogues.py: bafybeihqnuqcqbrxzedx5iq5bkjg7r54f2bzcwu4frwtym3o4cggscx36m
+  fsm_specification.yaml: bafybeieh2wmnqfkrpfeyvkoojbvd7tbjg36edhnisi6mycdjugymgut3vi
+  handlers.py: bafybeiedgxcptl2pydqttyx6hd2vhpjkh7vrlaxf7qgwov3uu64wfvnc64
+  models.py: bafybeida77oribwezrzmpzmw6xwncnr6ludh5zmi522vuuvrmbkawbgef4
+  payloads.py: bafybeibrfby2hkt3ljy4qpkshx5shjozxu2jfw4wpzggqvejce4nridyhe
+  rounds.py: bafybeifkvdespxwx5m2kvnaiidplx6brotpp3xiay3xahqmlasq7uvxcxe
+fingerprint_ignore_patterns: []
+contracts: []
+skills:
+- valory/abstract_round_abci:0.1.0:bafybeifsuf7sh5vlugnqinbqe2f7vnssuqyxcrzqgotohhwqewyjeibneu
+- dvilela/memeooorr_abci:0.1.0:bafybeiblmt76x4gqwum3ondlmuaalt2hnivvicy63zyp3sbh4py2e6wq3m
+handlers:
+  abci:
+    args: {}
+    class_name: AgentPerformanceSummaryABCIHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ipfs:
+    args: {}
+    class_name: IpfsHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
+behaviours: {}
+models:
+  state:
+    args: {}
+    class_name: SharedState
+  params:
+    args:
+      store_path: /data/
+      is_agent_performance_summary_enabled: true
+      performance_summary_ttl: 1800
+    class_name: AgentPerformanceSummaryParams
+dependencies: {}
+is_abstract: true
+connections: []
+protocols:
+- valory/http:1.0.0:bafybeih4azmfwtamdbkhztkm4xitep3gx6tfdnoz6tvllmaqnhu3klejfa

@@ -144,9 +144,10 @@ bump-packages:
 .PHONY: run-agent
 run-agent:
 	mkdir -p ./logs && \
-	bash -c 'TIMESTAMP=$$(date +%d-%m-%y_%H-%M); \
+	bash -c 'TIMESTAMP=$$(date +%Y-%m-%d_%H-%M); \
 	LOG_FILE="./logs/agent_log_$$TIMESTAMP.log"; \
+	LATEST_LOG_FILE="./logs/agent_log_latest.log"; \
 	echo "Running agent and logging to $$LOG_FILE"; \
-	bash run_agent.sh 2>&1 | tee $$LOG_FILE'
+	bash run_agent.sh 2>&1 | tee $$LOG_FILE $$LATEST_LOG_FILE'
 
 v := $(shell pip -V | grep virtualenvs)

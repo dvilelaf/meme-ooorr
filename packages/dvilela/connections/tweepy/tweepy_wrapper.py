@@ -244,3 +244,29 @@ class Twitter:
                 f"TweepyException in method get_follower_ids: {type(e).__name__} - {e}"
             )
             raise
+
+    def get_all_user_tweets(
+        self,
+        user_id: str,
+        max_results: int = 100,
+        tweet_fields: Optional[List[str]] = None,
+    ) -> List:
+        """Get a user's tweets."""
+        try:
+            paginator = tweepy.Paginator(
+                self.client.get_users_tweets,
+                user_id,
+                max_results=max_results,
+                tweet_fields=tweet_fields,
+            )
+            all_tweets = []
+            for response in paginator:
+                if response.data:
+                    all_tweets.extend(response.data)
+
+            return all_tweets
+        except tweepy.errors.TweepyException as e:
+            self.logger.error(
+                f"TweepyException in method get_user_tweets_with_public_metrics: {type(e).__name__} - {e}"
+            )
+            raise

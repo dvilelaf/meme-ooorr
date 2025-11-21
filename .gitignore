@@ -12,8 +12,10 @@ packages/valory/contracts/*
 !packages/valory/contracts/staking_activity_checker
 packages/valory/protocols/
 packages/valory/skills/*
+!packages/valory/skills/agent_performance_summary_abci
 !packages/valory/skills/agent_db_abci
 packages/valory/connections/*
+packages/dvilela/connections/genai
 !packages/valory/connections/twitter
 leak_report
 /Pipfile.lock
@@ -21,6 +23,7 @@ leak_report
 keys.json
 ethereum_private_key.txt
 memeooorr
+agent
 !packages/dvilela/agents/memeooorr
 !packages/dvilela/services/memeooorr
 packages/__pycache__/
@@ -30,6 +33,7 @@ __pycache__/
 .vscode/launch.json
 .vscode/settings.json
 
+data/
 memeooorr.db
 
 TODO.md

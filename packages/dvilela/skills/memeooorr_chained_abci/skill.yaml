@@ -7,24 +7,25 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeiacqbub377oj2uvkw3lu2u43zv5rpdd2z4jx7dailiffqttksds24
-  behaviours.py: bafybeiabl3v5527rgeyehgexmfbfvya5gipr6buurvjr7rh5mhu67dwnwq
-  composition.py: bafybeicwsdzp2whgfct4vlfp6xqdnn7dydqjeajnqqajofcttaydgtreua
+  behaviours.py: bafybeiapclfprmrnn3nqtwvblr6pyvyhcghcj64mtfkotoy3jctkce4akm
+  composition.py: bafybeihhcfk2e7lczwbldfzpx5igbbtqysrba3lk2rjh5fpcth7qvf7jjm
   dialogues.py: bafybeiawrgmlra5f6o63nhv5kc77wvzoqmcareub3lf4qceuwpjso4pjbe
-  fsm_specification.yaml: bafybeibakfvloqbh5nbotrfo6vi3xrl24kq3ewdle5t4c3vkkosfik2t7y
-  handlers.py: bafybeibw5nfno2scl5qzly3fpvodgoovikl6h3hoiiu6e4sqpbbczbzfim
-  models.py: bafybeieba4edhzcxg45wmgdaalvnvnawfc3pmff7faqf4d35flgxxni6qm
+  fsm_specification.yaml: bafybeifx2z2qe7joorue7ix73d7typ55irgxbyb2whjbwdhiiurktyopm4
+  handlers.py: bafybeihtdxdmnknewkwtwja5vjq7uyizirtj2ahzovizg3vzon4c53izay
+  models.py: bafybeie22hfznu62ybuziuh6owiez4hh4jontjrlch57wid4puljda62y4
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
-- valory/registration_abci:0.1.0:bafybeigt7bmrfhet7fyafqojl2i5uhzvpaz5wfv6kuk5ojwhhnhmg3qihu
-- valory/reset_pause_abci:0.1.0:bafybeicskv7u3mtfhi7nnoyw3bppwjof63izs4jgqdddtxicoea26t2n7i
-- valory/transaction_settlement_abci:0.1.0:bafybeid4alawv3oz4gdyom5uevrgzfsahbwabi37r7gomsetwqiq66g6cm
-- valory/termination_abci:0.1.0:bafybeianygjbwmt4xrq77pfl3yzcokbjfzxmuru6j2k7a3boqc2qfb7shi
-- dvilela/memeooorr_abci:0.1.0:bafybeihd3cureko4mdynbwdpafkdisqftxtw2itzyyidzsf4pn2z33huaa
-- valory/mech_interact_abci:0.1.0:bafybeibhigcn46vxrqwcmygin4v442qknyklmuaufyre2npca26sbmkdvu
+- valory/abstract_round_abci:0.1.0:bafybeifsuf7sh5vlugnqinbqe2f7vnssuqyxcrzqgotohhwqewyjeibneu
+- valory/registration_abci:0.1.0:bafybeie6rd7zlws4rxzkwka5mzhk56mn6clj3ocxbkbgeaiawv2c6b6jtm
+- valory/reset_pause_abci:0.1.0:bafybeian7gymp6x6rn55uaf4u3dgirbzr43xvnsj2ev27stkadikjqz4du
+- valory/transaction_settlement_abci:0.1.0:bafybeiem4qoc2pdpxoingjqp3qnrdjwho67pd6amy7o3xjr5mpdrepctve
+- valory/termination_abci:0.1.0:bafybeiht4uj5j3qqf2hewtzah7vcabb7okkjgi65jb76ddfltvjpk6bzxi
+- dvilela/memeooorr_abci:0.1.0:bafybeiblmt76x4gqwum3ondlmuaalt2hnivvicy63zyp3sbh4py2e6wq3m
+- valory/mech_interact_abci:0.1.0:bafybeicinkpskogfzsdlqak2ky7yux3lftiut4x5t52n2xofj6zbsrkb3m
+- valory/agent_performance_summary_abci:0.1.0:bafybeiehb2trf3dvioo3adfxcgi2f7b52v7ktvai4m5qgkxmwirs72omje
 behaviours:
   main:
     args: {}
@@ -169,7 +170,6 @@ models:
       tools_for_mech:
         google_image_gen: This tool generates an image based on a given prompt using
           the StabilityAI Stable Diffusion v1.6 model
-        short_maker: This tool generates a short video based on a given prompt
       mech_request_price: 100
       mech_contract_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
       mech_chain_id: base
@@ -195,6 +195,14 @@ models:
         frequency_penalty: 0
         temperature": 0.6
       fireworks_api_key: null
+      is_memecoin_logic_enabled: false
+      use_x402: false
+      genai_api_key: ''
+      x402_payment_requirements: {}
+      base_ledger_rpc: https://1rpc.io/base
+      lifi_quote_to_amount_url: https://li.quest/v1/quote/toAmount
+      is_agent_performance_summary_enabled: true
+      performance_summary_ttl: 1800
     class_name: Params
   randomness_api:
     args:
@@ -244,5 +252,13 @@ models:
   agents_fun_db:
     args: {}
     class_name: AgentsFunDatabase
-dependencies: {}
+dependencies:
+  eth-account:
+    version: '>=0.8.0, <0.9.0'
+  web3:
+    version: <7,>=6.0.0
+  requests:
+    version: '>=2.28.1, <2.31.2'
+  open-aea-ledger-ethereum:
+    version: '>=1.65.0'
 is_abstract: false

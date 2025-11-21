@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiaekcmielp6mb4qvmo2twwkpmoun36bqajrh7wnnkcpdnia45ycl4
 fingerprint_ignore_patterns: []
-agent: dvilela/memeooorr:0.1.0:bafybeihpkkh44zemqof3h5ccojimur36o4tn3umll3lue3st73hk3u2oqi
+agent: dvilela/memeooorr:0.1.0:bafybeiemjz5ftj7ryku2zt5u5elv2deibmq4j5xiq2meni67zf6onvdc64
 number_of_agents: 1
 deployment:
   agent:
@@ -119,6 +119,14 @@ extra:
         use_acn_for_delivers: false
         summon_cooldown_seconds: ${SUMMON_COOLDOWN_SECONDS:int:2592000}
         heart_cooldown_hours: ${HEART_COOLDOWN_HOURS:int:48}
+        is_memecoin_logic_enabled: ${IS_MEMECOIN_LOGIC_ENABLED:bool:false}
+        use_x402: ${USE_X402:bool:false}
+        genai_api_key: ${GENAI_API_KEY:str:""}
+        x402_payment_requirements: ${X402_PAYMENT_REQUIREMENTS:dict:{"threshold":200000,"top_up":250000}}
+        base_ledger_rpc: ${BASE_LEDGER_RPC:str:https://1rpc.io/base}
+        lifi_quote_to_amount_url: ${LIFI_QUOTE_TO_AMOUNT_URL:str:https://li.quest/v1/quote/toAmount}
+        is_agent_performance_summary_enabled: ${IS_AGENT_PERFORMANCE_SUMMARY_ENABLED:bool:true}
+        performance_summary_ttl: ${PERFORMANCE_SUMMARY_TTL:int:1800}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
@@ -169,6 +177,8 @@ public_id: dvilela/genai:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlco
 type: connection
 config:
   genai_api_key: ${GENAI_API_KEY:str:null}
+  genai_x402_server_base_url: ${GENAI_X402_SERVER_BASE_URL:str:https://x402.olas.autonolas.tech/v1/gemini/base/v1beta}
+  use_x402: ${USE_X402:bool:false}
 ---
 public_id: dvilela/tweepy:0.1.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
@@ -190,4 +200,14 @@ type: connection
 config:
   host: ${HTTP_SERVER_HOST:str:0.0.0.0}
   port: ${HTTP_SERVER_PORT:int:8716}
+  timeout: ${HTTP_SERVER_TIMEOUT:float:30.0}
   target_skill_id: dvilela/memeooorr_chained_abci:0.1.0
+---
+public_id: valory/funds_manager:0.1.0
+type: skill
+models:
+  params:
+    args:
+      fund_requirements: ${FUND_REQUIREMENTS:dict:{"base":{"agent":{"0x0000000000000000000000000000000000000000":{"topup":325700000000000,"threshold":99000000000000}},"safe":{"0x0000000000000000000000000000000000000000":{"topup":1628500000000000,"threshold":99000000000000}}}}}
+      rpc_urls: ${RPC_URLS:dict:{"base":"https://1rpc.io/base"}}
+      safe_contract_addresses: ${SAFE_CONTRACT_ADDRESSES:dict:{"gnosis":"0x0000000000000000000000000000000000000000"}}
