@@ -22,6 +22,8 @@
 import json
 import mimetypes
 import re
+import sys
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from datetime import datetime
 from enum import Enum
@@ -30,10 +32,14 @@ from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union,
 from urllib.parse import urlparse
 
 import peewee
+import requests
 import yaml
 from aea.configurations.data_types import PublicId
 from aea.protocols.base import Message
 from aea.protocols.dialogue.base import Dialogue
+from aea_ledger_ethereum.ethereum import EthereumCrypto
+from eth_account import Account
+from web3 import Web3
 
 from packages.dvilela.connections.genai.connection import (
     PUBLIC_ID as GENAI_CONNECTION_PUBLIC_ID,
@@ -44,10 +50,12 @@ from packages.dvilela.skills.memeooorr_abci.dialogues import (
     HttpDialogues,
     SrrDialogues,
 )
-from packages.dvilela.skills.memeooorr_abci.models import SharedState
+from packages.dvilela.skills.memeooorr_abci.models import Params, SharedState
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     CHATUI_PROMPT,
+    CHATUI_PROMPT_NO_MEMECOIN,
     build_updated_agent_config_schema,
+    build_updated_agent_config_schema_no_memecoin,
 )
 from packages.dvilela.skills.memeooorr_abci.rounds import SynchronizedData
 from packages.dvilela.skills.memeooorr_abci.rounds_info import ROUNDS_INFO
@@ -78,6 +86,8 @@ from packages.valory.skills.abstract_round_abci.handlers import (
 from packages.valory.skills.abstract_round_abci.handlers import (
     TendermintHandler as BaseTendermintHandler,
 )
+from packages.valory.skills.funds_manager.behaviours import GET_FUNDS_STATUS_METHOD_NAME
+from packages.valory.skills.funds_manager.models import FundRequirements
 
 
 ABCIHandler = BaseABCIRoundHandler
@@ -88,6 +98,30 @@ TendermintHandler = BaseTendermintHandler
 IpfsHandler = BaseIpfsHandler
 
 AGENT_PROFILE_PATH = "agentsfun-ui-build"
+
+
+OK_CODE = 200
+NOT_FOUND_CODE = 404
+TOO_EARLY_CODE = 425
+TOO_MANY_REQUESTS_CODE = 429
+INTERNAL_SERVER_ERROR_CODE = 500
+BAD_REQUEST_CODE = 400
+AVERAGE_PERIOD_SECONDS = 10
+
+
+PROMPT_FIELD = "prompt"
+LLM_MESSAGE_FIELD = "reasoning"
+
+GENAI_API_KEY_NOT_SET_ERROR = "No API_KEY or ADC found."
+GENAI_RATE_LIMIT_ERROR = "429"
+
+BASE_CHAIN_NAME = "base"
+BASE_CHAIN_ID = 8453
+
+
+ETH_ADDRESS = "0x0000000000000000000000000000000000000000"
+USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+SLIPPAGE_FOR_SWAP = "0.003"  # 0.3%
 
 
 def camel_to_snake(camel_str: str) -> str:
@@ -161,12 +195,6 @@ class KvStoreHandler(AbstractResponseHandler):
     )
 
 
-OK_CODE = 200
-NOT_FOUND_CODE = 404
-BAD_REQUEST_CODE = 400
-AVERAGE_PERIOD_SECONDS = 10
-
-
 class HttpMethod(Enum):
     """Http methods"""
 
@@ -203,6 +231,13 @@ class HttpHandler(BaseHttpHandler):
     def setup(self) -> None:
         """Implement the setup."""
 
+        # Only check funds if using X402
+        if self.context.params.use_x402:
+            self.shared_state.sufficient_funds_for_x402_payments = False
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                executor.submit(self._ensure_sufficient_funds_for_x402_payments)
+                executor.shutdown(wait=False)
+
         config_uri_base_hostname = urlparse(
             self.context.params.service_endpoint
         ).hostname
@@ -221,8 +256,10 @@ class HttpHandler(BaseHttpHandler):
             "x_activity_url": rf"{hostname_regex}\/x-activity",
             "meme_coins_url": rf"{hostname_regex}\/memecoin-activity",
             "media_url": rf"{hostname_regex}\/media",
-            "process_prompt_url": rf"{hostname_regex}\/process-prompt",
+            "process_prompt_url": rf"{hostname_regex}\/configure_strategies",
+            "funds_status_url": rf"{hostname_regex}\/funds-status",
             "static_files_url": rf"{hostname_regex}\/(.*)",
+            "features_url": rf"{hostname_regex}\/features",
         }
 
         # Routes
@@ -236,7 +273,12 @@ class HttpHandler(BaseHttpHandler):
                 (route_regexes["x_activity_url"], self._handle_get_recent_x_activity),
                 (route_regexes["meme_coins_url"], self._handle_get_meme_coins),
                 (route_regexes["media_url"], self._handle_get_media),
-                (route_regexes["static_files_url"], self._handle_get_static_file),
+                (route_regexes["funds_status_url"], self._handle_get_funds_status),
+                (route_regexes["features_url"], self._handle_get_features),
+                (
+                    route_regexes["static_files_url"],
+                    self._handle_get_static_file,
+                ),  # Always keep this last as its a catch-all
             ],
         }
 
@@ -294,6 +336,25 @@ class HttpHandler(BaseHttpHandler):
         return SynchronizedData(
             db=self.context.state.round_sequence.latest_synchronized_data.db
         )
+
+    @property
+    def params(self) -> Params:
+        return self.context.params
+
+    @property
+    def is_memecoin_logic_enabled(self) -> bool:
+        """Check if memecoin logic is enabled."""
+        return self.params.is_memecoin_logic_enabled
+
+    @property
+    def shared_state(self) -> SharedState:
+        """Get the parameters."""
+        return cast(SharedState, self.context.state)
+
+    @property
+    def funds_status(self) -> FundRequirements:
+        """Get the fund status."""
+        return self.context.shared_state[GET_FUNDS_STATUS_METHOD_NAME]()
 
     def _get_handler(self, url: str, method: str) -> Tuple[Optional[Callable], Dict]:
         """Check if an url is meant to be handled in this handler
@@ -378,7 +439,10 @@ class HttpHandler(BaseHttpHandler):
         handler(http_msg, http_dialogue, **kwargs)
 
     def _handle_bad_request(
-        self, http_msg: HttpMessage, http_dialogue: HttpDialogue
+        self,
+        http_msg: HttpMessage,
+        http_dialogue: HttpDialogue,
+        body: Optional[Dict[str, Any]] = {},
     ) -> None:
         """
         Handle a Http bad request.
@@ -393,7 +457,7 @@ class HttpHandler(BaseHttpHandler):
             status_code=BAD_REQUEST_CODE,
             status_text="Bad request",
             headers=http_msg.headers,
-            body=b"",
+            body=json.dumps(body).encode("utf-8"),
         )
 
         # Send response
@@ -641,6 +705,35 @@ class HttpHandler(BaseHttpHandler):
 
         self._send_ok_response(http_msg, http_dialogue, media_list)  # type: ignore
 
+    def _handle_get_features(
+        self, http_msg: HttpMessage, http_dialogue: HttpDialogue
+    ) -> None:
+        """
+        Handle a GET request to check if chat feature is enabled.
+
+        :param http_msg: the HTTP message
+        :param http_dialogue: the HTTP dialogue
+        """
+        # Check if using X402 or if GENAI_API_KEY is set
+        use_x402 = getattr(self.context.params, "use_x402", False)
+
+        if use_x402:
+            # If using X402, chat is enabled without API key check
+            is_chat_enabled = True
+        else:
+            # Otherwise, check if GENAI_API_KEY is set
+            api_key = self.context.params.genai_api_key
+            is_chat_enabled = (
+                api_key is not None
+                and isinstance(api_key, str)
+                and api_key.strip() != ""
+                and api_key != "${str:}"
+                and api_key != '""'
+            )
+
+        data = {"isChatEnabled": is_chat_enabled}
+        self._send_ok_response(http_msg, http_dialogue, data)
+
     def _handle_get_static_file(
         self, http_msg: HttpMessage, http_dialogue: HttpDialogue
     ) -> None:
@@ -704,6 +797,45 @@ class HttpHandler(BaseHttpHandler):
         nonce = dialogue.dialogue_label.dialogue_reference[0]
         self.context.state.req_to_callback[nonce] = (callback, callback_kwargs or {})
 
+    def _get_prompt_and_schema(
+        self,
+        user_prompt: str,
+    ) -> Tuple[str, dict]:
+        if self.is_memecoin_logic_enabled:
+            with self._db_connection_context():
+                with self.db.atomic():
+                    current_persona = self._get_value_from_db("persona", "")
+
+                    current_heart_cooldown_hours = self._get_value_from_db(
+                        "heart_cooldown_hours", None
+                    )
+                    current_summon_cooldown_seconds = self._get_value_from_db(
+                        "summon_cooldown_seconds", None
+                    )
+
+            prompt = CHATUI_PROMPT.format(
+                user_prompt=user_prompt,
+                current_persona=current_persona,
+                current_heart_cooldown_hours=current_heart_cooldown_hours,
+                current_summon_cooldown_seconds=current_summon_cooldown_seconds,
+            )
+
+            prompt_schema = build_updated_agent_config_schema()
+
+            return prompt, prompt_schema
+
+        with self._db_connection_context():
+            with self.db.atomic():
+                current_persona = self._get_value_from_db("persona", "")
+
+        prompt = CHATUI_PROMPT_NO_MEMECOIN.format(
+            user_prompt=user_prompt,
+            current_persona=current_persona,
+        )
+        prompt_schema = build_updated_agent_config_schema_no_memecoin()
+
+        return prompt, prompt_schema
+
     def _handle_post_process_prompt(
         self, http_msg: HttpMessage, http_dialogue: HttpDialogue
     ) -> None:
@@ -714,43 +846,56 @@ class HttpHandler(BaseHttpHandler):
         :param http_dialogue: the HttpDialogue instance
         """
 
+        self.context.logger.info("Handling chatui prompt")
+
+        if self.context.params.use_x402:
+            sufficient_funds_for_x402_payments = getattr(
+                self.shared_state, "sufficient_funds_for_x402_payments", False
+            )
+            if not sufficient_funds_for_x402_payments:
+                self._send_too_early_response(
+                    http_msg,
+                    http_dialogue,
+                    {"error": "System initializing. Please wait for some time."},
+                )
+                return
+
         # Parse incoming data
         data = json.loads(http_msg.body.decode("utf-8"))
-        user_prompt = data.get("prompt", "")
-        self.context.logger.info(f"user_prompt from the user: {user_prompt}")
+        user_prompt = data.get(PROMPT_FIELD, "")
 
         if not user_prompt:
-            self._handle_bad_request(http_msg, http_dialogue)
+            self._handle_bad_request(
+                http_msg,
+                http_dialogue,
+                {"error": "User prompt is required."},
+            )
+            return
 
-        self.context.logger.info(f"user_prompt from the user: {user_prompt}")
+        prompt, schema = self._get_prompt_and_schema(user_prompt=user_prompt)
 
-        with self._db_connection_context():
-            with self.db.atomic():
-                current_persona = self._get_value_from_db("persona", "")
-                current_heart_cooldown_hours = self._get_value_from_db(
-                    "heart_cooldown_hours", None
-                )
-                current_summon_cooldown_seconds = self._get_value_from_db(
-                    "summon_cooldown_seconds", None
-                )
-
-        # Format the prompt
-        prompt_template = CHATUI_PROMPT.format(
-            user_prompt=user_prompt,
-            current_persona=current_persona,
-            current_heart_cooldown_hours=current_heart_cooldown_hours,
-            current_summon_cooldown_seconds=current_summon_cooldown_seconds,
+        self._send_chatui_llm_request(
+            prompt=prompt,
+            schema=schema,
+            http_msg=http_msg,
+            http_dialogue=http_dialogue,
         )
 
+    def _send_chatui_llm_request(
+        self,
+        prompt: str,
+        schema: dict,
+        http_msg: HttpMessage,
+        http_dialogue: HttpDialogue,
+    ) -> None:
         # Prepare payload data
         payload_data = {
-            "prompt": prompt_template,
-            "schema": build_updated_agent_config_schema(),
+            "prompt": prompt,
+            "schema": schema,
         }
 
         self.context.logger.info(f"Payload data: {payload_data}")
 
-        # Create LLM request
         srr_dialogues = cast(SrrDialogues, self.context.srr_dialogues)
         request_srr_message, srr_dialogue = srr_dialogues.create(
             counterparty=str(GENAI_CONNECTION_PUBLIC_ID),
@@ -758,7 +903,6 @@ class HttpHandler(BaseHttpHandler):
             payload=json.dumps(payload_data),
         )
 
-        # Prepare callback args
         callback_kwargs = {"http_msg": http_msg, "http_dialogue": http_dialogue}
         self._send_message(
             request_srr_message,
@@ -787,7 +931,15 @@ class HttpHandler(BaseHttpHandler):
             f"LLM response payload: {llm_response_message.payload}"
         )
 
-        llm_response = json.loads(llm_response_message.payload).get("response", "{}")
+        genai_response: dict = json.loads(llm_response_message.payload)
+
+        if "error" in genai_response:
+            self._handle_chatui_llm_error(
+                genai_response["error"], http_msg, http_dialogue
+            )
+            return
+
+        llm_response = genai_response.get("response", "{}")
         updated_persona: str = json.loads(llm_response).get("agent_persona", None)
         updated_heart_cooldown_hours = json.loads(llm_response).get(
             "heart_cooldown_hours", None
@@ -795,6 +947,7 @@ class HttpHandler(BaseHttpHandler):
         updated_summon_cooldown_seconds = json.loads(llm_response).get(
             "summon_cooldown_seconds", None
         )
+        reasoning = json.loads(llm_response).get("message", "")
 
         updated_params = {}
 
@@ -861,7 +1014,32 @@ class HttpHandler(BaseHttpHandler):
                     if updated_params
                     else "No Params updated"
                 ),
+                LLM_MESSAGE_FIELD: reasoning,
             },
+        )
+
+    def _handle_chatui_llm_error(
+        self, error_message: str, http_msg: HttpMessage, http_dialogue: HttpDialogue
+    ) -> None:
+        self.context.logger.error(f"LLM error response: {error_message}")
+        if GENAI_API_KEY_NOT_SET_ERROR in error_message:
+            self._send_internal_server_error_response(
+                http_msg,
+                http_dialogue,
+                {"error": "No GENAI_API_KEY set."},
+            )
+            return
+        if GENAI_RATE_LIMIT_ERROR in error_message:
+            self._send_too_many_requests_response(
+                http_msg,
+                http_dialogue,
+                {"error": "Too many requests to the LLM."},
+            )
+            return
+        self._send_internal_server_error_response(
+            http_msg,
+            http_dialogue,
+            {"error": "An error occurred while processing the request."},
         )
 
     def _send_ok_response(
@@ -910,6 +1088,66 @@ class HttpHandler(BaseHttpHandler):
         self.context.logger.info(f"Responding with {OK_CODE}")
         self.context.outbox.put_message(message=http_response)
 
+    def _send_too_early_response(
+        self,
+        http_msg: HttpMessage,
+        http_dialogue: HttpDialogue,
+        body: Optional[Dict[str, Any]] = {},
+    ) -> None:
+        """Send a too early response"""
+        http_response = http_dialogue.reply(
+            performative=HttpMessage.Performative.RESPONSE,
+            target_message=http_msg,
+            version=http_msg.version,
+            status_code=TOO_EARLY_CODE,
+            status_text="Too Early",
+            headers=http_msg.headers,
+            body=json.dumps(body).encode("utf-8"),
+        )
+        # Send response
+        self.context.logger.info(f"Responding with {TOO_EARLY_CODE}")
+        self.context.outbox.put_message(message=http_response)
+
+    def _send_too_many_requests_response(
+        self,
+        http_msg: HttpMessage,
+        http_dialogue: HttpDialogue,
+        body: Optional[Dict[str, Any]] = {},
+    ) -> None:
+        """Send a too many requests response"""
+        http_response = http_dialogue.reply(
+            performative=HttpMessage.Performative.RESPONSE,
+            target_message=http_msg,
+            version=http_msg.version,
+            status_code=TOO_MANY_REQUESTS_CODE,
+            status_text="Too Many Requests",
+            headers=http_msg.headers,
+            body=json.dumps(body).encode("utf-8"),
+        )
+        # Send response
+        self.context.logger.info(f"Responding with {TOO_MANY_REQUESTS_CODE}")
+        self.context.outbox.put_message(message=http_response)
+
+    def _send_internal_server_error_response(
+        self,
+        http_msg: HttpMessage,
+        http_dialogue: HttpDialogue,
+        body: Optional[Dict[str, Any]] = {},
+    ) -> None:
+        """Send an internal server error response"""
+        http_response = http_dialogue.reply(
+            performative=HttpMessage.Performative.RESPONSE,
+            target_message=http_msg,
+            version=http_msg.version,
+            status_code=INTERNAL_SERVER_ERROR_CODE,
+            status_text="Internal Server Error",
+            headers=http_msg.headers,
+            body=json.dumps(body).encode("utf-8"),
+        )
+        # Send response
+        self.context.logger.info(f"Responding with {TOO_MANY_REQUESTS_CODE}")
+        self.context.outbox.put_message(message=http_response)
+
     def _send_not_found_response(
         self, http_msg: HttpMessage, http_dialogue: HttpDialogue
     ) -> None:
@@ -926,3 +1164,354 @@ class HttpHandler(BaseHttpHandler):
         # Send response
         self.context.logger.info(f"Responding with {NOT_FOUND_CODE}")
         self.context.outbox.put_message(message=http_response)
+
+    def _handle_get_funds_status(
+        self, http_msg: HttpMessage, http_dialogue: HttpDialogue
+    ) -> None:
+        """Handle a fund status request."""
+
+        self._send_ok_response(
+            http_msg,
+            http_dialogue,
+            self.funds_status.get_response_body(),
+        )
+
+    def _get_eoa_account(self) -> Optional[Account]:
+        """Get the EOA account, handling both plaintext and encrypted private keys."""
+        default_ledger = self.context.default_ledger_id
+        eoa_file_path = (
+            Path(self.context.data_dir) / f"{default_ledger}_private_key.txt"
+        )
+
+        password = self._get_password_from_args()
+        if password is None:
+            self.context.logger.error("No password provided for encrypted private key.")
+
+            # Fallback to plaintext private key
+            with eoa_file_path.open("r") as f:
+                private_key = f.read().strip()
+        else:
+            crypto = EthereumCrypto(
+                private_key_path=str(eoa_file_path), password=password
+            )
+            private_key = crypto.private_key
+
+        try:
+            return Account.from_key(private_key)
+        except Exception as e:
+            self.context.logger.error(f"Failed to decrypt private key: {e}")
+            return None
+
+    def _get_password_from_args(self) -> Optional[str]:
+        """Extract password from command line arguments."""
+        args = sys.argv
+        try:
+            password_index = args.index("--password")
+            if password_index + 1 < len(args):
+                return args[password_index + 1]
+        except ValueError:
+            pass
+
+        for arg in args:
+            if arg.startswith("--password="):
+                return arg.split("=", 1)[1]
+
+        return None
+
+    def _get_web3_instance(self, chain: str) -> Optional[Web3]:
+        """Get Web3 instance for the specified chain."""
+        try:
+            rpc_url = self.params.base_ledger_rpc
+
+            if not rpc_url:
+                self.context.logger.warning(f"No RPC URL for {chain}")
+                return None
+
+            # Commented for future debugging purposes:
+            # Note that you should create only one HTTPProvider with the same provider URL per python process,
+            # as the HTTPProvider recycles underlying TCP/IP network connections, for better performance.
+            # Multiple HTTPProviders with different URLs will work as expected.
+            return Web3(Web3.HTTPProvider(rpc_url))
+        except Exception as e:
+            self.context.logger.error(f"Error creating Web3 instance: {str(e)}")
+            return None
+
+    def _check_usdc_balance(
+        self, eoa_address: str, chain: str, usdc_address: str
+    ) -> Optional[float]:
+        """Check USDC balance using Web3 library."""
+        try:
+            w3 = self._get_web3_instance(chain)
+            if not w3:
+                return None
+
+            # ERC20 ABI for balanceOf
+            erc20_abi = [
+                {
+                    "constant": True,
+                    "inputs": [{"name": "_owner", "type": "address"}],
+                    "name": "balanceOf",
+                    "outputs": [{"name": "balance", "type": "uint256"}],
+                    "type": "function",
+                }
+            ]
+
+            usdc_contract = w3.eth.contract(
+                address=Web3.to_checksum_address(usdc_address), abi=erc20_abi
+            )
+            balance = usdc_contract.functions.balanceOf(
+                Web3.to_checksum_address(eoa_address)
+            ).call()
+            return balance
+        except Exception as e:
+            self.context.logger.error(f"Error checking USDC balance: {str(e)}")
+            return None
+
+    def _get_lifi_quote_sync(
+        self, eoa_address: str, chain: str, usdc_address: str, to_amount: str
+    ) -> Optional[Dict]:
+        """Get LiFi quote synchronously."""
+        try:
+            chain_id = BASE_CHAIN_ID
+
+            params = {
+                "fromChain": chain_id,
+                "toChain": chain_id,
+                "fromToken": ETH_ADDRESS,
+                "toToken": usdc_address,
+                "fromAddress": eoa_address,
+                "toAddress": eoa_address,
+                "toAmount": to_amount,
+                "slippage": SLIPPAGE_FOR_SWAP,
+                "integrator": "valory",
+            }
+
+            response = requests.get(
+                self.params.lifi_quote_to_amount_url, params=params, timeout=30
+            )
+
+            if response.status_code == 200:
+                return response.json()
+
+            return None
+        except Exception as e:
+            self.context.logger.error(f"Error getting LiFi quote: {str(e)}")
+            return None
+
+    def _sign_and_submit_tx_web3(
+        self, tx_data: Dict, chain: str, eoa_account: Account
+    ) -> Optional[str]:
+        """Sign and submit transaction using Web3."""
+        try:
+            w3 = self._get_web3_instance(chain)
+            if not w3:
+                return None
+
+            signed_tx = eoa_account.sign_transaction(tx_data)
+
+            tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+            return tx_hash.hex()
+
+        except Exception as e:
+            self.context.logger.error(f"Error submitting transaction: {str(e)}")
+            return None
+
+    def _check_transaction_status(
+        self, tx_hash: str, chain: str, timeout: int = 60
+    ) -> bool:
+        """Check if transaction was successful by waiting for receipt."""
+        try:
+            w3 = self._get_web3_instance(chain)
+            if not w3:
+                return False
+
+            self.context.logger.info(
+                f"Waiting for transaction {tx_hash} to be mined..."
+            )
+
+            # Wait for transaction receipt with timeout
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+
+            if receipt.status == 1:
+                self.context.logger.info(f"Transaction {tx_hash} successful")
+                return True
+            else:
+                self.context.logger.error(
+                    f"Transaction {tx_hash} failed (status: {receipt.status})"
+                )
+                return False
+
+        except Exception as e:
+            self.context.logger.error(f"Error checking transaction status: {str(e)}")
+            return False
+
+    def _get_nonce_and_gas_web3(
+        self, address: str, chain: str
+    ) -> Tuple[Optional[int], Optional[int]]:
+        """Get nonce and gas price using Web3."""
+        try:
+            w3 = self._get_web3_instance(chain)
+            if not w3:
+                return None, None
+
+            nonce = w3.eth.get_transaction_count(Web3.to_checksum_address(address))
+            gas_price = w3.eth.gas_price
+
+            return nonce, gas_price
+
+        except Exception as e:
+            self.context.logger.error(f"Error getting nonce/gas: {str(e)}")
+            return None, None
+
+    def _estimate_gas(
+        self,
+        tx_request: Dict,
+        eoa_address: str,
+        chain: str,
+    ) -> Optional[int]:
+        """Estimate gas for a transaction"""
+        try:
+            w3 = self._get_web3_instance(chain)
+            if not w3:
+                self.context.logger.error(
+                    "Failed to get Web3 instance for gas estimation"
+                )
+                return False
+
+            tx_value = (
+                int(tx_request["value"], 16)
+                if isinstance(tx_request["value"], str)
+                else tx_request["value"]
+            )
+
+            # Prepare transaction data for gas estimation
+            tx_data_for_estimation = {
+                "to": Web3.to_checksum_address(tx_request["to"]),
+                "data": tx_request["data"],
+                "value": tx_value,
+                "from": Web3.to_checksum_address(eoa_address),
+            }
+            # Try to estimate gas using Web3
+            estimated_gas = w3.eth.estimate_gas(tx_data_for_estimation)
+            # Add 20% buffer to estimated gas
+            tx_gas = int(estimated_gas * 1.2)
+            self.context.logger.info(
+                f"Estimated gas: {estimated_gas}, with 20% buffer: {tx_gas}"
+            )
+            return tx_gas
+
+        except Exception as e:
+            self.context.logger.error(f"Error in gas estimation: {str(e)}")
+            return None
+
+    def _ensure_sufficient_funds_for_x402_payments(self) -> bool:
+        """Ensure agent EOA has at sufficient funds for x402 requests payments"""
+        self.context.logger.info("Checking USDC balance for x402 payments...")
+        try:
+            chain = BASE_CHAIN_NAME
+            eoa_account = self._get_eoa_account()
+            if not eoa_account:
+                self.context.logger.error("Failed to get EOA account")
+                return False
+            eoa_address = eoa_account.address
+
+            usdc_address = USDC_ADDRESS
+            if not usdc_address:
+                self.context.logger.error(f"No USDC address for {chain}")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            usdc_balance = self._check_usdc_balance(eoa_address, chain, usdc_address)
+
+            if usdc_balance is None:
+                self.context.logger.warning("Could not check USDC balance, skipping")
+                self.shared_state.sufficient_funds_for_x402_payments = True
+                return True
+
+            threshold = self.params.x402_payment_requirements.get("threshold", 0)
+            top_up = self.params.x402_payment_requirements.get("top_up", 0)
+
+            if usdc_balance >= threshold:
+                self.context.logger.info(
+                    f"USDC balance sufficient: {usdc_balance} USDC (threshold: {threshold})"
+                )
+                self.shared_state.sufficient_funds_for_x402_payments = True
+                return True
+
+            self.context.logger.info(
+                f"USDC balance ({usdc_balance}) < {threshold}, swapping ETH to {top_up} USDC..."
+            )
+
+            top_up_usdc_amount = str(top_up)
+            quote = self._get_lifi_quote_sync(
+                eoa_address, chain, usdc_address, top_up_usdc_amount
+            )
+            if not quote:
+                self.context.logger.error("Failed to get LiFi quote")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            tx_request: Optional[Dict] = quote.get("transactionRequest")
+            if not tx_request:
+                self.context.logger.error("No transactionRequest in quote")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            nonce, gas_price = self._get_nonce_and_gas_web3(eoa_address, chain)
+            if nonce is None or gas_price is None:
+                self.context.logger.error("Failed to get nonce or gas price")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            tx_value = (
+                int(tx_request["value"], 16)
+                if isinstance(tx_request["value"], str)
+                else tx_request["value"]
+            )
+            tx_gas = self._estimate_gas(tx_request, eoa_address, chain)
+            if tx_gas is None:
+                self.context.logger.error("Failed to estimate gas for transaction")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            tx_data = {
+                "to": Web3.to_checksum_address(tx_request["to"]),
+                "data": tx_request["data"],
+                "value": tx_value,
+                "gas": tx_gas,
+                "gasPrice": gas_price,
+                "nonce": nonce,
+                "chainId": BASE_CHAIN_ID,
+            }
+
+            self.context.logger.info(
+                f"Signing and submitting tx: value={tx_data['value']}, gas={tx_data['gas']}, to={tx_data['to']}, data={tx_data['data']}..."
+            )
+
+            tx_hash = self._sign_and_submit_tx_web3(tx_data, chain, eoa_account)
+
+            if not tx_hash:
+                self.context.logger.error("Failed to submit transaction")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            self.context.logger.info(f"ETH to USDC swap submitted: {tx_hash}")
+
+            # Check transaction status to ensure it was successful
+            tx_successful = self._check_transaction_status(tx_hash, chain)
+
+            if not tx_successful:
+                self.context.logger.error(f"Transaction {tx_hash} failed or timed out")
+                self.shared_state.sufficient_funds_for_x402_payments = False
+                return False
+
+            self.context.logger.info(
+                f"ETH to USDC swap completed successfully: {tx_hash}"
+            )
+            self.shared_state.sufficient_funds_for_x402_payments = True
+            return True
+
+        except Exception as e:
+            self.context.logger.error(f"Error in _ensure_usdc_balance: {str(e)}")
+            self.shared_state.sufficient_funds_for_x402_payments = False
+            return False

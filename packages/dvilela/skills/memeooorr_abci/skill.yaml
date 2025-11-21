@@ -191,7 +191,6 @@ models:
       tools_for_mech:
         google_image_gen: This tool generates an image based on a given prompt using
           the StabilityAI Stable Diffusion v1.6 model
-        short_maker: This tool generates a short video based on a given prompt
       multisend_batch_size: 50
       mech_request_price: 100
       mech_contract_address: '0xe535D7AcDEeD905dddcb5443f41980436833cA2B'
@@ -228,6 +227,12 @@ models:
         frequency_penalty: 0
         temperature": 0.6
       fireworks_api_key: null
+      is_memecoin_logic_enabled: false
+      use_x402: false
+      genai_api_key: ''
+      x402_payment_requirements: {}
+      base_ledger_rpc: https://1rpc.io/base
+      lifi_quote_to_amount_url: https://li.quest/v1/quote/toAmount
     class_name: Params
   mech_response:
     args:

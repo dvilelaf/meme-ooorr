@@ -26,10 +26,13 @@ from typing import Any, Dict, Generator, List, Optional, Tuple, Type
 from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
     MemeooorrBaseBehaviour,
 )
+from packages.dvilela.skills.memeooorr_abci.models import Params
 from packages.dvilela.skills.memeooorr_abci.prompts import (
     ALTERNATIVE_MODEL_TOKEN_PROMPT,
+    ONLY_PERSONA_UPDATE_PROMPT,
     SUMMON_TOKEN_ACTION,
     TOKEN_DECISION_PROMPT,
+    build_persona_action_schema,
     build_token_action_schema,
 )
 from packages.dvilela.skills.memeooorr_abci.rounds import (
@@ -64,6 +67,10 @@ class ActionDecisionBehaviour(
     """ActionDecisionBehaviour"""
 
     matching_round: Type[AbstractRound] = ActionDecisionRound
+
+    @property
+    def params(self) -> Params:
+        return self.context.params
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
@@ -179,6 +186,88 @@ class ActionDecisionBehaviour(
         """Get the next event"""
         # Filter out tokens with no available actions and
         # randomly sort to avoid the LLM to always selecting the first ones
+
+        current_timestamp = self.get_sync_timestamp()
+
+        tweets = yield from self.get_tweets_from_db()
+        latest_tweet = tweets[-1]["text"] if tweets else "No previous tweet"
+
+        feedback_data_str = self.synchronized_data.feedback
+        # this is to parse all the data from the feedback
+        parsed_feedback = self._parse_feedback_data(feedback_data_str)
+
+        # this is to format the data from the feedback into a string for llm
+        tweet_responses = self._format_replies(parsed_feedback)
+
+        # Get last summon timestamp and current persona
+        current_persona = yield from self.get_persona()
+
+        if not self.params.is_memecoin_logic_enabled:
+            self.context.logger.info(
+                "ActionDecisionBehaviour: Meme-coin logic disabled; proceeding without token operations."
+            )
+            prompt_data = {
+                "latest_tweet": latest_tweet,
+                "tweet_responses": tweet_responses,
+            }
+
+            llm_response = yield from self._call_genai(
+                prompt=ONLY_PERSONA_UPDATE_PROMPT.format(**prompt_data),
+                schema=build_persona_action_schema(),
+            )
+            self.context.logger.info(f"LLM response: {llm_response}")
+
+            if llm_response is None:
+                self.context.logger.error("Error getting a response from the LLM.")
+                return (
+                    Event.WAIT.value,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    current_timestamp,
+                )
+
+            try:
+                response = json.loads(llm_response)
+            except json.JSONDecodeError as e:
+                self.context.logger.error(f"Error loading the LLM response: {e}")
+                return (
+                    Event.WAIT.value,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    current_timestamp,
+                )
+            new_persona = response.get("new_persona", None)
+            if new_persona:
+                yield from self._write_kv({"persona": new_persona})
+
+            return (
+                Event.SKIP.value,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                new_persona,
+                current_timestamp,
+            )
+
         meme_coins = self.synchronized_data.meme_coins
         random.shuffle(meme_coins)
         meme_coins_str = "\n".join(
@@ -196,19 +285,6 @@ class ActionDecisionBehaviour(
         if not safe_native_balance:
             safe_native_balance = 0
 
-        tweets = yield from self.get_tweets_from_db()
-        latest_tweet = tweets[-1]["text"] if tweets else "No previous tweet"
-
-        feedback_data_str = self.synchronized_data.feedback
-        # this is to parse all the data from the feedback
-        parsed_feedback = self._parse_feedback_data(feedback_data_str)
-
-        # this is to format the data from the feedback into a string for llm
-        tweet_responses = self._format_replies(parsed_feedback)
-
-        # Get last summon timestamp and current persona
-        current_persona = yield from self.get_persona()
-        current_timestamp = self.get_sync_timestamp()
         summon_cooldown_seconds = yield from self.get_summon_cooldown_seconds()
 
         # Read last summon from the db

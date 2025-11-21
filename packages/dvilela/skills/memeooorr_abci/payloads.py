@@ -46,7 +46,8 @@ class CheckStakingPayload(BaseTxPayload):
 class PullMemesPayload(BaseTxPayload):
     """Represent a transaction payload for the PullMemesRound."""
 
-    meme_coins: Optional[str]
+    meme_coins: Optional[str] = None
+    event: Optional[str] = None
 
 
 @dataclass(frozen=True)
