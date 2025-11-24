@@ -23,6 +23,6 @@ dependencies:
   aiohttp:
     version: '>=3.7.4'
   certifi:
-    version: '>=2025.1.31'
+    version: '>=2025.1.31,<2026.0.0'
 is_abstract: false
 cert_requests: []

@@ -20,9 +20,6 @@
 """This module contains the handlers for the skill of MemeooorrChainedAbciApp."""
 
 from packages.dvilela.skills.memeooorr_abci.handlers import (
-    HttpHandler as BaseHttpHandler,
-)
-from packages.dvilela.skills.memeooorr_abci.handlers import (
     KvStoreHandler as BaseKvStoreHandler,
 )
 from packages.dvilela.skills.memeooorr_abci.handlers import SrrHandler as BaseSrrHandler
@@ -43,6 +40,9 @@ from packages.valory.skills.abstract_round_abci.handlers import (
 )
 from packages.valory.skills.abstract_round_abci.handlers import (
     TendermintHandler as BaseTendermintHandler,
+)
+from packages.valory.skills.agent_performance_summary_abci.handlers import (
+    HttpHandler as BaseHttpHandler,
 )
 
 

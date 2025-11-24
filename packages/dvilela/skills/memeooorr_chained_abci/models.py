@@ -33,7 +33,6 @@ from packages.dvilela.skills.memeooorr_abci.models import Params as MemeooorrPar
 from packages.dvilela.skills.memeooorr_abci.models import (
     RandomnessApi as MemeooorrRandomnessApi,
 )
-from packages.dvilela.skills.memeooorr_abci.models import SharedState as BaseSharedState
 from packages.dvilela.skills.memeooorr_abci.rounds import Event as MemeooorrEvent
 from packages.dvilela.skills.memeooorr_chained_abci.composition import (
     MemeooorrChainedSkillAbciApp,
@@ -42,6 +41,12 @@ from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
 )
 from packages.valory.skills.abstract_round_abci.models import Requests as BaseRequests
+from packages.valory.skills.agent_performance_summary_abci.models import (
+    AgentPerformanceSummaryParams,
+)
+from packages.valory.skills.agent_performance_summary_abci.models import (
+    SharedState as BaseSharedState,
+)
 from packages.valory.skills.mech_interact_abci.models import (
     MechResponseSpecs as BaseMechResponseSpecs,
 )
@@ -96,5 +101,7 @@ class SharedState(BaseSharedState):
         )  # need to introduce a parameter for this
 
 
-class Params(MemeooorrParams, TerminationParams):  # pylint: disable=too-many-ancestors
+class Params(
+    MemeooorrParams, TerminationParams, AgentPerformanceSummaryParams
+):  # pylint: disable=too-many-ancestors
     """A model to represent params for multiple abci apps."""

@@ -6,24 +6,24 @@ description: A skill that serves as a base skill for others to interact with Age
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeigmk5a3fgwudb2kysbh7ar3sdlunfxxrj76udkj555z5zz6onurdi
-  agent_db_client.py: bafybeicr6q2vdefkdvdhes7e4qh4ndegpis6btvlmsnwc4krhbx5r74mnm
-  agent_db_models.py: bafybeieujj532ijrpcqgzgdb5rtvkrzdyv6j6uoz7r7v45kc5t4tgzl7au
-  agents_fun_db.py: bafybeieqwy2nfyh7kezjy64myaeehjyt5fpjwokyhszbciz5zioip3h2lm
-  behaviours.py: bafybeify4fujvhgevulgvchkc2s53i3jf3xxwo2el5yoi6xzxfh52f7uj4
-  dialogues.py: bafybeihsfzez4dsemudres2je4ksjcngbw5q72ltyucqtv5ytkpverqpry
+  __init__.py: bafybeiaxb63hpickyjxvsrkzcmophtdzd27rqwvznngdrye465to4fufii
+  agent_db_client.py: bafybeicvluvrykmbfijnlnd6gla66iru6as56ny4e7c4obhhzougqclniy
+  agent_db_models.py: bafybeidapsnrvbvdudotirz352cxf2y7mxa3lx5dpnc7xvg3ymi4dzk6hm
+  agents_fun_db.py: bafybeihlop6iid3bwyhgjkxju3ixu3hnf6vrkxued2gb3ykhqq4tdknylq
+  behaviours.py: bafybeiaq4qez2p4qfwrffyuu3tx4nkuzo66zzipqmbe2ykzdqvww75n6oa
+  dialogues.py: bafybeifmodah5c75hcwa4vygcvmk5cvj4kpmfy5qwyov7kvgqn6gipupqi
   fsm_specification.yaml: bafybeigiboab2knxjw7jj7k7bne6osbnhs7rreo3mgtq5nfkrtpw47thze
-  handlers.py: bafybeiboaxdq7goafpoedrulb3s46usgqpi646oq5vsevtb2c434eiamxa
-  models.py: bafybeihdebjnndq6bw4mtoaooqrent2jbb4pwpsgbf66xfhvhcl64kvv6m
-  payloads.py: bafybeifjq6sljt33cbdfleab4czsoe66ntlcvqjnxcdhp4rtn6sdiipjy4
+  handlers.py: bafybeicdplfliyfjuc5zfblbsusibw6sz7brk7jioby36zwt2thv2efrza
+  models.py: bafybeidqqwrap3vgawpdzmff2txlw5k4iwlhzpefgr3f2owdakyso4szhe
+  payloads.py: bafybeiczq2m2uoprcxya7r2wbgsoira5b4mhkbcupudqqqvc3mytx6iyya
   rounds.py: bafybeif4v3ka77zommvf7md7wwxz7ebdvbruhelwz2sviakhbmbtisqr7m
-  twitter_models.py: bafybeid7ze3bn65txsy2ay5446c4vhoqssdxml7fwb5zgydeofxjcqddey
+  twitter_models.py: bafybeiadshpnusuis3bngpmyl57smsfbcl654t4gsq6v6gu2bnscoovdhe
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeifclzgoyulkyyigcwrqzmydyrj6c5d26xu7jk6cjbsed3pkls4pba
+- valory/abstract_round_abci:0.1.0:bafybeifsuf7sh5vlugnqinbqe2f7vnssuqyxcrzqgotohhwqewyjeibneu
 behaviours:
   main:
     args: {}

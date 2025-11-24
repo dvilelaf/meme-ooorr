@@ -22,7 +22,8 @@
 import enum
 import pickle  # nosec
 import typing
-from dataclasses import dataclass
+
+from pydantic import BaseModel
 
 
 ENFORCE_ACTION_COMMAND = "IMPORTANT: Please use tools, as you are required to meet some action KPIs and you have not met them yet."
@@ -131,8 +132,7 @@ class ToolActionName(enum.Enum):
     SHORT_MAKER = "short_maker"
 
 
-@dataclass(frozen=True)
-class TwitterAction:
+class TwitterAction(BaseModel):
     """TwitterAction"""
 
     action: TwitterActionName
@@ -141,8 +141,7 @@ class TwitterAction:
     text: str
 
 
-@dataclass(frozen=True)
-class ToolAction:
+class ToolAction(BaseModel):
     """ToolAction"""
 
     tool_name: ToolActionName
@@ -159,8 +158,7 @@ def build_tool_action_schema() -> dict:
     return {"class": pickle.dumps(ToolAction).hex(), "is_list": False}
 
 
-@dataclass(frozen=True)
-class Decision:
+class Decision(BaseModel):
     """Decision"""
 
     tool_action: typing.Optional[ToolAction]
@@ -237,6 +235,16 @@ TOKEN_DECISION_PROMPT = (  # nosec
     """
 )
 
+ONLY_PERSONA_UPDATE_PROMPT = """You are an agent with a specific persona. You create tweets based on it.
+
+    Here's your latest tweet:
+    "{latest_tweet}"
+
+    Here's a list of tweets that you received as a response to your latest tweet.
+    You can use this information to update your persona if you think that will improve engagement.
+    "{tweet_responses}"
+    """  # nosec
+
 ALTERNATIVE_MODEL_TOKEN_PROMPT = (  # nosec
     ""
     """
@@ -289,8 +297,7 @@ ALTERNATIVE_MODEL_TOKEN_PROMPT = (  # nosec
 )
 
 
-@dataclass(frozen=True)
-class TokenSummon:
+class TokenSummon(BaseModel):
     """TokenSummon"""
 
     token_name: str
@@ -299,31 +306,27 @@ class TokenSummon:
     amount: int
 
 
-@dataclass(frozen=True)
-class TokenHeart:
+class TokenHeart(BaseModel):
     """TokenSummon"""
 
     token_nonce: str
     amount: int
 
 
-@dataclass(frozen=True)
-class TokenUnleash:
+class TokenUnleash(BaseModel):
     """TokenSummon"""
 
     token_nonce: str
 
 
-@dataclass(frozen=True)
-class TokenCollect:
+class TokenCollect(BaseModel):
     """TokenSummon"""
 
     token_nonce: str
     token_address: str
 
 
-@dataclass(frozen=True)
-class TokenPurge:
+class TokenPurge(BaseModel):
     """TokenSummon"""
 
     token_nonce: str
@@ -342,8 +345,7 @@ class ValidActionName(enum.Enum):
     BURN = "burn"
 
 
-@dataclass(frozen=True)
-class TokenAction:  # pylint: disable=too-many-instance-attributes
+class TokenAction(BaseModel):  # pylint: disable=too-many-instance-attributes
     """TokenAction"""
 
     action_name: ValidActionName
@@ -361,6 +363,17 @@ def build_token_action_schema() -> dict:
     return {"class": pickle.dumps(TokenAction).hex(), "is_list": False}
 
 
+class PersonaAction(BaseModel):  # pylint: disable=too-many-instance-attributes
+    """PersonaAction"""
+
+    new_persona: typing.Optional[str]
+
+
+def build_persona_action_schema() -> dict:
+    """Build a schema for persona action response"""
+    return {"class": pickle.dumps(PersonaAction).hex(), "is_list": False}
+
+
 CHATUI_PROMPT = """
 You are an expert assistant responsible for updating the configuration of an agent based on user input.
 
@@ -374,21 +387,50 @@ The agent's current configuration is:
     (Note: Replace this value fully if the user specifies a new summon cooldown.)
     (Threshold: >=2592000. This equates to 48 hours. If the user requests a value below 22592000, set it to 2592000.)
 
-Carefully analyze the following user prompt and determine the most appropriate updates for the agent. If the prompt lacks sufficient information to make a meaningful change (e.g., it is a greeting or off-topic), return empty values for all fields. Empty values signify no change to that field. If only one field has changed, keep the other field empty.
+Carefully read the user's prompt below and decide what configuration changes, if any, should be made. If only one field should be updated, set the others to null. A field can not be deselected and set at the same time.
+
+Always include a clear message to the user explaining your reasoning for the update, or ask for clarification if needed. This message should be phrased in a way that is for the user, not for the agent. The user may not always ask for a change, the user can also ask for information about the current configuration or the available configurations, in which case, you should respond appropriately. You can format your message using basic HTML tags such as <b> for bold, <i> for italics, <ul>/<li> for lists, and <br> for line breaks. Use these tags to make your explanation clearer and easier to read.
 
 User prompt: "{user_prompt}"
 """
 
 
-@dataclass(frozen=True)
-class UpdatedAgentConfig:
+class UpdatedAgentConfig(BaseModel):
     """UpdatedAgentConfig"""
 
     agent_persona: typing.Optional[str]
     heart_cooldown_hours: typing.Optional[int]
     summon_cooldown_seconds: typing.Optional[int]
+    message: str
 
 
 def build_updated_agent_config_schema() -> dict:
     """Build a schema for token action response"""
     return {"class": pickle.dumps(UpdatedAgentConfig).hex(), "is_list": False}
+
+
+CHATUI_PROMPT_NO_MEMECOIN = """
+You are an expert assistant responsible for updating the configuration of an agent based on user input.
+
+The agent's current configuration is:
+- persona: "{current_persona}"
+    (Note: Enhance or refine the persona to better align with the user's intent, but preserve the agent's core identity. Avoid completely replacing it unless explicitly requested.)
+
+Carefully read the user's prompt below and decide what configuration changes, if any, should be made. If only one field should be updated, set the others to null. A field can not be deselected and set at the same time.
+
+Always include a clear message to the user explaining your reasoning for the update, or ask for clarification if needed. This message should be phrased in a way that is for the user, not for the agent. The user may not always ask for a change, the user can also ask for information about the current configuration or the available configurations, in which case, you should respond appropriately. You can format your message using basic HTML tags such as <b> for bold, <i> for italics, <ul>/<li> for lists, and <br> for line breaks. Use these tags to make your explanation clearer and easier to read.
+
+User prompt: "{user_prompt}"
+"""
+
+
+class UpdatedAgentConfigNoMemecoin(BaseModel):
+    """UpdatedAgentConfigNoMemecoin"""
+
+    agent_persona: typing.Optional[str]
+    message: str
+
+
+def build_updated_agent_config_schema_no_memecoin() -> dict:
+    """Build a schema for token action response"""
+    return {"class": pickle.dumps(UpdatedAgentConfigNoMemecoin).hex(), "is_list": False}

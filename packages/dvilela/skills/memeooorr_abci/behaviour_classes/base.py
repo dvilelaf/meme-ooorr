@@ -432,13 +432,15 @@ class MemeooorrBaseBehaviour(
 
     def get_persona(self) -> Generator[None, None, str]:
         """Get the agent persona"""
-        return (
-            yield from self._get_configurable_param(
-                param_name="persona",
-                initial_param_name="initial_persona",
-                param_type=str,
-            )
+
+        persona = yield from self._get_configurable_param(
+            param_name="persona",
+            initial_param_name="initial_persona",
+            param_type=str,
         )
+
+        self.shared_state.update_agent_behavior(persona)  # type: ignore[attr-defined]
+        return persona
 
     def get_heart_cooldown_hours(self) -> Generator[None, None, int]:
         """Get the cooldown hours for hearting"""
@@ -1002,35 +1004,47 @@ class MemeooorrBaseBehaviour(
         return tweet
 
     def init_own_twitter_details(self) -> Generator[None, None, None]:
-        """Initialize own Twitter account details."""
+        """Initialize own Twitter account details, preferring state, and only writing to DB if initialized."""
 
-        if (
-            self.context.state.twitter_username is not None
-            and self.context.state.twitter_id is not None
-        ):
-            return
+        db_agent = self.context.agents_fun_db.my_agent
+        db_initialized = db_agent is not None  # safeguard
 
-        account_details = yield from self._call_tweepy(
-            method="get_me",
-        )
+        # --- CASE 1: State already initialized ---
+        if self.context.state.twitter_username and self.context.state.twitter_id:
+            print("Using cached Twitter details from state.")
+
+            if db_initialized:
+                # If DB missing values, sync from state
+                if not db_agent.twitter_username or not db_agent.twitter_user_id:
+                    db_agent.twitter_username = self.context.state.twitter_username
+                    db_agent.twitter_user_id = self.context.state.twitter_id
+                    yield from db_agent.update_twitter_details()
+
+            return  # Done, no external call
+
+        # --- CASE 2: State missing, fetch from Twitter ---
+        account_details = yield from self._call_tweepy(method="get_me")
         if not account_details:
             self.context.logger.error("Couldn't fetch own Twitter account details.")
             return
+
+        # Update state
         self.context.state.twitter_username = account_details.get("username")
         self.context.state.twitter_id = account_details.get("user_id")
         self.context.state.twitter_display_name = account_details.get("display_name")
 
-        self.context.agents_fun_db.my_agent.twitter_username = (
-            self.context.state.twitter_username
-        )
-        self.context.agents_fun_db.my_agent.twitter_user_id = (
-            self.context.state.twitter_id
-        )
-        if (
-            self.context.agents_fun_db.my_agent.twitter_username
-            and self.context.agents_fun_db.my_agent.twitter_user_id
-        ):
-            yield from self.context.agents_fun_db.my_agent.update_twitter_details()
+        print("Fetched Twitter details from API & updated state.")
+
+        # --- CASE 3: DB not initialized → stop here ---
+        if not db_initialized:
+            print("DB not initialized — skipping DB update.")
+            return
+
+        # --- CASE 4: DB initialized, update it too ---
+        db_agent.twitter_username = self.context.state.twitter_username
+        db_agent.twitter_user_id = self.context.state.twitter_id
+
+        yield from db_agent.update_twitter_details()
 
     def _store_agent_action(
         self, action_type: str, action_data: Any

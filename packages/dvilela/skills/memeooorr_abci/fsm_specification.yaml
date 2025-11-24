@@ -54,6 +54,7 @@ transition_func:
     (ActionDecisionRound, RETRY): ActionDecisionRound
     (ActionDecisionRound, ROUND_TIMEOUT): ActionDecisionRound
     (ActionDecisionRound, WAIT): CallCheckpointRound
+    (ActionDecisionRound, SKIP): CallCheckpointRound
     (ActionPreparationRound, DONE): ActionTweetRound
     (ActionPreparationRound, ERROR): CallCheckpointRound
     (ActionPreparationRound, NO_MAJORITY): ActionPreparationRound
@@ -106,6 +107,7 @@ transition_func:
     (PostTxDecisionMakingRound, NO_MAJORITY): PostTxDecisionMakingRound
     (PostTxDecisionMakingRound, ROUND_TIMEOUT): PostTxDecisionMakingRound
     (PullMemesRound, DONE): CollectFeedbackRound
+    (PullMemesRound, SKIP): CollectFeedbackRound
     (PullMemesRound, NO_MAJORITY): PullMemesRound
     (PullMemesRound, ROUND_TIMEOUT): PullMemesRound
     (TransactionLoopCheckRound, DONE): FinishedToResetRound

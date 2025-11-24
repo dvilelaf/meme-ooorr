@@ -20,6 +20,7 @@
 """This package contains round behaviours of MemeooorrChainedSkillAbciApp."""
 
 import packages.dvilela.skills.memeooorr_abci.rounds as MemeooorrAbci
+import packages.valory.skills.agent_performance_summary_abci.rounds as AgentPerformanceSummaryAbci
 import packages.valory.skills.mech_interact_abci.rounds as MechInteractAbci
 import packages.valory.skills.mech_interact_abci.states.final_states as MechFinalStates
 import packages.valory.skills.mech_interact_abci.states.request as MechRequestStates
@@ -42,7 +43,8 @@ from packages.valory.skills.termination_abci.rounds import (
 # Here we define how the transition between the FSMs should happen
 # more information here: https://docs.autonolas.network/fsm_app_introduction/#composition-of-fsm-apps
 abci_app_transition_mapping: AbciAppTransitionMapping = {
-    RegistrationAbci.FinishedRegistrationRound: MemeooorrAbci.LoadDatabaseRound,
+    RegistrationAbci.FinishedRegistrationRound: AgentPerformanceSummaryAbci.FetchPerformanceDataRound,
+    AgentPerformanceSummaryAbci.FinishedFetchPerformanceDataRound: MemeooorrAbci.LoadDatabaseRound,
     MemeooorrAbci.FinishedToResetRound: ResetAndPauseAbci.ResetAndPauseRound,
     MemeooorrAbci.FinishedToSettlementRound: TransactionSettlementAbci.RandomnessTransactionSubmissionRound,
     TransactionSettlementAbci.FinishedTransactionSubmissionRound: MemeooorrAbci.PostTxDecisionMakingRound,
@@ -67,6 +69,7 @@ termination_config = BackgroundAppConfig(
 MemeooorrChainedSkillAbciApp = chain(
     (
         RegistrationAbci.AgentRegistrationAbciApp,
+        AgentPerformanceSummaryAbci.AgentPerformanceSummaryAbciApp,
         MemeooorrAbci.MemeooorrAbciApp,
         TransactionSettlementAbci.TransactionSubmissionAbciApp,
         ResetAndPauseAbci.ResetPauseAbciApp,

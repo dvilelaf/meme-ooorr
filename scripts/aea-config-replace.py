@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2025 Valory AG
+#   Copyright 2025 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -20,29 +20,33 @@
 
 
 """Updates fetched agent with correct config"""
+
 import os
 import re
 from pathlib import Path
+from typing import Any
 
 import yaml
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # type: ignore
 
 
-AGENT_NAME = "memeooorr"
+AGENT_NAME = "agent"
 
 PATH_TO_VAR = {
     # Chains
     "config/ledger_apis/base/address": "BASE_LEDGER_RPC",
+    "models/params/args/base_ledger_rpc": "BASE_LEDGER_RPC",
     "config/ledger_apis/base/chain_id": "BASE_LEDGER_CHAIN_ID",
     # Params
     "models/params/args/setup/all_participants": "ALL_PARTICIPANTS",
+    "models/params/args/setup/safe_contract_address": "SAFE_CONTRACT_ADDRESS",
+    "models/params/args/safe_contract_addresses": "SAFE_CONTRACT_ADDRESSES",
     "models/params/args/reset_tendermint_after": "RESET_TENDERMINT_AFTER",
     "models/params/args/reset_pause_duration": "RESET_PAUSE_DURATION",
     "models/params/args/termination_from_block": "TERMINATION_FROM_BLOCK",
     "models/params/args/on_chain_service_id": "ON_CHAIN_SERVICE_ID",
     "models/params/args/minimum_gas_balance": "MINIMUM_GAS_BALANCE",
     "models/params/args/min_feedback_replies": "MIN_FEEDBACK_REPLIES",
-    "models/params/args/setup/safe_contract_address": "SAFE_CONTRACT_ADDRESS",
     "models/params/args/persona": "PERSONA",
     "models/params/args/skip_engagement": "SKIP_ENGAGEMENT",
     "models/params/args/staking_token_contract_address": "STAKING_TOKEN_CONTRACT_ADDRESS",
@@ -57,6 +61,7 @@ PATH_TO_VAR = {
     "config/tweepy_skip_auth": "TWEEPY_SKIP_AUTH",
     # Genai connection
     "config/genai_api_key": "GENAI_API_KEY",
+    "models/params/args/genai_api_key": "GENAI_API_KEY",
     # Store
     "config/store_path": "STORE_PATH",
     # Fireworks API
@@ -64,31 +69,41 @@ PATH_TO_VAR = {
     "models/params/args/fireworks_api_key": "FIREWORKS_API_KEY",
     # Cooldown
     "models/params/args/summon_cooldown_seconds": "SUMMON_COOLDOWN_SECONDS",
+    # Memecoin
+    "models/params/args/is_memecoin_logic_enabled": "IS_MEMECOIN_LOGIC_ENABLED",
+    # x402
+    "models/params/args/x402_payment_requirements": "X402_PAYMENT_REQUIREMENTS",
+    "models/params/args/use_x402": "USE_X402",
+    "config/use_x402": "USE_X402",
+    "config/genai_x402_server_base_url": "GENAI_X402_SERVER_BASE_URL",
+    # Agent Performance Summary
+    "models/params/args/is_agent_performance_summary_enabled": "IS_AGENT_PERFORMANCE_SUMMARY_ENABLED",
+    "models/params/args/performance_summary_ttl": "PERFORMANCE_SUMMARY_TTL",
 }
 
 CONFIG_REGEX = r"\${.*?:(.*)}"
 
 
-def find_and_replace(config, path, new_value):
+def find_and_replace(config: list, path: list, new_value: Any) -> list[Any]:
     """Find and replace a variable"""
 
     # Find the correct section where this variable fits
-    section_indexes = []
+    matching_section_indices = []
     for i, section in enumerate(config):
         value = section
         try:
             for part in path:
                 value = value[part]
-            section_indexes.append(i)
+            matching_section_indices.append(i)
         except KeyError:
             continue
 
-    if not section_indexes:
-        raise ValueError(f"Could not update {path}")
+    if not matching_section_indices:
+        raise KeyError(f"Path {path} not found in the config.")
 
-    # To persist the changes in the config variable,
-    # access iterating the path parts but the last part
-    for section_index in section_indexes:
+    for section_index in matching_section_indices:
+        # To persist the changes in the config variable,
+        # access iterating the path parts but the last part
         sub_dic = config[section_index]
         for part in path[:-1]:
             sub_dic = sub_dic[part]
@@ -98,7 +113,7 @@ def find_and_replace(config, path, new_value):
 
         # Extract the old variable value
         match = re.match(CONFIG_REGEX, old_str_value)
-        old_var_value = match.groups()[0]
+        old_var_value = match.groups()[0]  # type: ignore
 
         # Replace the old variable with the secret value in the complete string
         new_str_value = old_str_value.replace(old_var_value, new_value)
@@ -109,7 +124,7 @@ def find_and_replace(config, path, new_value):
 
 def main() -> None:
     """Main"""
-    load_dotenv()
+    load_dotenv(override=True)
 
     # Load the aea config
     with open(Path(AGENT_NAME, "aea-config.yaml"), "r", encoding="utf-8") as file:
@@ -118,13 +133,14 @@ def main() -> None:
     # Search and replace all the secrets
     for path, var in PATH_TO_VAR.items():
         try:
-            new_value = os.getenv(var)
+            new_value = os.getenv(var)  # pylint: disable=E1101
             if new_value is None:
-                print(f"Env var {var} is not set")
+                print(f"Environment variable {var} not found. Skipping...")
                 continue
             config = find_and_replace(config, path.split("/"), new_value)
         except Exception as e:
-            raise ValueError(f"Could not update {path}") from e
+            print(f"Exception while replacing {path}:\n{e}")
+            raise ValueError from e
 
     # Dump the updated config
     with open(Path(AGENT_NAME, "aea-config.yaml"), "w", encoding="utf-8") as file:

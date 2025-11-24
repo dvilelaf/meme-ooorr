@@ -345,6 +345,8 @@ class PullMemesRound(CollectSameUntilThresholdRound):
         # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT
 
         if self.threshold_reached:
+            if self.most_voted_payload_values[1] == Event.SKIP.value:
+                return self.synchronized_data, Event.SKIP
             if self.most_voted_payload is None:
                 meme_coins = []
             else:
@@ -540,7 +542,7 @@ class ActionDecisionRound(CollectSameUntilThresholdRound):
 
         if self.threshold_reached:
             # This needs to be mentioned for static checkers
-            # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.WAIT , Event.RETRY
+            # Event.DONE, Event.NO_MAJORITY, Event.ROUND_TIMEOUT, Event.WAIT , Event.RETRY, Event.SKIP
             payload = ActionDecisionPayload(
                 *(("dummy_sender",) + self.most_voted_payload_values)
             )
@@ -832,6 +834,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         },
         PullMemesRound: {
             Event.DONE: CollectFeedbackRound,
+            Event.SKIP: CollectFeedbackRound,
             Event.NO_MAJORITY: PullMemesRound,
             Event.ROUND_TIMEOUT: PullMemesRound,
         },
@@ -851,6 +854,7 @@ class MemeooorrAbciApp(AbciApp[Event]):
         ActionDecisionRound: {
             Event.DONE: ActionPreparationRound,
             Event.WAIT: CallCheckpointRound,
+            Event.SKIP: CallCheckpointRound,
             Event.RETRY: ActionDecisionRound,
             Event.NO_MAJORITY: ActionDecisionRound,
             Event.ROUND_TIMEOUT: ActionDecisionRound,

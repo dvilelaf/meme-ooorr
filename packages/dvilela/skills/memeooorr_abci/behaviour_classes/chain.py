@@ -30,6 +30,7 @@ from packages.dvilela.contracts.meme_factory.contract import MemeFactoryContract
 from packages.dvilela.skills.memeooorr_abci.behaviour_classes.base import (
     MemeooorrBaseBehaviour,
 )
+from packages.dvilela.skills.memeooorr_abci.models import Params
 from packages.dvilela.skills.memeooorr_abci.rounds import (
     ActionPreparationPayload,
     ActionPreparationRound,
@@ -609,17 +610,33 @@ class PullMemesBehaviour(ChainBehaviour):  # pylint: disable=too-many-ancestors
 
     matching_round: Type[AbstractRound] = PullMemesRound
 
+    @property
+    def params(self) -> Params:
+        """Get the params."""
+        return self.context.params
+
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            meme_coins = yield from self.get_meme_coins()
-            self.context.logger.info(f"Meme token list: {meme_coins}")
+            if not self.params.is_memecoin_logic_enabled:
+                self.context.logger.info(
+                    "Meme-coin logic is disabled. Skipping token pull operation."
+                )
+                payload = PullMemesPayload(
+                    sender=self.context.agent_address,
+                    event=Event.SKIP.value,
+                )
 
-            payload = PullMemesPayload(
-                sender=self.context.agent_address,
-                meme_coins=json.dumps(meme_coins, sort_keys=True),
-            )
+            else:
+                meme_coins = yield from self.get_meme_coins()
+                self.context.logger.info(f"Meme token list: {meme_coins}")
+
+                payload = PullMemesPayload(
+                    sender=self.context.agent_address,
+                    meme_coins=json.dumps(meme_coins, sort_keys=True),
+                    event=Event.DONE.value,
+                )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
